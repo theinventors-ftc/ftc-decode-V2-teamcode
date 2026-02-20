@@ -36,7 +36,7 @@ public class RobotMap {
 
     //// Mechanisms
     //Intake
-    private MotorExEx intakeF, intakeR;
+    private MotorExEx intakeMotor;
     private ServoImplEx armF, armR, passServo;
 
     // Passthough
@@ -84,10 +84,10 @@ public class RobotMap {
 
         /*--Encoders--*/
         if(driverOp != null || toolOp!=null) {
-            odo = hm.get(GoBildaPinpointDriver.class, "odometry");
-            encoderRes = GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD;
-            forwardEncoderDirection = GoBildaPinpointDriver.EncoderDirection.FORWARD;
-            strafeEncoderDirection = GoBildaPinpointDriver.EncoderDirection.FORWARD;
+//            odo = hm.get(GoBildaPinpointDriver.class, "odometry");
+//            encoderRes = GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD;
+//            forwardEncoderDirection = GoBildaPinpointDriver.EncoderDirection.FORWARD;
+//            strafeEncoderDirection = GoBildaPinpointDriver.EncoderDirection.FORWARD;
         }
 
         /*--Util--*/
@@ -95,30 +95,29 @@ public class RobotMap {
             module.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
         }
 
-        limelight = hm.get(Limelight3A.class, "limelight");
+//        limelight = hm.get(Limelight3A.class, "limelight");
 
         //// ----------------------------------- Mechanisms ----------------------------------- ////
         // Intake
-        intakeF = new MotorExEx(hm, "intakeFront", Motor.GoBILDA.RPM_1150);
-        intakeR = new MotorExEx(hm, "intakeRear", Motor.GoBILDA.RPM_1150);
+        intakeMotor = new MotorExEx(hm, "intakeMotor", Motor.GoBILDA.RPM_1150);
 
         // Passthrough
         fingerF = hm.get(ServoImplEx.class, "fingerF");
         fingerC = hm.get(ServoImplEx.class, "fingerC");
         fingerR = hm.get(ServoImplEx.class, "fingerR");
-        colorSensorF = new ColorSensor(hm, "colorSensorF");
-        colorSensorC = new ColorSensor(hm, "colorSensorC1");
-        colorSensorR = new ColorSensor(hm, "colorSensorR");
-        colorSensorF.setGain(75);
-        colorSensorC.setGain(40);
-        colorSensorR.setGain(75);
+//        colorSensorF = new ColorSensor(hm, "colorSensorF");
+//        colorSensorC = new ColorSensor(hm, "colorSensorC1");
+//        colorSensorR = new ColorSensor(hm, "colorSensorR");
+//        colorSensorF.setGain(75);
+//        colorSensorC.setGain(40);
+//        colorSensorR.setGain(75);
 
         // Shooter
-        wheel1 = new MotorExEx(hm, "wheel1", Motor.GoBILDA.BARE);
+//        wheel1 = new MotorExEx(hm, "wheel1", Motor.GoBILDA.BARE);
 //        wheel2 = new MotorExEx(hm, "wheel2", Motor.GoBILDA.BARE);
 
-        hoodServo = hm.get(ServoImplEx.class, "hoodServo");
-        turret = new MotorExEx(hm, "turret", Motor.GoBILDA.RPM_435);
+//        hoodServo = hm.get(ServoImplEx.class, "hoodServo");
+        turret = new MotorExEx(hm, "turretMotor", Motor.GoBILDA.RPM_435);
 //        turretServoDriver = hm.get(CRServoImplEx.class, "turretServoDriver");
 //        turretServoFollower = hm.get(CRServoImplEx.class, "turretServoFollower");
 //        turretServoPot = hm.get(AnalogInput.class, "turretServoPot");
@@ -186,12 +185,8 @@ public class RobotMap {
 
     //// ------------------------------------- Mechanisms ------------------------------------- ////
     // Intake
-    public MotorExEx getIntakeFrontMotor() {
-        return intakeF;
-    }
-
-    public MotorExEx getIntakeRearMotor() {
-        return intakeR;
+    public MotorExEx getIntakeMotor() {
+        return intakeMotor;
     }
 
     public ServoImplEx getArm() {

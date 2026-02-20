@@ -14,7 +14,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.Controllers.PIDFEx;
 import org.firstinspires.ftc.teamcode.Controllers.PIDFExCoeffs;
 import org.firstinspires.ftc.teamcode.Controllers.SigmoidPositionProfile;
-import org.firstinspires.ftc.teamcode.DecodeRobot;
+import org.firstinspires.ftc.teamcode.DecodeRobotV2;
 import org.firstinspires.ftc.teamcode.Hardware.MotorExEx;
 import org.firstinspires.ftc.teamcode.PurePursuit.Base.Coordination.Pose;
 import org.firstinspires.ftc.teamcode.PurePursuit.Base.Math.MathFunction;
@@ -73,7 +73,7 @@ public class ShooterMP extends SubsystemBase {
 
     public static double kpTurret = 0.037, kiTurret = 0.08, kdTurret = 0.0018;
 
-    public ShooterMP(RobotMap robotMap, Supplier<Pose> curPose, DecodeRobot.Alliance alliance,
+    public ShooterMP(RobotMap robotMap, Supplier<Pose> curPose, DecodeRobotV2.Alliance alliance,
                      Telemetry telemetry) {
         this.wheel1 = robotMap.getShooterWheel1Motor();
 //        this.wheel2 = robotMap.getShooterWheel2Motor();
@@ -93,7 +93,7 @@ public class ShooterMP extends SubsystemBase {
         // TODO
 
         // Select Correct Goal Based On Alliance
-        goalPose = (alliance == DecodeRobot.Alliance.RED) ? REDGoalPose : BLUEGoalPose;
+        goalPose = (alliance == DecodeRobotV2.Alliance.RED) ? REDGoalPose : BLUEGoalPose;
 
         mp = new SigmoidPositionProfile(0.8);
         coeffsTurret = new PIDFExCoeffs(

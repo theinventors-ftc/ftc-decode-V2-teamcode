@@ -32,9 +32,9 @@ public class Passthough extends SubsystemBase {
         REARRANGE;
 
         double[][] positions = {
-                {0.94, 0.97, 0.42, 0.905}, // FRONT
-                {0.9, 0.93, 0.38, 0.878}, // CENTER
-                {0.09, 0.04, 0.6, 0.165}  // REAR
+                {0.92, 0.975, 0.44, 0.86}, // FRONT
+                {0.9, 0.955, 0.42, 0.86}, // CENTER
+                {0.08, 0.045, 0.58, 0.13}  // REAR
         };
 
         public double getPosition(int idx) {

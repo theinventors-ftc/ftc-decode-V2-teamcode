@@ -23,8 +23,9 @@ public class Intake extends SubsystemBase {
     private Telemetry telemetry;
 
     public Intake(RobotMap robotMap) {
-        this.intakeMotor = robotMap.getIntakeFrontMotor();
+        this.intakeMotor = robotMap.getIntakeMotor();
         intakeMotor.setZeroPowerBehavior(MotorExEx.ZeroPowerBehavior.FLOAT);
+        intakeMotor.setInverted(true);
 
         this.telemetry = robotMap.getTelemetry();
     }

@@ -1,15 +1,14 @@
 package org.firstinspires.ftc.teamcode.Mechanisms;
 
-import com.arcrobotics.ftclib.command.ConditionalCommand;
 import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
 import com.arcrobotics.ftclib.command.WaitCommand;
 import com.arcrobotics.ftclib.command.WaitUntilCommand;
 
-import org.firstinspires.ftc.teamcode.DecodeRobot;
+import org.firstinspires.ftc.teamcode.DecodeRobotV2;
 
 public class CommandSeriesVault {
-    private DecodeRobot.Alliance alliance;
+    private DecodeRobotV2.Alliance alliance;
     private Intake intake;
     private Passthough passthough;
     private Shooter shooter;

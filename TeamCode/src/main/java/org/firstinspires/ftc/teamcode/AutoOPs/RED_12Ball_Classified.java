@@ -17,7 +17,7 @@ import com.pedropathing.paths.PathChain;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-import org.firstinspires.ftc.teamcode.DecodeRobot;
+import org.firstinspires.ftc.teamcode.DecodeRobotV2;
 import org.firstinspires.ftc.teamcode.Mechanisms.CommandSeriesVault;
 import org.firstinspires.ftc.teamcode.Mechanisms.Intake;
 import org.firstinspires.ftc.teamcode.Mechanisms.Passthough;
@@ -59,7 +59,7 @@ public class RED_12Ball_Classified extends CommandOpMode {
 
         intake = new Intake(robotMap);
         passthough = new Passthough(robotMap, MotifStorage.Motif.PPG);
-        shooter = new Shooter(robotMap, this::getPoseFTCCoor, DecodeRobot.Alliance.RED, false);
+        shooter = new Shooter(robotMap, this::getPoseFTCCoor, DecodeRobotV2.Alliance.RED, false);
         commandVault = new CommandSeriesVault(intake, passthough, shooter);
 
         commandVault.enableWheels().schedule();

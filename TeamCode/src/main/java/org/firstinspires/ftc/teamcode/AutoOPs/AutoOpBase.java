@@ -6,7 +6,7 @@ import com.arcrobotics.ftclib.command.CommandScheduler;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
-import org.firstinspires.ftc.teamcode.DecodeRobot;
+import org.firstinspires.ftc.teamcode.DecodeRobotV2;
 import org.firstinspires.ftc.teamcode.Drive.DriveConstants;
 import org.firstinspires.ftc.teamcode.PurePursuit.Base.Coordination.Pose;
 import org.firstinspires.ftc.teamcode.PurePursuit.HardwareRelated.RobotConstants;
@@ -18,7 +18,7 @@ import org.firstinspires.ftc.teamcode.Util.Timer;
 @Autonomous(name = "Do not run this AutoOp", group = "")
 public class AutoOpBase extends CommandOpMode {
     private DriveConstants driveConstants;
-    private DecodeRobot robot;
+    private DecodeRobotV2 robot;
     private RobotMovement robotMovement;
     private RobotMap robotMap;
     private Timer timer;
@@ -114,8 +114,8 @@ public class AutoOpBase extends CommandOpMode {
         robot.setAutoEnabled(true);
     }
 
-    public void initAllianceRelated(DecodeRobot.Alliance alliance) {
-        robot = new DecodeRobot(
+    public void initAllianceRelated(DecodeRobotV2.Alliance alliance) {
+        robot = new DecodeRobotV2(
             robotMap,
             driveConstants,
             alliance

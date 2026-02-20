@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.DecodeRobot;
+import org.firstinspires.ftc.teamcode.DecodeRobotV2;
 import org.firstinspires.ftc.teamcode.Drive.DriveConstants;
 import org.firstinspires.ftc.teamcode.Hardware.GamepadExEx;
 import org.firstinspires.ftc.teamcode.MotifStorage;
@@ -22,7 +22,7 @@ public class TeleOpBase extends CommandOpMode {
     GamepadExEx driverOp, toolOp;
     private DriveConstants RobotConstants;
     private ElapsedTime runtime;
-    private DecodeRobot robot;
+    private DecodeRobotV2 robot;
 
     private RobotMap robotMap;
     private Pose pose = new Pose(-72 + 8.375,8.5,0);
@@ -35,10 +35,10 @@ public class TeleOpBase extends CommandOpMode {
         // ----------------------------------- Robot Constants ---------------------------------- //
         RobotConstants = new DriveConstants();
 
-        RobotConstants.frontLeftInverted = true;
-        RobotConstants.frontRightInverted = false;
-        RobotConstants.rearRightInverted = false;
-        RobotConstants.rearLeftInverted = true;
+        RobotConstants.frontLeftInverted = false;
+        RobotConstants.frontRightInverted = true;
+        RobotConstants.rearRightInverted = true;
+        RobotConstants.rearLeftInverted = false;
 
         RobotConstants.DEFAULT_SPEED_PERC = 1.0;
         RobotConstants.SLOW_SPEED_PERC = 0.7;
@@ -47,12 +47,12 @@ public class TeleOpBase extends CommandOpMode {
 //        pose = PoseStorage.currentPose;
     }
 
-    public void initAllianceRelated(DecodeRobot.Alliance alliance) {
-        if(alliance == DecodeRobot.Alliance.RED) {
+    public void initAllianceRelated(DecodeRobotV2.Alliance alliance) {
+        if(alliance == DecodeRobotV2.Alliance.RED) {
 //            pose = new Pose(-72 + 8.375, -8.5, 0);
             pose = new Pose(0.0, 0.0, 0.0);
         }
-        robot = new DecodeRobot(
+        robot = new DecodeRobotV2(
             robotMap,
             RobotConstants,
             alliance,

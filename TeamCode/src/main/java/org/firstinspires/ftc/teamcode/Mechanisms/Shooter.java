@@ -1,12 +1,9 @@
 package org.firstinspires.ftc.teamcode.Mechanisms;
 
-import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.command.SubsystemBase;
 import com.arcrobotics.ftclib.controller.wpilibcontroller.SimpleMotorFeedforward;
 import com.arcrobotics.ftclib.util.InterpLUT;
-import com.qualcomm.robotcore.hardware.AnalogInput;
-import com.qualcomm.robotcore.hardware.CRServoImplEx;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.ServoImplEx;
 import com.qualcomm.robotcore.util.Range;
@@ -16,17 +13,13 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.Controllers.PIDFEx;
 import org.firstinspires.ftc.teamcode.Controllers.PIDFExCoeffs;
-import org.firstinspires.ftc.teamcode.Controllers.SigmoidPositionProfile;
 import org.firstinspires.ftc.teamcode.Controllers.StateMachine;
-import org.firstinspires.ftc.teamcode.DecodeRobot;
+import org.firstinspires.ftc.teamcode.DecodeRobotV2;
 import org.firstinspires.ftc.teamcode.Hardware.MotorExEx;
 import org.firstinspires.ftc.teamcode.PurePursuit.Base.Coordination.Pose;
-import org.firstinspires.ftc.teamcode.PurePursuit.Base.Math.MathFunction;
 import org.firstinspires.ftc.teamcode.RobotMap;
-import org.firstinspires.ftc.teamcode.Util.Timer;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.function.DoubleSupplier;
 
 @Config
@@ -80,10 +73,10 @@ public class Shooter extends SubsystemBase {
 
     public static double vel = 0.0, hoodVal = 0.0;
 
-    public Shooter(RobotMap robotMap, Supplier<Pose> curPose, DecodeRobot.Alliance alliance, boolean doZero) {
+    public Shooter(RobotMap robotMap, Supplier<Pose> curPose, DecodeRobotV2.Alliance alliance, boolean doZero) {
         this.wheel1 = robotMap.getShooterWheel1Motor();
 //        this.wheel2 = robotMap.getShooterWheel2Motor();
-        this.wheel2 = robotMap.getIntakeRearMotor();
+        this.wheel2 = robotMap.getShooterWheel2Motor();
         this.hoodServo = robotMap.getHoodServo();
         this.turretMotor = robotMap.getTurretMotor();
         turretMotor.setInverted(true);
@@ -99,7 +92,7 @@ public class Shooter extends SubsystemBase {
         wheel2.setZeroPowerBehavior(MotorExEx.ZeroPowerBehavior.FLOAT);
 
         // Select Correct Goal Based On Alliance
-        goalPose = (alliance == DecodeRobot.Alliance.RED) ? REDGoalPose : BLUEGoalPose;
+        goalPose = (alliance == DecodeRobotV2.Alliance.RED) ? REDGoalPose : BLUEGoalPose;
 
         coeffsTurret = new PIDFExCoeffs(
                 0.06,

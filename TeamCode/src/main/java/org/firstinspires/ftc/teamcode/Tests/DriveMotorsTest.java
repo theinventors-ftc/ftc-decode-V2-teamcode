@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.Tests;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -26,10 +26,10 @@ public class DriveMotorsTest extends LinearOpMode {
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
 
-            double frontLeftPower  = gamepad1.x ? 1.0 : 0.0;  // X gamepad
-            double backLeftPower   = gamepad1.a ? 1.0 : 0.0;  // A gamepad
-            double frontRightPower = gamepad1.y ? 1.0 : 0.0;  // Y gamepad
-            double backRightPower  = gamepad1.b ? 1.0 : 0.0;  // B gamepad
+            double frontLeftPower  = gamepad1.x ? 0.2 : 0.0;  // X gamepad
+            double backLeftPower   = gamepad1.a ? 0.2 : 0.0;  // A gamepad
+            double frontRightPower = gamepad1.y ? 0.2 : 0.0;  // Y gamepad
+            double backRightPower  = gamepad1.b ? 0.2 : 0.0;  // B gamepad
 //            x 0, a 2, y 1, b 3
 
             // Send calculated power to wheels
