@@ -98,6 +98,8 @@ public class PinpointLocalizer {
     }
 
     public void update() {
+        setOffsets(RobotConstants.getForwardY(), RobotConstants.getStrafeX());
+
         deltaTimeNano = timer.getElapsedTime();
         timer.resetTimer();
         odo.update();

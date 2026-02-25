@@ -6,11 +6,15 @@ import org.firstinspires.ftc.teamcode.Controllers.PIDFExCoeffs;
 @Config
 public class RobotConstants {
 
-    private static double
+    public static double
 
         /*-- Localization --*/
-        forwardY = 5.2362204724409, // -5.2952755905512
-        strafeX = -4.7244094488189,
+        forwardY = 7.9,
+        strafeX = -0.001,
+
+//    forwardY = 7.0+9.5/16.0,
+//            strafeX = -1.0/32.0,
+
 
         /*-- Robot Movement --*/
         maxVelocity = 10, // max target velocity for the path follow (ticks per second)

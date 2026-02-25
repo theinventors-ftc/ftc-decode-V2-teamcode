@@ -52,6 +52,7 @@ public class TeleOpBase extends CommandOpMode {
 //            pose = new Pose(-72 + 8.375, -8.5, 0);
             pose = new Pose(0.0, 0.0, 0.0);
         }
+        pose = new Pose(0.0,0.0,0.0);
         robot = new DecodeRobotV2(
             robotMap,
             RobotConstants,
@@ -76,6 +77,6 @@ public class TeleOpBase extends CommandOpMode {
     public void reset() {
         super.reset();
         PoseStorage.currentPose = robot.getPose(); // In case we stop TeleOP midway
-        robotMap.getLimelight().close();
+//        robotMap.getLimelight().close();
     }
 }

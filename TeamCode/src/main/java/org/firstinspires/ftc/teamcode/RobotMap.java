@@ -84,10 +84,10 @@ public class RobotMap {
 
         /*--Encoders--*/
         if(driverOp != null || toolOp!=null) {
-//            odo = hm.get(GoBildaPinpointDriver.class, "odometry");
-//            encoderRes = GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD;
-//            forwardEncoderDirection = GoBildaPinpointDriver.EncoderDirection.FORWARD;
-//            strafeEncoderDirection = GoBildaPinpointDriver.EncoderDirection.FORWARD;
+            odo = hm.get(GoBildaPinpointDriver.class, "odometry");
+            encoderRes = GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD;
+            forwardEncoderDirection = GoBildaPinpointDriver.EncoderDirection.FORWARD;
+            strafeEncoderDirection = GoBildaPinpointDriver.EncoderDirection.REVERSED;
         }
 
         /*--Util--*/
@@ -113,14 +113,10 @@ public class RobotMap {
 //        colorSensorR.setGain(75);
 
         // Shooter
-//        wheel1 = new MotorExEx(hm, "wheel1", Motor.GoBILDA.BARE);
-//        wheel2 = new MotorExEx(hm, "wheel2", Motor.GoBILDA.BARE);
-
-//        hoodServo = hm.get(ServoImplEx.class, "hoodServo");
         turret = new MotorExEx(hm, "turretMotor", Motor.GoBILDA.RPM_435);
-//        turretServoDriver = hm.get(CRServoImplEx.class, "turretServoDriver");
-//        turretServoFollower = hm.get(CRServoImplEx.class, "turretServoFollower");
-//        turretServoPot = hm.get(AnalogInput.class, "turretServoPot");
+        wheel1 = new MotorExEx(hm, "wheel1", Motor.GoBILDA.BARE);
+        wheel2 = new MotorExEx(hm, "wheel2", Motor.GoBILDA.BARE);
+        hoodServo = hm.get(ServoImplEx.class, "hoodServo");
     }
 
     // ---------------------------------------- Gamepads ---------------------------------------- //
