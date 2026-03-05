@@ -86,7 +86,7 @@ public class PinpointLocalizer {
     }
 
     public void setPose(Pose setPose) {
-        odo.setPosition(new Pose(setPose.getX(), setPose.getX(), Math.toRadians(setPose.getTheta())));
+        odo.setPosition(new Pose(setPose.getX(), setPose.getY(), Math.toRadians(setPose.getTheta())));
         pinpointPose = setPose;
         previousHeading = setPose.getTheta();
     }
@@ -98,8 +98,6 @@ public class PinpointLocalizer {
     }
 
     public void update() {
-        setOffsets(RobotConstants.getForwardY(), RobotConstants.getStrafeX());
-
         deltaTimeNano = timer.getElapsedTime();
         timer.resetTimer();
         odo.update();

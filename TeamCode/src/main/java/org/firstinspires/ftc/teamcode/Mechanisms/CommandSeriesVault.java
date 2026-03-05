@@ -33,15 +33,17 @@ public class CommandSeriesVault {
 
     public SequentialCommandGroup feedAllFingers() {
         return new SequentialCommandGroup(
-                new WaitUntilCommand(() -> shooter.wheelsAtSpeed()),
+                new WaitUntilCommand(() -> shooter.wheelsAtSpeed() && shooter.turretInRange()),
                 new InstantCommand(() -> passthough.setState(0, Passthough.FingerState.FEED), passthough),
                 new WaitCommand(FINGER_HOLD_MS),
                 new InstantCommand(() -> passthough.setState(0, Passthough.FingerState.HOLD), passthough),
                 new WaitCommand(FINGER_BETWEEN_MS),
+                new WaitUntilCommand(() -> shooter.wheelsAtSpeed() && shooter.turretInRange()),
                 new InstantCommand(() -> passthough.setState(1, Passthough.FingerState.FEED), passthough),
                 new WaitCommand(FINGER_HOLD_MS),
                 new InstantCommand(() -> passthough.setState(1, Passthough.FingerState.HOLD), passthough),
                 new WaitCommand(FINGER_BETWEEN_MS),
+                new WaitUntilCommand(() -> shooter.wheelsAtSpeed() && shooter.turretInRange()),
                 new InstantCommand(() -> passthough.setState(2, Passthough.FingerState.FEED), passthough),
                 new WaitCommand(FINGER_HOLD_MS),
                 new InstantCommand(() -> passthough.setState(2, Passthough.FingerState.HOLD), passthough),

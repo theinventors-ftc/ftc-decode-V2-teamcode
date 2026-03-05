@@ -61,7 +61,7 @@ public class RobotMap {
         this.telemetry.setMsTransmissionInterval(11);
 
         if(driverOp != null) this.driverOp = new GamepadExEx(driverOp);
-        if(toolOp != null) this.toolOp = new GamepadExEx(toolOp);
+        if(toolOp != null) this.toolOp = new GamepadExEx(driverOp);
 
         hubs = hm.getAll(LynxModule.class);
         battery = new Battery(hm);

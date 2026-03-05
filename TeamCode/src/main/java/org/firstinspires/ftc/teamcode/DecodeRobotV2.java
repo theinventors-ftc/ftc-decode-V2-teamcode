@@ -269,12 +269,12 @@ public class DecodeRobotV2 {
 //                new InstantCommand(detection::setGoalPip)
 //        );
 
-//        driverOp.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER).whenPressed(
-//                new ConditionalCommand(
-//                        new InstantCommand(() -> teleOpLocalizer.setVector(new Vector(-72 + 8.375, -72 + 8.5))),
-//                        new InstantCommand(() -> teleOpLocalizer.setVector(new Vector(-72 + 8.375, 72 - 8.5))),
-//                        () -> getAlliance() == Alliance.BLUE
-//                )
-//        );
+        driverOp.getGamepadButton(GamepadKeys.Button.BACK).whenPressed(
+                new ConditionalCommand(
+                        new InstantCommand(() -> teleOpLocalizer.setVector(new Vector(-72 + 8.375, -72 + 8.5))),
+                        new InstantCommand(() -> teleOpLocalizer.setVector(new Vector(-72 + 8.375, 72 - 8.5))),
+                        () -> getAlliance() == Alliance.BLUE
+                )
+        );
     }
 }

@@ -9,7 +9,7 @@ public class RobotConstants {
     public static double
 
         /*-- Localization --*/
-        forwardY = 7.9,
+        forwardY = 7.6377952755905511811023622047244,
         strafeX = -0.001,
 
 //    forwardY = 7.0+9.5/16.0,
