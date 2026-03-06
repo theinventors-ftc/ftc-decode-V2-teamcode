@@ -16,7 +16,7 @@ import org.firstinspires.ftc.teamcode.Util.Timer;
 
 @Disabled
 @Autonomous(name = "Do not run this AutoOp", group = "")
-public class AutoOpBase extends CommandOpMode {
+public class PurePursuitAutoOpBase extends CommandOpMode {
     private DriveConstants driveConstants;
     private DecodeRobotV2 robot;
     private RobotMovement robotMovement;

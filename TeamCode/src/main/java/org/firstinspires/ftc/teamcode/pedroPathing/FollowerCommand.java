@@ -38,7 +38,7 @@ public class FollowerCommand extends CommandBase {
     public boolean isFinished() {
 //        return follower.atParametricEnd();
         if (roll) {
-            if (follower.getCurrentTValue() >= 0.75) {
+            if (follower.getCurrentTValue() >= 0.95) {
                 follower.pausePathFollowing();
                 return true;
             }

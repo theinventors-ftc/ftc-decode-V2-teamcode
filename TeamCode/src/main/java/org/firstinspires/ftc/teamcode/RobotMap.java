@@ -37,17 +37,14 @@ public class RobotMap {
     //// Mechanisms
     //Intake
     private MotorExEx intakeMotor;
-    private ServoImplEx armF, armR, passServo;
 
     // Passthough
-    ServoImplEx fingerF, fingerC, fingerR;
-    ColorSensor colorSensorF, colorSensorC, colorSensorR;
+    private ServoImplEx fingerF, fingerC, fingerR;
+    private ColorSensor colorSensorF, colorSensorC, colorSensorR;
 
     // Shooter
-    MotorExEx wheel1, wheel2, turret;
-    ServoImplEx hoodServo;
-//    CRServoImplEx turretServoDriver, turretServoFollower;
-//    AnalogInput turretServoPot;
+    private MotorExEx wheel1, wheel2, turret;
+    private ServoImplEx hoodServo;
 
     public RobotMap(HardwareMap hm, Telemetry telemetry) {
         this(hm, telemetry, null, null);
@@ -185,14 +182,6 @@ public class RobotMap {
         return intakeMotor;
     }
 
-    public ServoImplEx getArm() {
-        return armF;
-    }
-
-    public ServoImplEx getPassServo() {
-        return passServo;
-    }
-
     // Passthrough
     public ServoImplEx getFingerFrontServo() {
         return fingerF;
@@ -231,18 +220,7 @@ public class RobotMap {
         return hoodServo;
     }
 
-//    public CRServoImplEx getTurretServoDriver() {
-//        return turretServoDriver;
-//    }
-
-//    public CRServoImplEx getTurretServoFollower() {
-//        return turretServoFollower;
-//    }
     public MotorExEx getTurretMotor() {
         return turret;
     }
-
-//    public AnalogInput getTurretServoPot() {
-//        return turretServoPot;
-//    }
 }

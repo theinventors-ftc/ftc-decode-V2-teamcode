@@ -72,36 +72,41 @@ public class RED_12Ball_Classified extends CommandOpMode {
         new SequentialCommandGroup(
                 new FollowerCommand(follower, paths.StartToGoal),
                 commandVault.autonomousWaitForTurret(),
+                new InstantCommand(shooter::cacheCurrentDistance),
                 commandVault.feedAllFingers(),
                 commandVault.startIntakeProc(),
                 new FollowerCommand(follower, paths.GoalToMidPoint, 1, true),
-                new FollowerCommand(follower, paths.MidPointToIntakeStack2, 0.4),
+                new FollowerCommand(follower, paths.MidPointToIntakeStack2, 0.9),
                 new InstantCommand(follower::resumePathFollowing),
-                new WaitCommand(1000),
+                new WaitCommand(400),
                 new FollowerCommand(follower, paths.IntakeStack2ToOpenGate),
                 commandVault.stopIntakeProc(),
+                new WaitCommand(300),
                 new FollowerCommand(follower, paths.OpenGate2ToLaunchArea2),
                 commandVault.autonomousWaitForTurret(),
+                new InstantCommand(shooter::cacheCurrentDistance),
                 new WaitCommand(150),
                 commandVault.feedAllFingers(),
                 commandVault.startIntakeProc(),
-                new FollowerCommand(follower, paths.LauchArea2ToIntakeStack1, 0.4),
-                new WaitCommand(1000),
+                new FollowerCommand(follower, paths.LauchArea2ToIntakeStack1, 0.9),
+                new WaitCommand(400),
                 new FollowerCommand(follower, paths.Intake1ToLauchArea1),
                 commandVault.stopIntakeProc(),
                 commandVault.autonomousWaitForTurret(),
                 new WaitCommand(150),
+                new InstantCommand(shooter::cacheCurrentDistance),
                 commandVault.feedAllFingers(),
                 commandVault.startIntakeProc(),
                 new FollowerCommand(follower, paths.LauchArea1ToMidPoint, 1, true),
-                new FollowerCommand(follower, paths.MidPointToIntakeStack3, 0.4),
+                new FollowerCommand(follower, paths.MidPointToIntakeStack3, 0.9),
                 new InstantCommand(follower::resumePathFollowing),
-                new WaitCommand(1000),
+                new WaitCommand(400),
                 new FollowerCommand(follower, paths.IntakeStack3ToSmallLaunchArea),
                 commandVault.autonomousWaitForTurret(),
-                new WaitCommand(250),
-                commandVault.feedAllFingers(),
                 commandVault.stopIntakeProc(),
+                new WaitCommand(250),
+                new InstantCommand(shooter::cacheCurrentDistance),
+                commandVault.feedAllFingers(),
                 new FollowerCommand(follower, paths.SmallLaunchAreaToParking)
         ).schedule();
     }
@@ -130,7 +135,7 @@ public class RED_12Ball_Classified extends CommandOpMode {
 
     public static class Paths {
 
-        private final double deccel_strength = 0.5;
+        private final double deccel_strength = 0.6;
         public PathChain
                 StartToGoal,
                 GoalToMidPoint,
@@ -166,7 +171,7 @@ public class RED_12Ball_Classified extends CommandOpMode {
             MidPointToIntakeStack2 = follower.pathBuilder().addPath(
                     new BezierLine(
                         new Pose(105, 59.5),
-                        new Pose(133.7, 59.5)
+                        new Pose(134, 59.5)
                     )
             ).setConstantHeadingInterpolation(0)
             .setBrakingStrength(deccel_strength)
@@ -174,9 +179,9 @@ public class RED_12Ball_Classified extends CommandOpMode {
 
             IntakeStack2ToOpenGate = follower.pathBuilder().addPath(
                             new BezierCurve(
-                                    new Pose(133.7, 59.5),
-                                    new Pose(115.0, 60),
-                                    new Pose(125.5, 65)
+                                    new Pose(134, 59.5),
+                                    new Pose(112.0, 60),
+                                    new Pose(125.5, 68)
                             )
                     ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(270))
                     .setBrakingStrength(deccel_strength)
@@ -184,7 +189,7 @@ public class RED_12Ball_Classified extends CommandOpMode {
 
             OpenGate2ToLaunchArea2 = follower.pathBuilder().addPath(
                             new BezierCurve(
-                                    new Pose(125, 68),
+                                    new Pose(125, 65),
                                     new Pose(95, 68),
                                     new Pose(84.0, 83.5)
                             )
@@ -194,7 +199,7 @@ public class RED_12Ball_Classified extends CommandOpMode {
             LauchArea2ToIntakeStack1 = follower.pathBuilder().addPath(
                             new BezierLine(
                                     new Pose(84.0, 83.5),
-                                    new Pose(123.0, 83.5)
+                                    new Pose(126.0, 83.5)
                             )
                     ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
                     .setBrakingStrength(deccel_strength)
@@ -202,7 +207,7 @@ public class RED_12Ball_Classified extends CommandOpMode {
 
             Intake1ToLauchArea1 = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(123.0, 83.5),
+                                    new Pose(126.0, 83.5),
                                     new Pose(86.0, 83.5)
                             )
                     ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(270))
@@ -215,13 +220,13 @@ public class RED_12Ball_Classified extends CommandOpMode {
                                     new Pose(98.7, 34),
                                     new Pose(85.0, 35.6)
                             )
-                    ).setLinearHeadingInterpolation(Math.toRadians(270), Math.toRadians(30))
+                    ).setLinearHeadingInterpolation(Math.toRadians(270), Math.toRadians(0))
                     .build();
 
             MidPointToIntakeStack3 = follower.pathBuilder().addPath(
                             new BezierLine(
                                     new Pose(85.0, 35.6),
-                                    new Pose(129.0, 35.6)
+                                    new Pose(132.0, 35.6)
                             )
             ).setConstantHeadingInterpolation(0)
             .setBrakingStrength(deccel_strength)
@@ -229,19 +234,19 @@ public class RED_12Ball_Classified extends CommandOpMode {
 
             IntakeStack3ToSmallLaunchArea = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(129.0, 35.6),
-                                    new Pose(90.0, 15.5)
+                                    new Pose(132.0, 35.6),
+                                    new Pose(90.0, 14.5)
                             )
-                    ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(25))
+                    ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
                     .setTimeoutConstraint(600)
                     .build();
 
             SmallLaunchAreaToParking = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(90.0, 15.5),
-                                    new Pose(100.0, 13.0)
+                                    new Pose(90.0, 14.5),
+                                    new Pose(104.0, 16.0)
                             )
-                    ).setLinearHeadingInterpolation(Math.toRadians(25), Math.toRadians(0))
+                    ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
                     .build();
         }
     }

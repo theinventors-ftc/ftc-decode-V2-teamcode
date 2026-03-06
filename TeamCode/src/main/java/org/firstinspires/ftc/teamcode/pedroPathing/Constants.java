@@ -22,18 +22,42 @@ public class Constants {
         .lateralZeroPowerAcceleration(-70.87594153)
         .forwardZeroPowerAcceleration(-30.73492250)
 
+        .useSecondaryDrivePIDF(false)
         .useSecondaryTranslationalPIDF(true)
         .useSecondaryHeadingPIDF(true)
-        .useSecondaryDrivePIDF(false)
 
         .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.025, 0.0, 0.0, 0.6, 0.0))
-        .secondaryDrivePIDFCoefficients(new FilteredPIDFCoefficients(0.02,0,0.001,0.6,0.0))
+        .secondaryDrivePIDFCoefficients(new FilteredPIDFCoefficients(0.02,0,0.002,0.6,0.0))
 
         .translationalPIDFCoefficients(new PIDFCoefficients(0.23, 0.00005, 0.02, 0))
-        .secondaryTranslationalPIDFCoefficients(new PIDFCoefficients(0.27,0.00007,0.028,0))
+        .secondaryTranslationalPIDFCoefficients(new PIDFCoefficients(0.27,0.0,0.03,0))
 
         .headingPIDFCoefficients(new PIDFCoefficients(1.8, 0, 0.002, 0.008))
-        .secondaryHeadingPIDFCoefficients(new PIDFCoefficients(2,0.01,0.2,0));
+        .secondaryHeadingPIDFCoefficients(new PIDFCoefficients(2,0.01,0.2,0))
+
+        .centripetalScaling(0.0007);
+
+//    public static FollowerConstants followerConstants = new FollowerConstants()
+//            .mass(13)
+//
+//            .lateralZeroPowerAcceleration(-70.87594153)
+//            .forwardZeroPowerAcceleration(-30.73492250)
+//
+//            .useSecondaryDrivePIDF(false)
+//            .useSecondaryTranslationalPIDF(true)
+//            .useSecondaryHeadingPIDF(true)
+//
+//            .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.025, 0.0, 0.0, 0.6, 0.0))
+//            .secondaryDrivePIDFCoefficients(new FilteredPIDFCoefficients(0.02,0,0.001,0.6,0.0))
+//
+//            .translationalPIDFCoefficients(new PIDFCoefficients(0.23, 0.00005, 0.02, 0))
+//            .secondaryTranslationalPIDFCoefficients(new PIDFCoefficients(0.27,0.00007,0.028,0))
+//
+//            .headingPIDFCoefficients(new PIDFCoefficients(1.8, 0, 0.002, 0.008))
+//            .secondaryHeadingPIDFCoefficients(new PIDFCoefficients(2,0.01,0.2,0))
+//
+//            .centripetalScaling(0.0007);
+
 
     public static MecanumConstants driveConstants = new MecanumConstants()
             .maxPower(1)
@@ -57,7 +81,7 @@ public class Constants {
             .forwardEncoderDirection(GoBildaPinpointDriver.EncoderDirection.FORWARD)
             .strafeEncoderDirection(GoBildaPinpointDriver.EncoderDirection.REVERSED);
 
-    public static PathConstraints pathConstraints = new PathConstraints(0.99, 100, 1, 1);
+    public static PathConstraints pathConstraints = new PathConstraints(0.99, 100, 0.6, 1);
 
     public static Follower createFollower(HardwareMap hardwareMap) {
         return new FollowerBuilder(followerConstants, hardwareMap)
