@@ -317,17 +317,16 @@ public class RobotMovement {
     }
 
     /*-- Util --*/
-    public Pose turnToRobotCentric(Pose pose, Pose currentPose) {
-        Pose fixedPose = new Pose(pose.getY(), pose.getX(), -pose.getTheta());
+    public Pose turnToRobotCentric(Pose global, Pose currentPose) {
+        double theta = Math.toRadians(currentPose.getTheta());
 
-        double fixedTheta = Math.toRadians(currentPose.getTheta());
+        double dx = global.getX();
+        double dy = global.getY();
 
-        double rotX =
-            fixedPose.getX() * Math.cos(fixedTheta) - fixedPose.getY() * Math.sin(fixedTheta);
-        double rotY =
-            fixedPose.getX() * Math.sin(fixedTheta) + fixedPose.getY() * Math.cos(fixedTheta);
+        double robotX =  dx * Math.cos(theta) + dy * Math.sin(theta);
+        double robotY = -dx * Math.sin(theta) + dy * Math.cos(theta);
 
-        return new Pose(-rotX, rotY, fixedPose.getTheta());
+        return new Pose(robotX, robotY, global.getTheta());
     }
 
     public void breakFollowing() {

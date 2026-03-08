@@ -26,8 +26,7 @@ public class Constants {
         .useSecondaryTranslationalPIDF(true)
         .useSecondaryHeadingPIDF(true)
 
-        .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.025, 0.0, 0.0, 0.6, 0.0))
-        .secondaryDrivePIDFCoefficients(new FilteredPIDFCoefficients(0.02,0,0.002,0.6,0.0))
+        .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.015, 0.0, 0.0, 0.6, 0.0))
 
         .translationalPIDFCoefficients(new PIDFCoefficients(0.23, 0.00005, 0.02, 0))
         .secondaryTranslationalPIDFCoefficients(new PIDFCoefficients(0.27,0.0,0.03,0))
@@ -35,29 +34,7 @@ public class Constants {
         .headingPIDFCoefficients(new PIDFCoefficients(1.8, 0, 0.002, 0.008))
         .secondaryHeadingPIDFCoefficients(new PIDFCoefficients(2,0.01,0.2,0))
 
-        .centripetalScaling(0.0007);
-
-//    public static FollowerConstants followerConstants = new FollowerConstants()
-//            .mass(13)
-//
-//            .lateralZeroPowerAcceleration(-70.87594153)
-//            .forwardZeroPowerAcceleration(-30.73492250)
-//
-//            .useSecondaryDrivePIDF(false)
-//            .useSecondaryTranslationalPIDF(true)
-//            .useSecondaryHeadingPIDF(true)
-//
-//            .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.025, 0.0, 0.0, 0.6, 0.0))
-//            .secondaryDrivePIDFCoefficients(new FilteredPIDFCoefficients(0.02,0,0.001,0.6,0.0))
-//
-//            .translationalPIDFCoefficients(new PIDFCoefficients(0.23, 0.00005, 0.02, 0))
-//            .secondaryTranslationalPIDFCoefficients(new PIDFCoefficients(0.27,0.00007,0.028,0))
-//
-//            .headingPIDFCoefficients(new PIDFCoefficients(1.8, 0, 0.002, 0.008))
-//            .secondaryHeadingPIDFCoefficients(new PIDFCoefficients(2,0.01,0.2,0))
-//
-//            .centripetalScaling(0.0007);
-
+        .centripetalScaling(0.0003);
 
     public static MecanumConstants driveConstants = new MecanumConstants()
             .maxPower(1)

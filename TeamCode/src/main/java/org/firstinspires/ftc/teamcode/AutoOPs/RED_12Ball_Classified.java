@@ -75,21 +75,18 @@ public class RED_12Ball_Classified extends CommandOpMode {
                 new InstantCommand(shooter::cacheCurrentDistance),
                 commandVault.feedAllFingers(),
                 commandVault.startIntakeProc(),
-                new FollowerCommand(follower, paths.GoalToMidPoint, 1, true),
-                new FollowerCommand(follower, paths.MidPointToIntakeStack2, 0.9),
+                new FollowerCommand(follower, paths.GoalToIntakeStack2, 1, true),
                 new InstantCommand(follower::resumePathFollowing),
                 new WaitCommand(400),
                 new FollowerCommand(follower, paths.IntakeStack2ToOpenGate),
                 commandVault.stopIntakeProc(),
-                new WaitCommand(300),
                 new FollowerCommand(follower, paths.OpenGate2ToLaunchArea2),
                 commandVault.autonomousWaitForTurret(),
                 new InstantCommand(shooter::cacheCurrentDistance),
                 new WaitCommand(150),
                 commandVault.feedAllFingers(),
                 commandVault.startIntakeProc(),
-                new FollowerCommand(follower, paths.LauchArea2ToIntakeStack1, 0.9),
-                new WaitCommand(400),
+                new FollowerCommand(follower, paths.LauchArea2ToIntakeStack1, 1),
                 new FollowerCommand(follower, paths.Intake1ToLauchArea1),
                 commandVault.stopIntakeProc(),
                 commandVault.autonomousWaitForTurret(),
@@ -97,8 +94,7 @@ public class RED_12Ball_Classified extends CommandOpMode {
                 new InstantCommand(shooter::cacheCurrentDistance),
                 commandVault.feedAllFingers(),
                 commandVault.startIntakeProc(),
-                new FollowerCommand(follower, paths.LauchArea1ToMidPoint, 1, true),
-                new FollowerCommand(follower, paths.MidPointToIntakeStack3, 0.9),
+                new FollowerCommand(follower, paths.LauchArea1ToIntakeStack3, 1, true),
                 new InstantCommand(follower::resumePathFollowing),
                 new WaitCommand(400),
                 new FollowerCommand(follower, paths.IntakeStack3ToSmallLaunchArea),
@@ -135,17 +131,16 @@ public class RED_12Ball_Classified extends CommandOpMode {
 
     public static class Paths {
 
-        private final double deccel_strength = 0.6;
+        private final double deccel_strength = 0;
+
         public PathChain
                 StartToGoal,
-                GoalToMidPoint,
-                MidPointToIntakeStack2,
+                GoalToIntakeStack2,
                 IntakeStack2ToOpenGate,
                 OpenGate2ToLaunchArea2,
                 LauchArea2ToIntakeStack1,
                 Intake1ToLauchArea1,
-                LauchArea1ToMidPoint,
-                MidPointToIntakeStack3,
+                LauchArea1ToIntakeStack3,
                 IntakeStack3ToSmallLaunchArea,
                 SmallLaunchAreaToParking;
 
@@ -158,28 +153,20 @@ public class RED_12Ball_Classified extends CommandOpMode {
                     ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(260))
                     .build();
 
-            GoalToMidPoint = follower.pathBuilder().addPath(
+            GoalToIntakeStack2 = follower.pathBuilder().addPath(
                             new BezierCurve(
                                     new Pose(87.7, 105.7),
                                     new Pose(75.5, 70),
-                                    new Pose(70.0, 54),
-                                    new Pose(105, 59.5)
+                                    new Pose(85.0, 52.0),
+                                    new Pose(136, 60)
                             )
-                    ).setTangentHeadingInterpolation()
+                    ).setConstantHeadingInterpolation(0)
+                    .setBrakingStrength(0.8)
                     .build();
-
-            MidPointToIntakeStack2 = follower.pathBuilder().addPath(
-                    new BezierLine(
-                        new Pose(105, 59.5),
-                        new Pose(134, 59.5)
-                    )
-            ).setConstantHeadingInterpolation(0)
-            .setBrakingStrength(deccel_strength)
-            .build();
 
             IntakeStack2ToOpenGate = follower.pathBuilder().addPath(
                             new BezierCurve(
-                                    new Pose(134, 59.5),
+                                    new Pose(136, 60),
                                     new Pose(112.0, 60),
                                     new Pose(125.5, 68)
                             )
@@ -199,46 +186,38 @@ public class RED_12Ball_Classified extends CommandOpMode {
             LauchArea2ToIntakeStack1 = follower.pathBuilder().addPath(
                             new BezierLine(
                                     new Pose(84.0, 83.5),
-                                    new Pose(126.0, 83.5)
+                                    new Pose(128.0, 83.5)
                             )
                     ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
-                    .setBrakingStrength(deccel_strength)
+                    .setBrakingStrength(1)
                     .build();
 
             Intake1ToLauchArea1 = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(126.0, 83.5),
+                                    new Pose(128.0, 83.5),
                                     new Pose(86.0, 83.5)
                             )
                     ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(270))
                     .build();
 
-            LauchArea1ToMidPoint = follower.pathBuilder().addPath(
+            LauchArea1ToIntakeStack3 = follower.pathBuilder().addPath(
                             new BezierCurve(
                                     new Pose(86.0, 83.5),
-                                    new Pose(83.4, 36.1),
-                                    new Pose(98.7, 34),
-                                    new Pose(85.0, 35.6)
+                                    new Pose(80.0, 34),
+                                    new Pose(75.0, 35.6),
+                                    new Pose(140.0, 35.6)
                             )
-                    ).setLinearHeadingInterpolation(Math.toRadians(270), Math.toRadians(0))
+                    ).setConstantHeadingInterpolation(0)
+                    .setBrakingStrength(1)
                     .build();
 
-            MidPointToIntakeStack3 = follower.pathBuilder().addPath(
-                            new BezierLine(
-                                    new Pose(85.0, 35.6),
-                                    new Pose(132.0, 35.6)
-                            )
-            ).setConstantHeadingInterpolation(0)
-            .setBrakingStrength(deccel_strength)
-            .build();
-
             IntakeStack3ToSmallLaunchArea = follower.pathBuilder().addPath(
-                            new BezierLine(
-                                    new Pose(132.0, 35.6),
+                            new BezierCurve(
+                                    new Pose(140.0, 35.6),
+                                    new Pose(72, 35.6),
                                     new Pose(90.0, 14.5)
                             )
-                    ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
-                    .setTimeoutConstraint(600)
+                    ).setConstantHeadingInterpolation(0)
                     .build();
 
             SmallLaunchAreaToParking = follower.pathBuilder().addPath(
