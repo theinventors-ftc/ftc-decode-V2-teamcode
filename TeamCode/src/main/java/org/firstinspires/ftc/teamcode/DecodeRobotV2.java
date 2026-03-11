@@ -5,6 +5,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.command.CommandScheduler;
 import com.arcrobotics.ftclib.command.ConditionalCommand;
 import com.arcrobotics.ftclib.command.InstantCommand;
+import com.arcrobotics.ftclib.command.button.Trigger;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -44,7 +45,6 @@ public class DecodeRobotV2 {
     // Mechanisms
     protected Intake intake;
     protected Passthough passthough;
-    public static int fingerBetween = 80, fingerHold = 340;
     protected Shooter shooter;
     protected Detection detection;
     protected CommandSeriesVault commandSeriesVault;
@@ -59,13 +59,13 @@ public class DecodeRobotV2 {
 
         initCommon(robotMap, driveConstants);
         initTele(robotMap, pose);
-        this.initMechanismsTeleOp(robotMap);
+//        this.initMechanismsTeleOp(robotMap);
 
-//        // Init Mechanisms when driver starts moving the robot
-//        new Trigger(() -> (Math.abs(drivetrainForward()) > 0.1 ||
-//            Math.abs(drivetrainStrafe()) > 0.1 ||
-//            Math.abs(drivetrainTurn()) > 0.1) && !hasInit)
-//            .whenActive(new InstantCommand(() -> this.initMechanismsTeleOp(robotMap)));
+        // Init Mechanisms when driver starts moving the robot
+        new Trigger(() -> (Math.abs(drivetrainForward()) > 0.1 ||
+            Math.abs(drivetrainStrafe()) > 0.1 ||
+            Math.abs(drivetrainTurn()) > 0.1) && !hasInit)
+            .whenActive(new InstantCommand(() -> this.initMechanismsTeleOp(robotMap)));
     }
 
     public DecodeRobotV2(RobotMap robotMap, DriveConstants driveConstants, Alliance alliance
@@ -94,8 +94,8 @@ public class DecodeRobotV2 {
 
         telemetry.addData("Pose", "X: %.2f, Y: %.2f, Theta: %.2f",
             getPose().getX(), getPose().getY(), getPose().getTheta());
-
         telemetry.addData("Alliance: ", getAlliance());
+        telemetry.addData("MOTIF: ", getMotif());
 
         drive.drive(
             drivetrainStrafe(),
@@ -237,16 +237,31 @@ public class DecodeRobotV2 {
                 () -> shooter.turretInRange() && shooter.inLUTRange() && shooter.areWheelsEnabled()
         ));
 
+        toolOp.getGamepadButton(GamepadKeys.Button.X).whenPressed(new ConditionalCommand(
+                commandSeriesVault.enableWheels(),
+                commandSeriesVault.disableWheels(),
+                () -> !shooter.areWheelsEnabled()
+        ));
+
+        toolOp.getGamepadButton(GamepadKeys.Button.DPAD_UP).whenPressed(
+                commandSeriesVault.flickFrontFinger()
+        );
+
+        toolOp.getGamepadButton(GamepadKeys.Button.DPAD_DOWN).whenPressed(
+                commandSeriesVault.flickRearFinger()
+        );
+
         toolOp.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER).whenPressed(new ConditionalCommand(
                 commandSeriesVault.feedAllFingers(),
                 new InstantCommand(),
                 () -> shooter.turretInRange() && shooter.inLUTRange() && shooter.areWheelsEnabled()
         ));
 
-        toolOp.getGamepadButton(GamepadKeys.Button.DPAD_UP).whenPressed(new ConditionalCommand(
-                commandSeriesVault.enableWheels(),
-                commandSeriesVault.disableWheels(),
-                () -> !shooter.areWheelsEnabled()
+        new Trigger(() -> toolOp.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) > 0.5).whenActive(new ConditionalCommand(
+                commandSeriesVault.feedAllFingersMOTIF(),
+                new InstantCommand(),
+                () -> true
+//                () -> shooter.turretInRange() && shooter.inLUTRange() && shooter.areWheelsEnabled()// && passthough.getShooting_order(0) != -1
         ));
 
         toolOp.getGamepadButton(GamepadKeys.Button.START).whenPressed(
@@ -265,16 +280,29 @@ public class DecodeRobotV2 {
                 commandSeriesVault.rearrangeArtifacts()
         );
 
-//        toolOp.getGamepadButton(GamepadKeys.Button.DPAD_DOWN).whenPressed(
+//        toolOp.getGamepadButton(GamepadKeys.Button.).whenPressed(
 //                new InstantCommand(detection::setGoalPip)
 //        );
 
-        driverOp.getGamepadButton(GamepadKeys.Button.BACK).whenPressed(
+        driverOp.getGamepadButton(GamepadKeys.Button.BACK).whenPressed( //11+1/8, 9+1/8
                 new ConditionalCommand(
-                        new InstantCommand(() -> teleOpLocalizer.setVector(new Vector(-72 + 8.375, -72 + 8.5))),
-                        new InstantCommand(() -> teleOpLocalizer.setVector(new Vector(-72 + 8.375, 72 - 8.5))),
-                        () -> getAlliance() == Alliance.BLUE
+                        new InstantCommand(() -> teleOpLocalizer.setVector(
+                                new Vector(72-(9+1.0/8.0), -24-(11+1.0/8.0)))
+                        ),
+                        new InstantCommand(() -> teleOpLocalizer.setVector(
+                                new Vector(72-(9+1.0/8.0), 24+(11+1.0/8.0)))
+                        ),
+                        () -> getAlliance() != Alliance.BLUE
                 )
         );
+
+        toolOp.getGamepadButton(GamepadKeys.Button.BACK).whenPressed(this::switchMotif);
+    }
+
+    public void switchMotif() {
+        int idx = getMotif().ordinal() + 1;
+        idx = idx > 2 ? 0 : idx;
+        motif = MotifStorage.Motif.values()[idx];
+        passthough.updateMotif(motif);
     }
 }

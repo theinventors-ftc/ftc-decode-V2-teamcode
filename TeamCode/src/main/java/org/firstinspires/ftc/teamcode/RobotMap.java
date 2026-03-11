@@ -102,12 +102,12 @@ public class RobotMap {
         fingerF = hm.get(ServoImplEx.class, "fingerF");
         fingerC = hm.get(ServoImplEx.class, "fingerC");
         fingerR = hm.get(ServoImplEx.class, "fingerR");
-//        colorSensorF = new ColorSensor(hm, "colorSensorF");
-//        colorSensorC = new ColorSensor(hm, "colorSensorC1");
-//        colorSensorR = new ColorSensor(hm, "colorSensorR");
-//        colorSensorF.setGain(75);
-//        colorSensorC.setGain(40);
-//        colorSensorR.setGain(75);
+        colorSensorF = new ColorSensor(hm, "colorSensorF");
+        colorSensorC = new ColorSensor(hm, "colorSensorC");
+        colorSensorR = new ColorSensor(hm, "colorSensorR");
+        colorSensorF.setGain(10);
+        colorSensorC.setGain(10);
+        colorSensorR.setGain(10);
 
         // Shooter
         turret = new MotorExEx(hm, "turretMotor", Motor.GoBILDA.RPM_435);

@@ -23,6 +23,7 @@ import org.firstinspires.ftc.teamcode.Mechanisms.Intake;
 import org.firstinspires.ftc.teamcode.Mechanisms.Passthough;
 import org.firstinspires.ftc.teamcode.Mechanisms.Shooter;
 import org.firstinspires.ftc.teamcode.MotifStorage;
+import org.firstinspires.ftc.teamcode.PoseStorage;
 import org.firstinspires.ftc.teamcode.RobotMap;
 import org.firstinspires.ftc.teamcode.Util.Timer;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
@@ -30,9 +31,9 @@ import org.firstinspires.ftc.teamcode.pedroPathing.FollowerCommand;
 
 import java.util.ArrayList;
 
-@Autonomous(name = "BLUE_12Ball_Classified", group = "Autonomous")
+@Autonomous(name = "RED_12_Ball", group = "Autonomous")
 @Configurable
-public class BLUE_12Ball_Classified extends CommandOpMode {
+public class RED_12_Ball extends CommandOpMode {
     private TelemetryManager panelsTelemetry;
     public Follower follower;
     private RobotMap robotMap;
@@ -54,12 +55,12 @@ public class BLUE_12Ball_Classified extends CommandOpMode {
         robotMap = new RobotMap(hardwareMap, telemetry,null,null);
 
         follower = Constants.createFollower(hardwareMap);
-        follower.setStartingPose(new Pose(144 - 107.6, 135, Math.toRadians(0)));
+        follower.setStartingPose(new Pose(107.6, 135, Math.toRadians(0)));
         paths = new Paths(follower);
 
         intake = new Intake(robotMap);
         passthough = new Passthough(robotMap, MotifStorage.Motif.PPG);
-        shooter = new Shooter(robotMap, this::getPoseFTCCoor, DecodeRobotV2.Alliance.BLUE, false);
+        shooter = new Shooter(robotMap, this::getPoseFTCCoor, DecodeRobotV2.Alliance.RED, false);
         commandVault = new CommandSeriesVault(intake, passthough, shooter);
 
         commandVault.enableWheels().schedule();
@@ -147,18 +148,18 @@ public class BLUE_12Ball_Classified extends CommandOpMode {
         public Paths(Follower follower) {
             StartToGoal = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(144 - 107.6, 135.0),
-                                    new Pose(144 - 87.7, 105.7)
+                                    new Pose(107.6, 135.0),
+                                    new Pose(87.7, 105.7)
                             )
-                    ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(100))
+                    ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(260))
                     .build();
 
             GoalToIntakeStack2 = follower.pathBuilder().addPath(
                             new BezierCurve(
-                                    new Pose(144 - 87.7, 105.7),
-                                    new Pose(144 - 75.5, 70),
-                                    new Pose(144 - 85.0, 52.0),
-                                    new Pose(144 - 136, 60)
+                                    new Pose(87.7, 105.7),
+                                    new Pose(75.5, 70),
+                                    new Pose(85.0, 52.0),
+                                    new Pose(136, 60)
                             )
                     ).setConstantHeadingInterpolation(0)
                     .setBrakingStrength(0.8)
@@ -166,27 +167,27 @@ public class BLUE_12Ball_Classified extends CommandOpMode {
 
             IntakeStack2ToOpenGate = follower.pathBuilder().addPath(
                             new BezierCurve(
-                                    new Pose(144 - 136, 60),
-                                    new Pose(144 - 112.0, 60),
-                                    new Pose(144 - 125.5, 68)
+                                    new Pose(136, 60),
+                                    new Pose(112.0, 60),
+                                    new Pose(125.5, 68)
                             )
-                    ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(90))
+                    ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(270))
                     .setBrakingStrength(deccel_strength)
                     .build();
 
             OpenGate2ToLaunchArea2 = follower.pathBuilder().addPath(
                             new BezierCurve(
-                                    new Pose(144 - 125, 65),
-                                    new Pose(144 - 95, 68),
-                                    new Pose(144 - 84.0, 83.5)
+                                    new Pose(125, 65),
+                                    new Pose(95, 68),
+                                    new Pose(84.0, 83.5)
                             )
-                    ).setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(0))
+                    ).setLinearHeadingInterpolation(Math.toRadians(270), Math.toRadians(0))
                     .build();
 
             LauchArea2ToIntakeStack1 = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(144 - 84.0, 83.5),
-                                    new Pose(144 - 128.0, 83.5)
+                                    new Pose(84.0, 83.5),
+                                    new Pose(128.0, 83.5)
                             )
                     ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
                     .setBrakingStrength(1)
@@ -194,18 +195,18 @@ public class BLUE_12Ball_Classified extends CommandOpMode {
 
             Intake1ToLauchArea1 = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(144 - 128.0, 83.5),
-                                    new Pose(144 - 86.0, 83.5)
+                                    new Pose(128.0, 83.5),
+                                    new Pose(86.0, 83.5)
                             )
-                    ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(90))
+                    ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(270))
                     .build();
 
             LauchArea1ToIntakeStack3 = follower.pathBuilder().addPath(
                             new BezierCurve(
-                                    new Pose(144 - 86.0, 83.5),
-                                    new Pose(144 - 80.0, 34),
-                                    new Pose(144 - 75.0, 35.6),
-                                    new Pose(144 - 143.0, 35.6)
+                                    new Pose(86.0, 83.5),
+                                    new Pose(80.0, 34),
+                                    new Pose(75.0, 35.6),
+                                    new Pose(140.0, 35.6)
                             )
                     ).setConstantHeadingInterpolation(0)
                     .setBrakingStrength(1)
@@ -213,17 +214,17 @@ public class BLUE_12Ball_Classified extends CommandOpMode {
 
             IntakeStack3ToSmallLaunchArea = follower.pathBuilder().addPath(
                             new BezierCurve(
-                                    new Pose(144 - 143.0, 35.6),
-                                    new Pose(144 - 72, 35.6),
-                                    new Pose(144 - 90.0, 14.5)
+                                    new Pose(140.0, 35.6),
+                                    new Pose(72, 35.6),
+                                    new Pose(90.0, 14.5)
                             )
                     ).setConstantHeadingInterpolation(0)
                     .build();
 
             SmallLaunchAreaToParking = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(144 - 90.0, 14.5),
-                                    new Pose(144 - 107.0, 16.0)
+                                    new Pose(90.0, 14.5),
+                                    new Pose(104.0, 16.0)
                             )
                     ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
                     .build();
@@ -242,5 +243,11 @@ public class BLUE_12Ball_Classified extends CommandOpMode {
                 pedroPose.getY(),
                 Math.toDegrees(pedroPose.getHeading())
         );
+    }
+
+    @Override
+    public void reset() {
+        super.reset();
+        PoseStorage.currentPose = getPoseFTCCoor();
     }
 }

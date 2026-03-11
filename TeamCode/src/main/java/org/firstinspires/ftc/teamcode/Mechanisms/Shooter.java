@@ -41,7 +41,7 @@ public class Shooter extends SubsystemBase {
     // Turret
     private static final double TICKS_PER_FULL_ROTATION = 1916.0;
     private static final double MAX_TURRET_POWER = 1.0;
-    private static final double MIN_TURRET_ANGLE = -92.0, MAX_TURRET_ANGLE = 187.0;
+    private static final double MIN_TURRET_ANGLE = -90.0, MAX_TURRET_ANGLE = 188.0;
 
     // ----------------------------------------- States ----------------------------------------- //
     private boolean wheelsEnabled = false;
@@ -50,8 +50,8 @@ public class Shooter extends SubsystemBase {
 
     // ---------------------------------------- Poses ------------------------------------------- //
     private Supplier<Pose> curPose;
-    private final Pose REDGoalPose = new Pose(69.0, -67.0, 0);
-    private final Pose BLUEGoalPose = new Pose(69.0, 67.0, 0);
+    private final Pose REDGoalPose = new Pose(69.0, -67.5, 0);
+    private final Pose BLUEGoalPose = new Pose(69.0, 67.5, 0);
     private final Pose goalPose;
 
     // ---------------------------------- Controllers and LUTs ---------------------------------- //
@@ -82,7 +82,7 @@ public class Shooter extends SubsystemBase {
         turretMotor.setInverted(true);
         turretMotor.resetEncoder();
         turretZeroed = !doZero;
-        turretZeroed = true;
+//        turretZeroed = true;
         this.telemetry = robotMap.getTelemetry();
 
         hasStalled = new StateMachine(() -> ((DcMotorEx)turretMotor.getRawMotor()).getCurrent(CurrentUnit.AMPS) > turretZeroCurrentThreshold, 400);
@@ -107,7 +107,7 @@ public class Shooter extends SubsystemBase {
         turretController = new PIDFEx(coeffsTurret);
 
         coeffsVelo = new PIDFExCoeffs(
-                13.5,
+                14.5,
                 0.0,
                 0.0,
                 0.0,

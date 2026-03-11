@@ -15,22 +15,25 @@ import org.firstinspires.ftc.teamcode.MotifStorage;
 import org.firstinspires.ftc.teamcode.PoseStorage;
 import org.firstinspires.ftc.teamcode.PurePursuit.Base.Coordination.Pose;
 import org.firstinspires.ftc.teamcode.RobotMap;
+import org.firstinspires.ftc.teamcode.Util.Timer;
 
 @Disabled
 @TeleOp(name = "Do not run this TeleOP", group = "")
 public class TeleOpBase extends CommandOpMode {
-    GamepadExEx driverOp, toolOp;
     private DriveConstants RobotConstants;
     private ElapsedTime runtime;
+
+    private Timer loopTime;
     private DecodeRobotV2 robot;
 
     private RobotMap robotMap;
-    private Pose pose = new Pose(-72 + 8.375,8.5,0);
+    private Pose pose = new Pose(0,0,0);
 
     @Override
     public void initialize() {
         CommandScheduler.getInstance().reset(); // Ultra SOS
         robotMap = new RobotMap(hardwareMap, telemetry, gamepad1, gamepad2);
+        loopTime = new Timer();
 
         // ----------------------------------- Robot Constants ---------------------------------- //
         RobotConstants = new DriveConstants();
@@ -44,15 +47,10 @@ public class TeleOpBase extends CommandOpMode {
         RobotConstants.SLOW_SPEED_PERC = 0.7;
 
         // ---------------------------- Transfer Pose from Autonomous --------------------------- //
-//        pose = PoseStorage.currentPose;
+        pose = PoseStorage.currentPose;
     }
 
     public void initAllianceRelated(DecodeRobotV2.Alliance alliance) {
-        if(alliance == DecodeRobotV2.Alliance.RED) {
-//            pose = new Pose(-72 + 8.375, -8.5, 0);
-            pose = new Pose(0.0, 0.0, 0.0);
-        }
-        pose = new Pose(0.0,0.0,0.0);
         robot = new DecodeRobotV2(
             robotMap,
             RobotConstants,
@@ -69,6 +67,9 @@ public class TeleOpBase extends CommandOpMode {
         for (LynxModule hub : robotMap.getHubs()) hub.clearBulkCache();
 
         robot.drive_update();
+
+        telemetry.addData("Loop Hz: ", 1.0/loopTime.getElapsedTimeSeconds());
+        loopTime.resetTimer();
         telemetry.update();
         FtcDashboard.getInstance().getTelemetry().update();
     }

@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.AutoOPs;
 import com.arcrobotics.ftclib.command.CommandOpMode;
 import com.arcrobotics.ftclib.command.CommandScheduler;
 import com.arcrobotics.ftclib.command.InstantCommand;
+import com.arcrobotics.ftclib.command.ParallelCommandGroup;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
 import com.arcrobotics.ftclib.command.WaitCommand;
 import com.bylazar.configurables.annotations.Configurable;
@@ -23,6 +24,7 @@ import org.firstinspires.ftc.teamcode.Mechanisms.Intake;
 import org.firstinspires.ftc.teamcode.Mechanisms.Passthough;
 import org.firstinspires.ftc.teamcode.Mechanisms.Shooter;
 import org.firstinspires.ftc.teamcode.MotifStorage;
+import org.firstinspires.ftc.teamcode.PoseStorage;
 import org.firstinspires.ftc.teamcode.RobotMap;
 import org.firstinspires.ftc.teamcode.Util.Timer;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
@@ -30,9 +32,9 @@ import org.firstinspires.ftc.teamcode.pedroPathing.FollowerCommand;
 
 import java.util.ArrayList;
 
-@Autonomous(name = "RED_15_Autnomie", group = "Autonomous")
+@Autonomous(name = "RED_15_Ball_HP", group = "Autonomous")
 @Configurable
-public class RED_15_Autonomie extends CommandOpMode {
+public class RED_15_Ball_HP extends CommandOpMode {
     private TelemetryManager panelsTelemetry;
     public Follower follower;
     private RobotMap robotMap;
@@ -54,7 +56,7 @@ public class RED_15_Autonomie extends CommandOpMode {
         robotMap = new RobotMap(hardwareMap, telemetry,null,null);
 
         follower = Constants.createFollower(hardwareMap);
-        follower.setStartingPose(new Pose(107.6, 135, Math.toRadians(0)));
+        follower.setStartingPose(new Pose(108.0, 135, Math.toRadians(0)));
         paths = new Paths(follower);
 
         intake = new Intake(robotMap);
@@ -72,45 +74,51 @@ public class RED_15_Autonomie extends CommandOpMode {
         new SequentialCommandGroup(
                 new FollowerCommand(follower, paths.StartToGoal),
                 commandVault.autonomousWaitForTurret(),
-                new InstantCommand(shooter::cacheCurrentDistance),
+//                new InstantCommand(shooter::cacheCurrentDistance),
                 commandVault.feedAllFingers(),
                 commandVault.startIntakeProc(),
-                new FollowerCommand(follower, paths.GoalToIntakeStack2, 1, true),
+                new FollowerCommand(follower, paths.GoalToIntakeStack2, 0.95, true),
                 new InstantCommand(follower::resumePathFollowing),
-                new WaitCommand(400),
-                new FollowerCommand(follower, paths.IntakeStack2ToLaunchArea2),
+                new WaitCommand(300),
+                new FollowerCommand(follower, paths.IntakeStack2ToOpenGate),
                 commandVault.stopIntakeProc(),
                 new FollowerCommand(follower, paths.OpenGate2ToLaunchArea2),
                 commandVault.autonomousWaitForTurret(),
-                new InstantCommand(shooter::cacheCurrentDistance),
+//                new InstantCommand(shooter::cacheCurrentDistance),
                 new WaitCommand(150),
                 commandVault.feedAllFingers(),
                 commandVault.startIntakeProc(),
-                new FollowerCommand(follower, paths.LauchArea2ToRecycle, 1),
-                new FollowerCommand(follower, paths.RecycleToLaunchArea2),
+                new FollowerCommand(follower, paths.LauchArea2ToIntakeStack1, 0.95),
+                new FollowerCommand(follower, paths.Intake1ToLauchArea1),
                 commandVault.stopIntakeProc(),
                 commandVault.autonomousWaitForTurret(),
-                new WaitCommand(150),
-                new InstantCommand(shooter::cacheCurrentDistance),
+                new WaitCommand(100),
+//                new InstantCommand(shooter::cacheCurrentDistance),
                 commandVault.feedAllFingers(),
                 commandVault.startIntakeProc(),
-                //--Second Cycle--//
-                new FollowerCommand(follower, paths.LauchArea2ToRecycle, 1),
-                new FollowerCommand(follower, paths.RecycleToLaunchArea2),
-                commandVault.stopIntakeProc(),
-                commandVault.autonomousWaitForTurret(),
-                new WaitCommand(150),
-                new InstantCommand(shooter::cacheCurrentDistance),
-                commandVault.feedAllFingers(),
-                commandVault.startIntakeProc(),
-                new FollowerCommand(follower, paths.LauchArea1ToIntakeStack3, 1, true),
+                new FollowerCommand(follower, paths.LauchArea1ToIntakeStack3, 0.95, true),
                 new InstantCommand(follower::resumePathFollowing),
-                new WaitCommand(400),
+                new WaitCommand(250),
                 new FollowerCommand(follower, paths.IntakeStack3ToSmallLaunchArea),
                 commandVault.autonomousWaitForTurret(),
                 commandVault.stopIntakeProc(),
                 new WaitCommand(250),
-                new InstantCommand(shooter::cacheCurrentDistance),
+//                new InstantCommand(shooter::cacheCurrentDistance),
+                commandVault.feedAllFingers(),
+                commandVault.startIntakeProc(),
+                new FollowerCommand(follower, paths.SmallLaunchAreaToHP),
+                new WaitCommand(500),
+                new ParallelCommandGroup(
+                        new FollowerCommand(follower, paths.HPToSmallLaunchArea),
+                        new SequentialCommandGroup(
+                                new WaitCommand(400),
+                                commandVault.reverseIntake()
+                        )
+                ),
+                commandVault.autonomousWaitForTurret(),
+                commandVault.stopIntakeProc(),
+                new WaitCommand(250),
+//                new InstantCommand(shooter::cacheCurrentDistance),
                 commandVault.feedAllFingers(),
                 new FollowerCommand(follower, paths.SmallLaunchAreaToParking)
         ).schedule();
@@ -145,25 +153,28 @@ public class RED_15_Autonomie extends CommandOpMode {
         public PathChain
                 StartToGoal,
                 GoalToIntakeStack2,
-                IntakeStack2ToLaunchArea2,
-                LauchArea2ToRecycle,
-                RecycleToLaunchArea2,
+                IntakeStack2ToOpenGate,
+                OpenGate2ToLaunchArea2,
+                LauchArea2ToIntakeStack1,
+                Intake1ToLauchArea1,
                 LauchArea1ToIntakeStack3,
                 IntakeStack3ToSmallLaunchArea,
+                SmallLaunchAreaToHP,
+                HPToSmallLaunchArea,
                 SmallLaunchAreaToParking;
 
         public Paths(Follower follower) {
             StartToGoal = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(107.6, 135.0),
-                                    new Pose(87.7, 105.7)
+                                    new Pose(108.0, 135.0),
+                                    new Pose(91, 102.0)
                             )
                     ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(260))
                     .build();
 
             GoalToIntakeStack2 = follower.pathBuilder().addPath(
                             new BezierCurve(
-                                    new Pose(87.7, 105.7),
+                                    new Pose(91, 102.0),
                                     new Pose(75.5, 70),
                                     new Pose(85.0, 52.0),
                                     new Pose(136, 60)
@@ -172,44 +183,51 @@ public class RED_15_Autonomie extends CommandOpMode {
                     .setBrakingStrength(0.8)
                     .build();
 
-            IntakeStack2ToLaunchArea2 = follower.pathBuilder().addPath(
+            IntakeStack2ToOpenGate = follower.pathBuilder().addPath(
                             new BezierCurve(
                                     new Pose(136, 60),
-                                    new Pose(110, 60),
-                                    new Pose(84.0, 83.5)
+                                    new Pose(112.0, 60),
+                                    new Pose(125.5, 68)
                             )
                     ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(270))
                     .setBrakingStrength(deccel_strength)
                     .build();
 
-            LauchArea2ToRecycle = follower.pathBuilder().addPath(
+            OpenGate2ToLaunchArea2 = follower.pathBuilder().addPath(
                             new BezierCurve(
-                                new Pose(87.7, 105.7),
-                                new Pose(75.5, 70),
-                                new Pose(85.0, 52.0),
-                                new Pose(130, 64)
+                                    new Pose(125, 65),
+                                    new Pose(95, 68),
+                                    new Pose(84.0, 83.5)
                             )
-                    ).setConstantHeadingInterpolation(Math.toRadians(35))
+                    ).setLinearHeadingInterpolation(Math.toRadians(270), Math.toRadians(0))
+                    .build();
+
+            LauchArea2ToIntakeStack1 = follower.pathBuilder().addPath(
+                            new BezierLine(
+                                    new Pose(84.0, 83.5),
+                                    new Pose(128.0, 83.5)
+                            )
+                    ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
                     .setBrakingStrength(1)
                     .build();
 
-            RecycleToLaunchArea2 = follower.pathBuilder().addPath(
+            Intake1ToLauchArea1 = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(136, 10),
-                                    new Pose(84.0, 83.5)
+                                    new Pose(128.0, 83.5),
+                                    new Pose(86.0, 83.5)
                             )
-                    ).setLinearHeadingInterpolation(Math.toRadians(280), Math.toRadians(270))
+                    ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(270))
                     .build();
 
             LauchArea1ToIntakeStack3 = follower.pathBuilder().addPath(
                             new BezierCurve(
-                                    new Pose(84.0, 83.5),
+                                    new Pose(86.0, 83.5),
                                     new Pose(80.0, 34),
                                     new Pose(75.0, 35.6),
                                     new Pose(140.0, 35.6)
                             )
                     ).setConstantHeadingInterpolation(0)
-                    .setBrakingStrength(1)
+                    .setBrakingStrength(1.2)
                     .build();
 
             IntakeStack3ToSmallLaunchArea = follower.pathBuilder().addPath(
@@ -219,6 +237,24 @@ public class RED_15_Autonomie extends CommandOpMode {
                                     new Pose(90.0, 14.5)
                             )
                     ).setConstantHeadingInterpolation(0)
+                    .build();
+
+            SmallLaunchAreaToHP = follower.pathBuilder().addPath(
+                            new BezierCurve(
+                                    new Pose(90.0, 14.5),
+                                    new Pose(110.0, 24.0),
+                                    new Pose(130.0, 14.0)
+                            )
+                    ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(328.0))
+                    .build();
+
+            HPToSmallLaunchArea = follower.pathBuilder().addPath(
+                            new BezierCurve(
+                                    new Pose(130.0, 14.0),
+                                    new Pose(110.0, 24.0),
+                                    new Pose(90.0, 14.5)
+                            )
+                    ).setLinearHeadingInterpolation(Math.toRadians(328.0), Math.toRadians(0))
                     .build();
 
             SmallLaunchAreaToParking = follower.pathBuilder().addPath(
@@ -243,5 +279,11 @@ public class RED_15_Autonomie extends CommandOpMode {
                 pedroPose.getY(),
                 Math.toDegrees(pedroPose.getHeading())
         );
+    }
+
+    @Override
+    public void reset() {
+        super.reset();
+        PoseStorage.currentPose = getPoseFTCCoor();
     }
 }

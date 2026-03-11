@@ -21,20 +21,19 @@ public class Passthough extends SubsystemBase {
     private final ServoImplEx[] fingers;
     private final ColorSensor[] colorSensors;
 
-    public static int gain = 50;
-
     // ---------------------------------------- States ------------------------------------------ //
 
     public enum FingerState {
         INTAKE,
         HOLD,
         FEED,
-        REARRANGE;
+        REARRANGE,
+        FLICK;
 
         double[][] positions = {
-                {0.92, 0.975, 0.44, 0.86}, // FRONT
-                {0.9, 0.955, 0.42, 0.86}, // CENTER
-                {0.08, 0.045, 0.58, 0.13}  // REAR
+                {0.92, 0.975, 0.44, 0.86, 0.76}, // FRONT
+                {0.9, 0.955, 0.42, 0.86, 0.75}, // CENTER
+                {0.08, 0.045, 0.58, 0.13, 0.22}  // REAR
         };
 
         public double getPosition(int idx) {
@@ -56,12 +55,27 @@ public class Passthough extends SubsystemBase {
         NONE
     }
 
-    private Map<Color, Double[]> target_colors = Map.of(
-            Color.PURPLE, new Double[]{0.504, 0.616, 0.961},
-            Color.GREEN, new Double[]{0.246, 0.940, 0.714}
+    private Map<Color, Double[][]> target_colors = Map.of( // [Color, Sensor(F, C, R), Value]
+            Color.PURPLE, new Double[][]{
+                    {0.378, 0.472, 0.771},
+                    {0.283, 0.376, 0.518},
+                    {0.397, 0.5, 0.763},
+            },
+            Color.GREEN, new Double[][]{
+                    {0.2, 0.764, 0.591},
+                    {0.146, 0.652, 0.412},
+                    {0.22, 0.8, 0.605},
+            }
     );
+    private double NONE_artifact_thresh = 0.3;
 
     private Color[] current_colors = {
+            Color.NONE,
+            Color.NONE,
+            Color.NONE
+    };
+
+    private Color[] contradiction_colors = {
             Color.NONE,
             Color.NONE,
             Color.NONE
@@ -72,8 +86,6 @@ public class Passthough extends SubsystemBase {
             MotifStorage.Motif.PGP, new Color[]{Color.PURPLE, Color.GREEN, Color.PURPLE},
             MotifStorage.Motif.GPP, new Color[]{Color.GREEN, Color.PURPLE, Color.PURPLE}
     );
-
-    private double distance_threshold = 30.0; // TODO: Chack if sensor hits a hole on the artifact
 
     // ----------------------------------------- Util ------------------------------------------- //
     private MotifStorage.Motif motif;
@@ -107,8 +119,6 @@ public class Passthough extends SubsystemBase {
     public void periodic() {
 //        updateCurrentColors(); // TODO: REMOVE IF TOO MUCH I2C TRAFFIC
 //        shootingOrderMotif(); // TODO: REMOVE IF TOO MUCH CALCULATION
-//
-//        colorSensorR.setGain(gain);
 
         telemetry.addData("[Passthough] FingerF State: ", getState(0));
         telemetry.addData("[Passthough] FingerC State: ", getState(1));
@@ -116,15 +126,17 @@ public class Passthough extends SubsystemBase {
         telemetry.addData("[Passthough] ColorF: ", getCurrentColor(0));
         telemetry.addData("[Passthough] ColorC: ", getCurrentColor(1));
         telemetry.addData("[Passthough] ColorR: ", getCurrentColor(2));
-        if(shooting_order[0] != -1) {
+        telemetry.addData("[Passthough] ColorContradictedF: ", getContradictedColor(0));
+        telemetry.addData("[Passthough] ColorContradictedC: ", getContradictedColor(1));
+        telemetry.addData("[Passthough] ColorContradictedR: ", getContradictedColor(2));
+        if(getShooting_order(0) != -1) {
             telemetry.addData("[Passthough] Shooting Order:", "%c, %c, %c",
-                    names[shooting_order[0]], names[shooting_order[1]], names[shooting_order[2]]);
+                    names[getShooting_order(0)], names[getShooting_order(1)], names[getShooting_order(2)]);
         }
     }
 
     // ------------------------------------- Finger Control ------------------------------------- //
     public void setState(int finger, FingerState state) {
-//        if(state == getState(finger)) return;
         states[finger] = state;
         fingers[finger].setPosition(state.getPosition(finger));
     }
@@ -138,48 +150,71 @@ public class Passthough extends SubsystemBase {
         double[] colors = colorSensors[finger].getRawColors();
         double distance = colorSensors[finger].getDistance(DistanceUnit.MM);
 
-        telemetry.addData("[Passthough] ", "Finger %d:  %.3f, %.3f, %.3f", finger, colors[0], colors[1], colors[2]);
         telemetry.addData("[Passthough] ", "Finger %d:  %.3f", finger, distance);
 
-        double minColorDistance = Double.MAX_VALUE;
-        Color detectedColor = Color.NONE;
+        double greenDistance = Math.sqrt(
+                Math.pow(colors[0] - target_colors.get(Color.GREEN)[finger][0], 2) +
+                Math.pow(colors[1] - target_colors.get(Color.GREEN)[finger][1], 2) +
+                Math.pow(colors[2] - target_colors.get(Color.GREEN)[finger][2], 2)
+        );
 
-        if(distance < distance_threshold) {
-            for (Color color : Color.values()) {
-                if (color == Color.NONE) continue;
-                Double[] target = target_colors.get(color);
-                double colorDistance = Math.sqrt(
-                        Math.pow(colors[0] - target[0], 2) +
-                        Math.pow(colors[1] - target[1], 2) +
-                        Math.pow(colors[2] - target[2], 2)
-                );
-                if (colorDistance < minColorDistance) {
-                    minColorDistance = colorDistance;
-                    detectedColor = color;
-                }
-            }
+        double purpleDistance = Math.sqrt(
+                Math.pow(colors[0] - target_colors.get(Color.PURPLE)[finger][0], 2) +
+                Math.pow(colors[1] - target_colors.get(Color.PURPLE)[finger][1], 2) +
+                Math.pow(colors[2] - target_colors.get(Color.PURPLE)[finger][2], 2));
 
-            return detectedColor;
-        }
+        if(greenDistance > NONE_artifact_thresh && purpleDistance > NONE_artifact_thresh) return Color.NONE;
 
-        return detectedColor;
+        if(greenDistance > purpleDistance) return Color.PURPLE;
+
+        return Color.GREEN;
     }
 
-    public void updateCurrentColors() { // Call only when needed, minimize I2C traffic
+    public void updateColors() {
         current_colors[0] = detectColor(0);
         current_colors[1] = detectColor(1);
         current_colors[2] = detectColor(2);
+
+        System.arraycopy(current_colors, 0, contradiction_colors, 0, 3);
+
+        int purplesNeeded = 2;
+        int greensNeeded = 1;
+
+        for (Color c : current_colors) {
+            if (c == Color.PURPLE) purplesNeeded--;
+            if (c == Color.GREEN)  greensNeeded--;
+        }
+
+        if ((purplesNeeded + greensNeeded) != 3) {
+            for (int i = 0; i < 3; i++) {
+                if (contradiction_colors[i] == Color.NONE) {
+                    if (purplesNeeded > 0) {
+                        contradiction_colors[i] = Color.PURPLE;
+                        purplesNeeded--;
+                    } else if (greensNeeded > 0) {
+                        contradiction_colors[i] = Color.GREEN;
+                        greensNeeded--;
+                    }
+                }
+            }
+        }
+
+        calculateShootingOrderMotif();
     }
 
     public Color getCurrentColor(int finger) {
         return current_colors[finger];
     }
 
-    public void shootingOrderMotif() {
+    public Color getContradictedColor(int finger) {
+        return contradiction_colors[finger];
+    }
+
+    public void calculateShootingOrderMotif() {
         this.shooting_order = new int[]{-1, -1, -1};
 
         int purple_count = 0, green_count = 0;
-        for(Color color : current_colors) {
+        for(Color color : contradiction_colors) {
             if(color == Color.PURPLE) purple_count++;
             else if(color == Color.GREEN) green_count++;
         }
@@ -190,15 +225,23 @@ public class Passthough extends SubsystemBase {
 
         boolean[] used = new boolean[3];
 
-        // Match desired colors to fingers
         for (int i = 0; i < 3; i++) {
             for (int finger = 0; finger < 3; finger++) {
-                if (!used[finger] && current_colors[finger] == desired[i]) {
+                if (!used[finger] && contradiction_colors[finger] == desired[i]) {
                     used[finger] = true;
-                    shooting_order[i] = finger + 0;
+                    shooting_order[i] = finger;
                     break;
                 }
             }
         }
+    }
+
+    public int getShooting_order(int idx) {
+        if(shooting_order[0] == -1) return idx;
+        return shooting_order[idx];
+    }
+
+    public void updateMotif(MotifStorage.Motif motif) {
+        this.motif = motif;
     }
 }
