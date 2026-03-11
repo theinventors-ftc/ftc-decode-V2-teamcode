@@ -212,4 +212,18 @@ public class CommandSeriesVault {
                 new WaitUntilCommand(() -> shooter.wheelsAtSpeed())
         );
     }
+
+    public SequentialCommandGroup parkShooter() {
+        return new SequentialCommandGroup(
+                new InstantCommand(shooter::enableParkingState),
+                new InstantCommand(shooter::disableWheels)
+        );
+    }
+
+    public SequentialCommandGroup unparkShooter() {
+        return new SequentialCommandGroup(
+                new InstantCommand(shooter::disableParkingState),
+                new InstantCommand(shooter::enableWheels)
+        );
+    }
 }

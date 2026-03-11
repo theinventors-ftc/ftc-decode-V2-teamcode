@@ -104,6 +104,7 @@ public class RED_12_Ball extends CommandOpMode {
                 new WaitCommand(250),
                 new InstantCommand(shooter::cacheCurrentDistance),
                 commandVault.feedAllFingers(),
+                commandVault.parkShooter(),
                 new FollowerCommand(follower, paths.SmallLaunchAreaToParking)
         ).schedule();
     }

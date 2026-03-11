@@ -8,7 +8,7 @@ public class FollowerCommand extends CommandBase {
     private Follower follower;
     private PathChain path;
     private double velocity;
-    private boolean roll;
+    private boolean roll = false, holdEnd = true;
 
     public FollowerCommand(Follower follower, PathChain path) {
         this(follower, path, 1.0);
@@ -25,8 +25,16 @@ public class FollowerCommand extends CommandBase {
         this.roll = roll;
     }
 
+    public FollowerCommand(Follower follower, PathChain path, double velocity, boolean roll, boolean holdEnd) {
+        this.follower = follower;
+        this.path = path;
+        this.velocity = velocity;
+        this.roll = roll;
+        this.holdEnd = holdEnd;
+    }
+
     public void initialize() {
-        follower.followPath(path, velocity, true);
+        follower.followPath(path, velocity, holdEnd);
 //        follower.followPath(path);
     }
 

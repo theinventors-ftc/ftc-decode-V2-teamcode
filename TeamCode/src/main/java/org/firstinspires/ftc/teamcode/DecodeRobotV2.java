@@ -251,17 +251,25 @@ public class DecodeRobotV2 {
                 commandSeriesVault.flickRearFinger()
         );
 
+        toolOp.getGamepadButton(GamepadKeys.Button.DPAD_RIGHT).whenPressed(
+                new InstantCommand(shooter::decrease_turret_offset)
+        );
+
+        toolOp.getGamepadButton(GamepadKeys.Button.DPAD_LEFT).whenPressed(
+                new InstantCommand(shooter::increase_turret_offset)
+        );
+
         toolOp.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER).whenPressed(new ConditionalCommand(
                 commandSeriesVault.feedAllFingers(),
                 new InstantCommand(),
                 () -> shooter.turretInRange() && shooter.inLUTRange() && shooter.areWheelsEnabled()
         ));
 
-        new Trigger(() -> toolOp.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) > 0.5).whenActive(new ConditionalCommand(
+        new Trigger(() -> toolOp.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) > 0.75).whenActive(new ConditionalCommand(
                 commandSeriesVault.feedAllFingersMOTIF(),
                 new InstantCommand(),
-                () -> true
-//                () -> shooter.turretInRange() && shooter.inLUTRange() && shooter.areWheelsEnabled()// && passthough.getShooting_order(0) != -1
+//                () -> true
+                () -> shooter.turretInRange() && shooter.inLUTRange() && shooter.areWheelsEnabled()// && passthough.getShooting_order(0) != -1
         ));
 
         toolOp.getGamepadButton(GamepadKeys.Button.START).whenPressed(
@@ -279,6 +287,12 @@ public class DecodeRobotV2 {
         toolOp.getGamepadButton(GamepadKeys.Button.LEFT_STICK_BUTTON).whenPressed(
                 commandSeriesVault.rearrangeArtifacts()
         );
+
+        new Trigger(() -> toolOp.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) > 0.75).whenActive(new ConditionalCommand(
+                commandSeriesVault.parkShooter(),
+                commandSeriesVault.unparkShooter(),
+                () -> !shooter.isParked()
+        ));
 
 //        toolOp.getGamepadButton(GamepadKeys.Button.).whenPressed(
 //                new InstantCommand(detection::setGoalPip)

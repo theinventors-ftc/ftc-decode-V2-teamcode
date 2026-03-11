@@ -47,6 +47,7 @@ public class Shooter extends SubsystemBase {
     private boolean wheelsEnabled = false;
     private boolean turretLockEnabled = true;
     private boolean hoodLockEnabled = true;
+    private boolean parking_state = false;
 
     // ---------------------------------------- Poses ------------------------------------------- //
     private Supplier<Pose> curPose;
@@ -64,15 +65,13 @@ public class Shooter extends SubsystemBase {
     private boolean turretZeroed = false;
     private double turretZeroPower = -0.25;
     private double turretZeroCurrentThreshold = 2.0;
-    public static double turretZeroOffset = 102.5;
+    public static double turretZeroOffset = 102;
     private StateMachine hasStalled;
 
     // ------------------------------------------ Util ------------------------------------------ //
     private Telemetry telemetry;
     private DoubleSupplier voltage;
     private ArrayList<Double> cachedDistances = new ArrayList<>();
-
-    public static double velCUSTOM = 0.0, hoodValCUSTOM = 0.0;
 
     public Shooter(RobotMap robotMap, Supplier<Pose> curPose, DecodeRobotV2.Alliance alliance, boolean doZero) {
         this.wheel1 = robotMap.getShooterWheel1Motor();
@@ -82,10 +81,9 @@ public class Shooter extends SubsystemBase {
         turretMotor.setInverted(true);
         turretMotor.resetEncoder();
         turretZeroed = !doZero;
-//        turretZeroed = true;
         this.telemetry = robotMap.getTelemetry();
 
-        hasStalled = new StateMachine(() -> ((DcMotorEx)turretMotor.getRawMotor()).getCurrent(CurrentUnit.AMPS) > turretZeroCurrentThreshold, 400);
+        hasStalled = new StateMachine(() -> ((DcMotorEx)turretMotor.getRawMotor()).getCurrent(CurrentUnit.AMPS) > turretZeroCurrentThreshold, 300);
 
         wheel1.setZeroPowerBehavior(MotorExEx.ZeroPowerBehavior.FLOAT);
         wheel2.setZeroPowerBehavior(MotorExEx.ZeroPowerBehavior.FLOAT);
@@ -126,11 +124,11 @@ public class Shooter extends SubsystemBase {
 
         wheelSpeed.add(39.23, 0.61);
         wheelSpeed.add(51.89, 0.63);
-        wheelSpeed.add(71.0, 0.67);
+        wheelSpeed.add(63.6, 0.655);
+        wheelSpeed.add(71.0, 0.675);
         wheelSpeed.add(86.29, 0.725);
         wheelSpeed.add(101.22, 0.76);
-        wheelSpeed.add(115.59, 0.812);
-//        wheelSpeed.add(133.36, 0.869);
+        wheelSpeed.add(115.59, 0.81);
         wheelSpeed.add(128.0, 0.81/0.964); //
         wheelSpeed.add(143.52, 0.83/0.964); //
         wheelSpeed.add(151.14, 0.86/0.964); //
@@ -138,7 +136,9 @@ public class Shooter extends SubsystemBase {
 
         hoodAngle.add(39.23, 0.24);
         hoodAngle.add(51.89, 0.3);
-        hoodAngle.add(71.0, 0.67);
+        hoodAngle.add(63.6, 0.675);
+        hoodAngle.add(65.0, 0.675);
+        hoodAngle.add(71.0, 0.675);
         hoodAngle.add(86.29, 0.84);
         hoodAngle.add(101.22, 0.9);
         hoodAngle.add(115.59, 0.95);
@@ -164,6 +164,18 @@ public class Shooter extends SubsystemBase {
                 turretMotor.set(0);
                 turretZeroed = true;
             }
+            return;
+        }
+
+        if(parking_state) {
+            turretController.setSetPoint(-101);
+            turretMotor.set(Range.clip(
+                    turretController.calculate(getTurretAngle()),
+                    -MAX_TURRET_POWER,
+                    MAX_TURRET_POWER
+            ));
+
+            hoodServo.setPosition(MIN_HOOD_POS);
             return;
         }
 
@@ -253,7 +265,7 @@ public class Shooter extends SubsystemBase {
     }
 
     public boolean turretAtGoal() {
-        return Math.abs(turretController.getPositionError()) < (atSmallTriangle() ? 1.2 : 0.4);
+        return Math.abs(turretController.getPositionError()) < (atSmallTriangle() ? 1.2 : 0.7);
     }
 
     // ---------------------------------------- IK Stuff ---------------------------------------- //
@@ -272,7 +284,7 @@ public class Shooter extends SubsystemBase {
         double dx = dx_ref;
         double dy = dy_ref;
 
-        if(targetAngle_ref < -70.0) dx += Range.scale(targetAngle_ref, -70.0, -90.0, -1.5, -0.8);
+        if(Math.abs(targetAngle_ref) > 70.0) dx += Range.scale(targetAngle_ref, -70.0, -90.0, -1.5, -0.8);
         if(atSmallTriangle()) dy += 0;
 
         double targetAngle = Math.toDegrees(Math.atan2(dy, dx));
@@ -303,4 +315,20 @@ public class Shooter extends SubsystemBase {
     public void zeroTurret() {
         turretZeroed = false;
     }
+
+    public void enableParkingState() {
+        parking_state = true;
+    }
+
+    public void disableParkingState() {
+        parking_state = false;
+    }
+
+    public boolean isParked(){
+        return parking_state;
+    }
+
+    public void increase_turret_offset() { turretZeroOffset += 1.0; }
+    public void decrease_turret_offset() { turretZeroOffset -= 1.0; }
+
 }

@@ -74,44 +74,52 @@ public class RED_15_Ball_HP extends CommandOpMode {
         new SequentialCommandGroup(
                 new FollowerCommand(follower, paths.StartToGoal),
                 commandVault.autonomousWaitForTurret(),
-//                new InstantCommand(shooter::cacheCurrentDistance),
+                new InstantCommand(shooter::cacheCurrentDistance),
                 commandVault.feedAllFingers(),
                 commandVault.startIntakeProc(),
-                new FollowerCommand(follower, paths.GoalToIntakeStack2, 0.95, true),
+                new FollowerCommand(follower, paths.GoalToIntakeStack2, 0.9, true),
                 new InstantCommand(follower::resumePathFollowing),
-                new WaitCommand(300),
-                new FollowerCommand(follower, paths.IntakeStack2ToOpenGate),
+                new WaitCommand(550),
+                new FollowerCommand(follower, paths.IntakeStack2ToOpenGate, 1),
                 commandVault.stopIntakeProc(),
+                new WaitCommand(160),
                 new FollowerCommand(follower, paths.OpenGate2ToLaunchArea2),
                 commandVault.autonomousWaitForTurret(),
-//                new InstantCommand(shooter::cacheCurrentDistance),
+                new InstantCommand(shooter::cacheCurrentDistance),
                 new WaitCommand(150),
                 commandVault.feedAllFingers(),
                 commandVault.startIntakeProc(),
-                new FollowerCommand(follower, paths.LauchArea2ToIntakeStack1, 0.95),
+                new FollowerCommand(follower, paths.LauchArea2ToIntakeStack1, 1),
+                new WaitCommand(100),
                 new FollowerCommand(follower, paths.Intake1ToLauchArea1),
                 commandVault.stopIntakeProc(),
                 commandVault.autonomousWaitForTurret(),
                 new WaitCommand(100),
-//                new InstantCommand(shooter::cacheCurrentDistance),
+                new InstantCommand(shooter::cacheCurrentDistance),
                 commandVault.feedAllFingers(),
                 commandVault.startIntakeProc(),
                 new FollowerCommand(follower, paths.LauchArea1ToIntakeStack3, 0.95, true),
                 new InstantCommand(follower::resumePathFollowing),
                 new WaitCommand(250),
-                new FollowerCommand(follower, paths.IntakeStack3ToSmallLaunchArea),
+                new ParallelCommandGroup(
+                        new FollowerCommand(follower, paths.IntakeStack3ToSmallLaunchArea),
+                        new SequentialCommandGroup(
+                                new WaitCommand(320),
+                                commandVault.reverseIntake()
+                        )
+                ),
                 commandVault.autonomousWaitForTurret(),
                 commandVault.stopIntakeProc(),
-                new WaitCommand(250),
-//                new InstantCommand(shooter::cacheCurrentDistance),
+                new WaitCommand(200),
+                new InstantCommand(shooter::cacheCurrentDistance),
                 commandVault.feedAllFingers(),
                 commandVault.startIntakeProc(),
                 new FollowerCommand(follower, paths.SmallLaunchAreaToHP),
-                new WaitCommand(500),
+                new WaitCommand(400),
                 new ParallelCommandGroup(
                         new FollowerCommand(follower, paths.HPToSmallLaunchArea),
                         new SequentialCommandGroup(
-                                new WaitCommand(400),
+                                new WaitCommand(150),
                                 commandVault.reverseIntake()
                         )
                 ),
@@ -120,6 +128,7 @@ public class RED_15_Ball_HP extends CommandOpMode {
                 new WaitCommand(250),
 //                new InstantCommand(shooter::cacheCurrentDistance),
                 commandVault.feedAllFingers(),
+                commandVault.parkShooter(),
                 new FollowerCommand(follower, paths.SmallLaunchAreaToParking)
         ).schedule();
     }
@@ -176,18 +185,20 @@ public class RED_15_Ball_HP extends CommandOpMode {
                             new BezierCurve(
                                     new Pose(91, 102.0),
                                     new Pose(75.5, 70),
-                                    new Pose(85.0, 52.0),
-                                    new Pose(136, 60)
+                                    new Pose(93.0, 52.0),
+                                    new Pose(136.8, 60)
                             )
                     ).setConstantHeadingInterpolation(0)
-                    .setBrakingStrength(0.8)
+//                    ).setLinearHeadingInterpolation(Math.toRadians(260), Math.toRadians(10))
+//                    ).setTangentHeadingInterpolation()
+                    .setBrakingStrength(1.3)
                     .build();
 
             IntakeStack2ToOpenGate = follower.pathBuilder().addPath(
                             new BezierCurve(
-                                    new Pose(136, 60),
+                                    new Pose(136.8, 60),
                                     new Pose(112.0, 60),
-                                    new Pose(125.5, 68)
+                                    new Pose(126, 70)
                             )
                     ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(270))
                     .setBrakingStrength(deccel_strength)
@@ -195,25 +206,25 @@ public class RED_15_Ball_HP extends CommandOpMode {
 
             OpenGate2ToLaunchArea2 = follower.pathBuilder().addPath(
                             new BezierCurve(
-                                    new Pose(125, 65),
+                                    new Pose(126, 70),
                                     new Pose(95, 68),
-                                    new Pose(84.0, 83.5)
+                                    new Pose(87.5, 83.5)
                             )
                     ).setLinearHeadingInterpolation(Math.toRadians(270), Math.toRadians(0))
                     .build();
 
             LauchArea2ToIntakeStack1 = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(84.0, 83.5),
-                                    new Pose(128.0, 83.5)
+                                    new Pose(84, 83.5),
+                                    new Pose(125.5, 83.5)
                             )
                     ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
-                    .setBrakingStrength(1)
+                    .setBrakingStrength(1.9)
                     .build();
 
             Intake1ToLauchArea1 = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(128.0, 83.5),
+                                    new Pose(129.5, 83.5),
                                     new Pose(86.0, 83.5)
                             )
                     ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(270))
@@ -224,7 +235,7 @@ public class RED_15_Ball_HP extends CommandOpMode {
                                     new Pose(86.0, 83.5),
                                     new Pose(80.0, 34),
                                     new Pose(75.0, 35.6),
-                                    new Pose(140.0, 35.6)
+                                    new Pose(141.5, 35.6)
                             )
                     ).setConstantHeadingInterpolation(0)
                     .setBrakingStrength(1.2)
@@ -232,8 +243,8 @@ public class RED_15_Ball_HP extends CommandOpMode {
 
             IntakeStack3ToSmallLaunchArea = follower.pathBuilder().addPath(
                             new BezierCurve(
-                                    new Pose(140.0, 35.6),
-                                    new Pose(72, 35.6),
+                                    new Pose(141.5, 35.6),
+                                    new Pose(90.0, 32.0),
                                     new Pose(90.0, 14.5)
                             )
                     ).setConstantHeadingInterpolation(0)
@@ -251,15 +262,15 @@ public class RED_15_Ball_HP extends CommandOpMode {
             HPToSmallLaunchArea = follower.pathBuilder().addPath(
                             new BezierCurve(
                                     new Pose(130.0, 14.0),
-                                    new Pose(110.0, 24.0),
-                                    new Pose(90.0, 14.5)
+                                    new Pose(120.0, 16.0),
+                                    new Pose(96.0, 14.5)
                             )
                     ).setLinearHeadingInterpolation(Math.toRadians(328.0), Math.toRadians(0))
                     .build();
 
             SmallLaunchAreaToParking = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(90.0, 14.5),
+                                    new Pose(96.0, 14.5),
                                     new Pose(104.0, 16.0)
                             )
                     ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
