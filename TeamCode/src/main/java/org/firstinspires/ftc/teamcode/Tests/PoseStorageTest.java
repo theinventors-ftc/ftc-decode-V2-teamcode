@@ -16,6 +16,7 @@ import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathChain;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 import org.firstinspires.ftc.teamcode.AutoOPs.RED_12_Ball;
 import org.firstinspires.ftc.teamcode.DecodeRobotV2;
@@ -32,6 +33,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.FollowerCommand;
 
 import java.util.ArrayList;
 
+@Disabled
 @Autonomous(name = "PoseStorageTest", group = "Tests")
 public class PoseStorageTest extends CommandOpMode {
 
