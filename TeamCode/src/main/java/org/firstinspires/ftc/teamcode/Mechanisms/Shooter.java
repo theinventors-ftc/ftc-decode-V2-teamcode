@@ -51,8 +51,8 @@ public class Shooter extends SubsystemBase {
 
     // ---------------------------------------- Poses ------------------------------------------- //
     private Supplier<Pose> curPose;
-    private final Pose REDGoalPose = new Pose(69.0, -67.5, 0);
-    private final Pose BLUEGoalPose = new Pose(69.0, 67.5, 0);
+    private final Pose REDGoalPose = new Pose(69.0, -68.0, 0);
+    private final Pose BLUEGoalPose = new Pose(69.0, 68.0, 0);
     private final Pose goalPose;
 
     // ---------------------------------- Controllers and LUTs ---------------------------------- //
@@ -65,7 +65,7 @@ public class Shooter extends SubsystemBase {
     private boolean turretZeroed = false;
     private double turretZeroPower = -0.25;
     private double turretZeroCurrentThreshold = 2.0;
-    public static double turretZeroOffset = 102;
+    public static double turretZeroOffset = 102.5;
     private StateMachine hasStalled;
 
     // ------------------------------------------ Util ------------------------------------------ //
@@ -124,9 +124,9 @@ public class Shooter extends SubsystemBase {
 
         wheelSpeed.add(39.23, 0.61);
         wheelSpeed.add(51.89, 0.63);
-        wheelSpeed.add(63.6, 0.655);
+        wheelSpeed.add(63.6, 0.662);
         wheelSpeed.add(71.0, 0.675);
-        wheelSpeed.add(86.29, 0.725);
+        wheelSpeed.add(86.29, 0.729);
         wheelSpeed.add(101.22, 0.76);
         wheelSpeed.add(115.59, 0.81);
         wheelSpeed.add(128.0, 0.81/0.964); //
@@ -136,9 +136,9 @@ public class Shooter extends SubsystemBase {
 
         hoodAngle.add(39.23, 0.24);
         hoodAngle.add(51.89, 0.3);
-        hoodAngle.add(63.6, 0.675);
-        hoodAngle.add(65.0, 0.675);
-        hoodAngle.add(71.0, 0.675);
+        hoodAngle.add(63.6, 0.69);
+        hoodAngle.add(65.0, 0.69);
+        hoodAngle.add(71.0, 0.69);
         hoodAngle.add(86.29, 0.84);
         hoodAngle.add(101.22, 0.9);
         hoodAngle.add(115.59, 0.95);
