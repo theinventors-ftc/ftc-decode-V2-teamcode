@@ -13,15 +13,24 @@ public class CommandSeriesVault {
     private Intake intake;
     private Passthough passthough;
     private Shooter shooter;
+    private Detection detection;
 
     // --------------------------------------- Constants ---------------------------------------- //
-    public static int FINGER_BETWEEN_MS = 1, FINGER_HOLD_MS = 170, FINGER_BETWEEN_MOTIF_MS = 500;
-//    public static int FINGER_BETWEEN_MS = 80, FINGER_HOLD_MS = 340, FINGER_BETWEEN_MOTIF_MS = 500;
+//    public static int FINGER_BETWEEN_MS = 40, FINGER_HOLD_MS = 200, FINGER_BETWEEN_MOTIF_MS = 500;
+    public static int FINGER_BETWEEN_MS = 80, FINGER_HOLD_MS = 340, FINGER_BETWEEN_MOTIF_MS = 500;
+
+    public CommandSeriesVault(Intake intake, Passthough passthough, Shooter shooter, Detection detection) {
+        this.intake = intake;
+        this.passthough = passthough;
+        this.shooter = shooter;
+        this.detection = detection;
+    }
 
     public CommandSeriesVault(Intake intake, Passthough passthough, Shooter shooter) {
         this.intake = intake;
         this.passthough = passthough;
         this.shooter = shooter;
+        this.detection = null;
     }
 
     public SequentialCommandGroup feedOneFinger(int fingerIdx) {
@@ -92,6 +101,10 @@ public class CommandSeriesVault {
                 new InstantCommand(() -> passthough.setState(passthough.getShooting_order(2), Passthough.FingerState.HOLD), passthough),
                 new WaitCommand(FINGER_BETWEEN_MOTIF_MS)
         );
+    }
+
+    public InstantCommand updateMotifPassthrough() {
+        return new InstantCommand(() -> passthough.updateMotif(detection.getMotif()));
     }
 
     public SequentialCommandGroup feedAllFingersAutoMOTIF() {
@@ -225,5 +238,13 @@ public class CommandSeriesVault {
                 new InstantCommand(shooter::disableParkingState),
                 new InstantCommand(shooter::enableWheels)
         );
+    }
+
+    public InstantCommand enableObelisk() {
+        return new InstantCommand(shooter::enableObelisk);
+    }
+
+    public InstantCommand disableObelisk() {
+        return new InstantCommand(shooter::disableObelisk);
     }
 }

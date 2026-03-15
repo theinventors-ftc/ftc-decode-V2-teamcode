@@ -92,7 +92,7 @@ public class RobotMap {
             module.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
         }
 
-//        limelight = hm.get(Limelight3A.class, "limelight");
+        limelight = hm.get(Limelight3A.class, "limelight");
 
         //// ----------------------------------- Mechanisms ----------------------------------- ////
         // Intake

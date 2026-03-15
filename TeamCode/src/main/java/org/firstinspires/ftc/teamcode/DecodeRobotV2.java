@@ -285,7 +285,7 @@ public class DecodeRobotV2 {
         );
 
         toolOp.getGamepadButton(GamepadKeys.Button.LEFT_STICK_BUTTON).whenPressed(
-                commandSeriesVault.rearrangeArtifacts()
+                new InstantCommand(shooter::resetOffset)
         );
 
         new Trigger(() -> toolOp.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) > 0.75).whenActive(new ConditionalCommand(

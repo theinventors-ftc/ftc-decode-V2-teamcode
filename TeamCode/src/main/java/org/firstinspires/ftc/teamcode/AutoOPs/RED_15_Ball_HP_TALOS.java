@@ -20,6 +20,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.DecodeRobotV2;
 import org.firstinspires.ftc.teamcode.Mechanisms.CommandSeriesVault;
+import org.firstinspires.ftc.teamcode.Mechanisms.Detection;
 import org.firstinspires.ftc.teamcode.Mechanisms.Intake;
 import org.firstinspires.ftc.teamcode.Mechanisms.Passthough;
 import org.firstinspires.ftc.teamcode.Mechanisms.Shooter;
@@ -32,12 +33,14 @@ import org.firstinspires.ftc.teamcode.pedroPathing.FollowerCommand;
 
 import java.util.ArrayList;
 
-@Autonomous(name = "RED_15_Ball_HP", group = "Autonomous")
+@Autonomous(name = "RED_15_Ball_HP_TALOS", group = "Autonomous")
 @Configurable
-public class RED_15_Ball_HP extends CommandOpMode {
+public class RED_15_Ball_HP_TALOS extends CommandOpMode {
     private TelemetryManager panelsTelemetry;
     public Follower follower;
     private RobotMap robotMap;
+
+    private Detection detection;
 
     private Intake intake;
     private Passthough passthough;
@@ -62,7 +65,8 @@ public class RED_15_Ball_HP extends CommandOpMode {
         intake = new Intake(robotMap);
         passthough = new Passthough(robotMap, MotifStorage.Motif.PPG);
         shooter = new Shooter(robotMap, this::getPoseFTCCoor, DecodeRobotV2.Alliance.RED, false);
-        commandVault = new CommandSeriesVault(intake, passthough, shooter);
+        detection = new Detection(robotMap);
+        commandVault = new CommandSeriesVault(intake, passthough, shooter, detection);
 
         commandVault.enableWheels().schedule();
 
@@ -76,6 +80,12 @@ public class RED_15_Ball_HP extends CommandOpMode {
                 commandVault.autonomousWaitForTurret(),
 //                new InstantCommand(shooter::cacheCurrentDistance),
                 commandVault.feedAllFingers(),
+                commandVault.enableObelisk(),
+                commandVault.autonomousWaitForTurret(),
+                new WaitCommand(200),
+                commandVault.updateMotifPassthrough(),
+                new WaitCommand(100),
+                commandVault.disableObelisk(),
                 commandVault.startIntakeProc(),
                 new FollowerCommand(follower, paths.GoalToIntakeStack2, 0.9, true),
                 new InstantCommand(follower::resumePathFollowing),
@@ -114,20 +124,6 @@ public class RED_15_Ball_HP extends CommandOpMode {
 //                new InstantCommand(shooter::cacheCurrentDistance),
                 commandVault.feedAllFingers(),
                 commandVault.startIntakeProc(),
-                new FollowerCommand(follower, paths.SmallLaunchAreaToHP),
-                new WaitCommand(400),
-                new ParallelCommandGroup(
-                        new FollowerCommand(follower, paths.HPToSmallLaunchArea),
-                        new SequentialCommandGroup(
-                                new WaitCommand(150),
-                                commandVault.reverseIntake()
-                        )
-                ),
-                commandVault.autonomousWaitForTurret(),
-                commandVault.stopIntakeProc(),
-                new WaitCommand(250),
-//                new InstantCommand(shooter::cacheCurrentDistance),
-                commandVault.feedAllFingers(),
                 commandVault.parkShooter(),
                 new FollowerCommand(follower, paths.SmallLaunchAreaToParking)
         ).schedule();
@@ -178,7 +174,7 @@ public class RED_15_Ball_HP extends CommandOpMode {
                                     new Pose(108.0, 135.0),
                                     new Pose(91, 102.0)
                             )
-                    ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(260))
+                    ).setConstantHeadingInterpolation(0)
                     .build();
 
             GoalToIntakeStack2 = follower.pathBuilder().addPath(
@@ -242,8 +238,8 @@ public class RED_15_Ball_HP extends CommandOpMode {
             IntakeStack3ToSmallLaunchArea = follower.pathBuilder().addPath(
                             new BezierCurve(
                                     new Pose(141.5, 35.6),
-                                    new Pose(90.0, 32.0),
-                                    new Pose(102, 14.5)
+                                    new Pose(95, 68),
+                                    new Pose(87.5, 83.5)
                             )
                     ).setConstantHeadingInterpolation(0)
                     .build();
@@ -268,8 +264,8 @@ public class RED_15_Ball_HP extends CommandOpMode {
 
             SmallLaunchAreaToParking = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(102, 14.5),
-                                    new Pose(104.0, 16.0)
+                                    new Pose(87.5, 83.5),
+                                    new Pose(87.5, 60)
                             )
                     ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
                     .build();

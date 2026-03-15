@@ -56,7 +56,7 @@ public class BLUE_15_Ball_HP extends CommandOpMode {
         robotMap = new RobotMap(hardwareMap, telemetry,null,null);
 
         follower = Constants.createFollower(hardwareMap);
-        follower.setStartingPose(new Pose(144-108.0, 135, Math.toRadians(180)));
+        follower.setStartingPose(new Pose(144-(120 - 5.625), 128.89763779, Math.toRadians(180)));
         paths = new Paths(follower);
 
         intake = new Intake(robotMap);
@@ -243,15 +243,15 @@ public class BLUE_15_Ball_HP extends CommandOpMode {
                             new BezierCurve(
                                     new Pose(144-141.5, 35.6),
                                     new Pose(144-90.0, 32.0),
-                                    new Pose(144-90.0, 14.5)
+                                    new Pose(144-102, 14.5)
                             )
                     ).setConstantHeadingInterpolation(Math.toRadians(180))
                     .build();
 
             SmallLaunchAreaToHP = follower.pathBuilder().addPath(
                             new BezierCurve(
-                                    new Pose(144-90.0, 14.5),
-                                    new Pose(144-110.0, 24.0),
+                                    new Pose(144-102, 14.5),
+                                    new Pose(144-120, 24.0),
                                     new Pose(144-136.0, 14.0)
                             )
                     ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(212.0))
@@ -261,14 +261,14 @@ public class BLUE_15_Ball_HP extends CommandOpMode {
                             new BezierCurve(
                                     new Pose(144-134.0, 14.0),
                                     new Pose(144-120.0, 16.0),
-                                    new Pose(144-96.0, 14.5)
+                                    new Pose(144-102, 14.5)
                             )
                     ).setLinearHeadingInterpolation(Math.toRadians(212.0), Math.toRadians(180))
                     .build();
 
             SmallLaunchAreaToParking = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(144-96.0, 14.5),
+                                    new Pose(144-102, 14.5),
                                     new Pose(144-109.0, 16.5)
                             )
                     ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))

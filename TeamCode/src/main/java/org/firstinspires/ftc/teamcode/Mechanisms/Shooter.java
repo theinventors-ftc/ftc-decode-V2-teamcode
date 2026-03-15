@@ -45,7 +45,7 @@ public class Shooter extends SubsystemBase {
 
     // ----------------------------------------- States ----------------------------------------- //
     private boolean wheelsEnabled = false;
-    private boolean turretLockEnabled = true;
+    private boolean turretLockEnabled = true, goalOrObelisk = true;
     private boolean hoodLockEnabled = true;
     private boolean parking_state = false;
 
@@ -53,6 +53,7 @@ public class Shooter extends SubsystemBase {
     private Supplier<Pose> curPose;
     private final Pose REDGoalPose = new Pose(69.0, -68.0, 0);
     private final Pose BLUEGoalPose = new Pose(69.0, 68.0, 0);
+    private final Pose ObeliskPose = new Pose(72.5, 0, 0);
     private final Pose goalPose;
 
     // ---------------------------------- Controllers and LUTs ---------------------------------- //
@@ -259,6 +260,10 @@ public class Shooter extends SubsystemBase {
         return (((turretMotor.getCurrentPosition())%TICKS_PER_FULL_ROTATION)*360.0/TICKS_PER_FULL_ROTATION)*(180.0/181.4)*(178.0/180.0) - turretZeroOffset;
     }
 
+    public void resetOffset() {
+        turretZeroOffset = 0;
+    }
+
     public boolean turretInRange() {
         double angleToGoal = getAngleToGoal();
         return angleToGoal > MIN_TURRET_ANGLE && angleToGoal < MAX_TURRET_ANGLE;
@@ -276,9 +281,14 @@ public class Shooter extends SubsystemBase {
         return Math.hypot(dx, dy);
     }
 
-    public double getAngleToGoal() {
+    public double getAngleToGoal() { // true -> goal, false -> obelisk
         double dx_ref = goalPose.getX() - curPose.get().getX();
         double dy_ref = goalPose.getY() - curPose.get().getY();
+
+        if(!goalOrObelisk) {
+            dx_ref = ObeliskPose.getX() - curPose.get().getX();
+            dy_ref = ObeliskPose.getY() - curPose.get().getY();
+        }
 
         double targetAngle_ref = Math.toDegrees(Math.atan2(dy_ref, dx_ref));
         double dx = dx_ref;
@@ -331,4 +341,11 @@ public class Shooter extends SubsystemBase {
     public void increase_turret_offset() { turretZeroOffset += 1.0; }
     public void decrease_turret_offset() { turretZeroOffset -= 1.0; }
 
+    public void enableObelisk() {
+        goalOrObelisk = false;
+    }
+
+    public void disableObelisk() {
+        goalOrObelisk = true;
+    }
 }
