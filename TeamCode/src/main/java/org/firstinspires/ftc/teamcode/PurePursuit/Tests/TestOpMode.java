@@ -9,7 +9,6 @@ import org.firstinspires.ftc.teamcode.Util.Timer;
 import org.firstinspires.ftc.teamcode.RobotMap;
 import org.firstinspires.ftc.teamcode.PurePursuit.RobotMovement;
 
-@Disabled
 @Autonomous(name = "Path Test", group = "Test")
 public class TestOpMode extends OpMode {
 

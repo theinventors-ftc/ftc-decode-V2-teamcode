@@ -9,7 +9,6 @@ import org.firstinspires.ftc.teamcode.PurePursuit.Base.Coordination.Pose;
 import org.firstinspires.ftc.teamcode.RobotMap;
 import org.firstinspires.ftc.teamcode.PurePursuit.RobotMovement;
 
-@Disabled
 @Config
 @Autonomous(name = "PID Test", group = "Test")
 public class PIDTest extends LinearOpMode {
