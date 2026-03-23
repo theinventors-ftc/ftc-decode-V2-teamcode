@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.PurePursuit.Tests;
 import static java.lang.Math.abs;
 
 import com.acmerobotics.dashboard.FtcDashboard;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -13,6 +12,7 @@ import org.firstinspires.ftc.teamcode.PurePursuit.HardwareRelated.Localization.P
 import org.firstinspires.ftc.teamcode.RobotMap;
 
 
+//@Disabled
 @TeleOp(name = "Localization Test", group = "Test")
 public class LocalizationTest extends LinearOpMode {
 
@@ -45,6 +45,8 @@ public class LocalizationTest extends LinearOpMode {
     @Override
     public void runOpMode() {
         robotMap = new RobotMap(hardwareMap, telemetry);
+        robotMap.getFrontRightMotor().setInverted(true);
+        robotMap.getRearRightMotor().setInverted(true);
         localizer = new PinpointLocalizer(robotMap, startingPose);
 
         waitForStart();

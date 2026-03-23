@@ -18,6 +18,10 @@ public class MathFunction {
         return analogAngle * 360;
     }
 
+    public static double oneEightyToThreesixty(double angle) {
+        return (angle < 0) ? 360 + angle : angle;
+    }
+
     public static double wrapDegrees(double angleDeg) { // angle -> (-180, 180)
         angleDeg = angleDeg % 360.0;
         if (angleDeg > 180.0) {

@@ -80,12 +80,10 @@ public class RobotMap {
         frontRight.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
 
         /*--Encoders--*/
-        if(driverOp != null || toolOp!=null) {
-            odo = hm.get(GoBildaPinpointDriver.class, "odometry");
-            encoderRes = GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD;
-            forwardEncoderDirection = GoBildaPinpointDriver.EncoderDirection.FORWARD;
-            strafeEncoderDirection = GoBildaPinpointDriver.EncoderDirection.REVERSED;
-        }
+        odo = hm.get(GoBildaPinpointDriver.class, "odometry");
+        encoderRes = GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD;
+        forwardEncoderDirection = GoBildaPinpointDriver.EncoderDirection.FORWARD;
+        strafeEncoderDirection = GoBildaPinpointDriver.EncoderDirection.REVERSED;
 
         /*--Util--*/
         for (LynxModule module : hubs) {

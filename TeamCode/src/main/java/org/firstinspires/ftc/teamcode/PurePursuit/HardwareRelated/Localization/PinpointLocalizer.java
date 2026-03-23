@@ -63,7 +63,7 @@ public class PinpointLocalizer {
         timer = new NanoTimer();
         odo.setPosition(
                 new Pose(startingPose.getX(),
-                        startingPose.getY(),
+                        startingPose.getX(),
                         Math.toRadians(startingPose.getTheta())
                 )
         );
@@ -78,7 +78,7 @@ public class PinpointLocalizer {
     }
 
     public Pose getVelocity() {
-        return currentVelocity.get();
+        return currentVelocity;
     }
 
     public Vector getVelocityVector() {
@@ -86,15 +86,9 @@ public class PinpointLocalizer {
     }
 
     public void setPose(Pose setPose) {
-        odo.setPosition(new Pose(setPose.getX(), setPose.getY(), Math.toRadians(setPose.getTheta())));
+        odo.setPosition(new Pose(setPose.getX(), setPose.getX(), Math.toRadians(setPose.getTheta())));
         pinpointPose = setPose;
         previousHeading = setPose.getTheta();
-    }
-
-    public void setVector(Vector setVector) {
-        odo.setPosition(new Pose(setVector.getX(), setVector.getY(), Math.toRadians(pinpointPose.getTheta())));
-        pinpointPose = new Pose(setVector.getX(), setVector.getY(), Math.toRadians(pinpointPose.getTheta()));
-        previousHeading = Math.toRadians(pinpointPose.getTheta());
     }
 
     public void update() {
@@ -176,7 +170,7 @@ public class PinpointLocalizer {
             pinpointCooked = true;
         }
 
-        return new Pose(x, y, heading); // (95.0/95.5), (95.0/95.4)
+        return new Pose(x, y, heading);
     }
 
     public boolean isNAN() {

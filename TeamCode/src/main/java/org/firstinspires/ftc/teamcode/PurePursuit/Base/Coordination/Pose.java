@@ -81,8 +81,4 @@ public class Pose {
         plusVec(pose.getVec());
         plusTheta(pose.theta);
     }
-
-    public Pose get() {
-        return this;
-    }
 }

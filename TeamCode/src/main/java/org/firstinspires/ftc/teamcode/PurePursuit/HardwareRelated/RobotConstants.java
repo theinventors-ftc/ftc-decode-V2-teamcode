@@ -1,28 +1,38 @@
 package org.firstinspires.ftc.teamcode.PurePursuit.HardwareRelated;
 
 import com.acmerobotics.dashboard.config.Config;
+
 import org.firstinspires.ftc.teamcode.Controllers.PIDFExCoeffs;
 
 @Config
 public class RobotConstants {
 
-    public static double
+    private static double
 
         /*-- Localization --*/
-        forwardY = 7.6377952755905511811023622047244,
-        strafeX = -0.001,
+        forwardY = 5.2362204724409,
+        strafeX = -4.7244094488189,
 
         /*-- Robot Movement --*/
-        maxVelocity = 10, // max target velocity for the path follow (ticks per second)
-        maxAcceleration = 7, // max target acceleration and deceleration for the path follow
-            // (ticks per second)
-        maxDecceleration = 7, // max target acceleration and deceleration for the path follow
-            // (ticks per second)
+        maxParallelVelocity = 76, // max target velocity for the path follow (ticks per second)
+        maxParallelAcceleration = 20, // max target acceleration and deceleration for the path follow
+        // (ticks per second)
+        maxParallelDecceleration = 20, // max target acceleration and deceleration for the path follow
+        // (ticks per second)
                                 // POSITIVE ONLY
 
-        maxRotationalVelocity = 180, // max rotational target velocity for the path follow
-        maxRotationalAcceleration = 1, // max rotational target acceleration and deceleration for the path follow
-        maxRotationalDecceleration = 1, // max rotational target acceleration and deceleration for the path follow
+        maxPerpendicularVelocity = 54, // max target velocity for the path follow (ticks per second)
+        maxPerpendicularAcceleration = 20, // max target acceleration and deceleration for the path
+    // follow
+        // (ticks per second)
+        maxPerpendicularDecceleration = 20, // max target acceleration and deceleration for the path
+    // follow
+        // (ticks per second)
+                                // POSITIVE ONLY
+
+        maxRotationalVelocity = 341, // max rotational target velocity for the path follow
+        maxRotationalAcceleration = 15, // max rotational target acceleration and deceleration for the path follow
+        maxRotationalDecceleration = 15, // max rotational target acceleration and deceleration for the path follow
                                 // POSITIVE ONLY
 
         minRadiusRange = 1, // min lookahead distance (inches)
@@ -34,8 +44,8 @@ public class RobotConstants {
 
         hybridThetaDistanceThreshold = 7, // absolut distance threshold of the hybrid theta interpolation
 
-        lowerPIDThreshold_X = 4, // inches from ending target to activate the lower PIDS
-        lowerPIDThreshold_Y = 4, // inches from ending target to activate the lower PIDS
+        lowerPIDThreshold_Forward = 4, // inches from ending target to activate the lower PIDS
+        lowerPIDThreshold_Strafe = 4, // inches from ending target to activate the lower PIDS
         rotationalLowerPIDThreshold = 0, // degrees from ending target to activate the lower PID
 
         robotX = 15, // robot's size in the x axis
@@ -47,7 +57,7 @@ public class RobotConstants {
         upperParallelPID = new PIDFExCoeffs(
             0.1,
             0.0,
-            0.0,
+            0.015,
             0,
             0.1,
             0.0,
@@ -55,39 +65,39 @@ public class RobotConstants {
             0.0
         ),
         lowerParallelPID = new PIDFExCoeffs(
-            0.05,
-            0.0,
-            0.0,
+            0.2,
+            0.008,
+            0.022,
             0,
             0.1,
             0.0,
-            0.0,
-            0.0
+            lowerPIDThreshold_Forward,
+            0.6
         ),
         upperPerpendicularPID = new PIDFExCoeffs(
             0.1,
             0.0,
-            0.0,
+            0.01,
             0,
-            0.1,
+            0.0,
             0.0,
             0.0,
             0.0
         ),
         lowerPerpendicularPID = new PIDFExCoeffs(
             0.05,
-            0.0,
-            0.0,
+            0.12,
+            0.02,
             0,
-            0.1,
             0.0,
             0.0,
-            0.0
+            lowerPIDThreshold_Strafe,
+            0.6
         ),
         upperRotationalPID = new PIDFExCoeffs(
-            0.04,
+            0.05,
             0.0,
-            0.0,
+            0.0025,
             0,
             0.1,
             0.0,
@@ -95,25 +105,34 @@ public class RobotConstants {
             0.0
         ),
         lowerRotationalPID = new PIDFExCoeffs(
-            0.01,
-            0.0,
-            0.0,
+            0.032,
+            0.09,
+            0.0015,
             0,
-            0.1,
             0.0,
             0.0,
-            0.0
+            rotationalLowerPIDThreshold,
+            0.6
         );
 
     /*-- Meow --*/
-    public static void setMaxVelocity(double set) {
-        RobotConstants.maxVelocity = set;
+    public static void setMaxParallelVelocity (double set) {
+        RobotConstants.maxParallelVelocity = set;
     }
-    public static void setMaxAcceleration(double set) {
-        RobotConstants.maxAcceleration = set;
+    public static void setMaxParallelAcceleration (double set) {
+        RobotConstants.maxParallelAcceleration = set;
     }
-    public static void setMaxDecceleration(double set) {
-        RobotConstants.maxDecceleration = set;
+    public static void setMaxParallelDecceleration (double set) {
+        RobotConstants.maxParallelDecceleration = set;
+    }
+    public static void setMaxPerpendicularVelocity (double set) {
+        RobotConstants.maxPerpendicularVelocity = set;
+    }
+    public static void setMaxPerpendicularAcceleration (double set) {
+        RobotConstants.maxPerpendicularAcceleration = set;
+    }
+    public static void setMaxPerpendicularDecceleration (double set) {
+        RobotConstants.maxPerpendicularDecceleration = set;
     }
     public static void setMaxRotationalVelocity(double set) {
         RobotConstants.maxRotationalVelocity = set;
@@ -172,25 +191,34 @@ public class RobotConstants {
     public static void setLowerRotationalPID(PIDFExCoeffs set) {
         RobotConstants.lowerRotationalPID = set;
     }
-    public static void setLowerPIDThreshold_X(double set) {
-        RobotConstants.lowerPIDThreshold_X = set;
+    public static void setLowerPIDThreshold_Forward (double set) {
+        RobotConstants.lowerPIDThreshold_Forward = set;
     }
-    public static void setLowerPIDThreshold_Y(double set) {
-        RobotConstants.lowerPIDThreshold_Y = set;
+    public static void setLowerPIDThreshold_Strafe (double set) {
+        RobotConstants.lowerPIDThreshold_Strafe = set;
     }
     public static void setRotationalLowerPIDThreshold(double set) {
         RobotConstants.rotationalLowerPIDThreshold = set;
     }
 
     /*-- Meow meow --*/
-    public static double getMaxVelocity() {
-        return maxVelocity;
+    public static double getMaxParallelVelocity () {
+        return maxParallelVelocity;
     }
-    public static double getMaxAcceleration() {
-        return maxAcceleration;
+    public static double getMaxParallelAcceleration () {
+        return maxParallelAcceleration;
     }
-    public static double getMaxDecceleration() {
-        return maxDecceleration;
+    public static double getMaxParallelDecceleration () {
+        return maxParallelDecceleration;
+    }
+    public static double getMaxPerpendicularVelocity () {
+        return maxPerpendicularVelocity;
+    }
+    public static double getMaxPerpendicularAcceleration () {
+        return maxPerpendicularAcceleration;
+    }
+    public static double getMaxPerpendicularDecceleration () {
+        return maxPerpendicularDecceleration;
     }
     public static double getMaxRotationalVelocity() {
         return maxRotationalVelocity;
@@ -249,11 +277,11 @@ public class RobotConstants {
     public static PIDFExCoeffs getLowerRotationalPID() {
         return lowerRotationalPID;
     }
-    public static double getLowerPIDThreshold_X() {
-        return lowerPIDThreshold_X;
+    public static double getLowerPIDThreshold_Forward () {
+        return lowerPIDThreshold_Forward;
     }
-    public static double getLowerPIDThreshold_Y() {
-        return lowerPIDThreshold_Y;
+    public static double getLowerPIDThreshold_Strafe () {
+        return lowerPIDThreshold_Strafe;
     }
     public static double getRotationalLowerPIDThreshold() {
         return rotationalLowerPIDThreshold;

@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.PurePursuit.Base.Coordination;
 
-import androidx.annotation.Nullable;
-
 public class Vector {
 
     private double x, y;
