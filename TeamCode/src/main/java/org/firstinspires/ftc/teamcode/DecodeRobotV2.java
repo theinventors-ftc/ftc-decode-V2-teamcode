@@ -59,13 +59,13 @@ public class DecodeRobotV2 {
 
         initCommon(robotMap, driveConstants);
         initTele(robotMap, pose);
-//        this.initMechanismsTeleOp(robotMap);
+        this.initMechanismsTeleOp(robotMap);
 
         // Init Mechanisms when driver starts moving the robot
-        new Trigger(() -> (Math.abs(drivetrainForward()) > 0.1 ||
-            Math.abs(drivetrainStrafe()) > 0.1 ||
-            Math.abs(drivetrainTurn()) > 0.1) && !hasInit)
-            .whenActive(new InstantCommand(() -> this.initMechanismsTeleOp(robotMap)));
+//        new Trigger(() -> (Math.abs(drivetrainForward()) > 0.1 ||
+//            Math.abs(drivetrainStrafe()) > 0.1 ||
+//            Math.abs(drivetrainTurn()) > 0.1) && !hasInit)
+//            .whenActive(new InstantCommand(() -> this.initMechanismsTeleOp(robotMap)));
     }
 
     public DecodeRobotV2(RobotMap robotMap, DriveConstants driveConstants, Alliance alliance
@@ -203,13 +203,15 @@ public class DecodeRobotV2 {
 
         intake = new Intake(robotMap);
         passthough = new Passthough(robotMap, getMotif());
+        detection = new Detection(robotMap);
+        detection.setState(Detection.DetectionState.GOAL);
         shooter = new Shooter(
             robotMap,
             this::getPose,
             alliance,
-            true
+            true,
+                () -> detection.getTagX()
         );
-//        detection = new Detection(robotMap);
 
         commandSeriesVault = new CommandSeriesVault(intake, passthough, shooter);
 
@@ -308,6 +310,10 @@ public class DecodeRobotV2 {
                         ),
                         () -> getAlliance() != Alliance.BLUE
                 )
+        );
+
+        toolOp.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER).whenPressed(
+                new InstantCommand(() -> teleOpLocalizer.setPose(new Pose(0, 0, 0)))
         );
 
         toolOp.getGamepadButton(GamepadKeys.Button.BACK).whenPressed(this::switchMotif);

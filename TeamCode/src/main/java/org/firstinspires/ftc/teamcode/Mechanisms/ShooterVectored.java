@@ -1,11 +1,9 @@
 package org.firstinspires.ftc.teamcode.Mechanisms;
 
-import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.command.SubsystemBase;
 import com.arcrobotics.ftclib.controller.wpilibcontroller.SimpleMotorFeedforward;
 import com.arcrobotics.ftclib.util.InterpLUT;
-import com.pedropathing.ftc.FTCCoordinates;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.ServoImplEx;
 import com.qualcomm.robotcore.util.Range;
@@ -20,12 +18,13 @@ import org.firstinspires.ftc.teamcode.DecodeRobotV2;
 import org.firstinspires.ftc.teamcode.Hardware.MotorExEx;
 import org.firstinspires.ftc.teamcode.PurePursuit.Base.Coordination.Pose;
 import org.firstinspires.ftc.teamcode.RobotMap;
+import org.firstinspires.ftc.teamcode.Mechanisms.VectorMath;
 
 import java.util.ArrayList;
 import java.util.function.DoubleSupplier;
 
 @Config
-public class Shooter extends SubsystemBase {
+public class ShooterVectored extends SubsystemBase {
     // ---------------------------------------- Hardware ---------------------------------------- //
     private MotorExEx wheel1, wheel2;
     private ServoImplEx hoodServo;
@@ -67,15 +66,15 @@ public class Shooter extends SubsystemBase {
 
     // ---------------------------------- Controllers and LUTs ---------------------------------- //
     private InterpLUT wheelSpeed, hoodAngle;
-    private PIDFEx turretController, turretControllerTag, veloController;
-    private PIDFExCoeffs coeffsTurret, coeffsTurretTag, coeffsVelo;
+    private PIDFEx turretController, veloController;
+    private PIDFExCoeffs coeffsTurret, coeffsVelo;
     private SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(0, 1, 0);
 
     // ------------------------------------ Turret Zeroing -------------------------------------- //
     private boolean turretZeroed = false;
     private double turretZeroPower = -0.25;
     private double turretZeroCurrentThreshold = 2.0;
-    public static double turretZeroOffset = 104.0;
+    public static double turretZeroOffset = 102.5;
     private StateMachine hasStalled;
 
     // ------------------------------------------ Util ------------------------------------------ //
@@ -84,13 +83,14 @@ public class Shooter extends SubsystemBase {
     private ArrayList<Double> cachedDistances = new ArrayList<>();
 
     public static double customVEL = 0.0, customHOOD = 0.0, kP=0.005, kI=0.0, kD=0.0, kF=0.0, MAX_TURRET_POWER = 0.2, minMP = 0.1, maxMP=0.5;
+    public static double stationaryScale = 1.0, robotVelocityScale = 1.0/93.5;
 
 
-    public Shooter(RobotMap robotMap, Supplier<Pose> curPose, DecodeRobotV2.Alliance alliance, boolean doZero) {
+    public ShooterVectored(RobotMap robotMap, Supplier<Pose> curPose, DecodeRobotV2.Alliance alliance, boolean doZero) {
         this(robotMap, curPose, alliance, doZero, () -> 320.0);
     }
 
-    public Shooter(RobotMap robotMap, Supplier<Pose> curPose, DecodeRobotV2.Alliance alliance, boolean doZero, DoubleSupplier tagX) {
+    public ShooterVectored(RobotMap robotMap, Supplier<Pose> curPose, DecodeRobotV2.Alliance alliance, boolean doZero, DoubleSupplier tagX) {
         this.wheel1 = robotMap.getShooterWheel1Motor();
         this.wheel2 = robotMap.getShooterWheel2Motor();
         this.hoodServo = robotMap.getHoodServo();
@@ -123,18 +123,7 @@ public class Shooter extends SubsystemBase {
                 0.5
         );
 
-        coeffsTurretTag = new PIDFExCoeffs(
-                0.07,
-                0.16,
-                0.0018,
-                0.0,
-                0.1,
-                0.01,
-                16,
-                0.5
-        );
         turretController = new PIDFEx(coeffsTurret);
-        turretControllerTag = new PIDFEx(coeffsTurretTag);
 
         coeffsVelo = new PIDFExCoeffs(
                 14.5,
@@ -218,43 +207,14 @@ public class Shooter extends SubsystemBase {
         telemetry.addData("[Shooter] Turret Angle: ", getTurretAngle());
         telemetry.addData("[Shooter] GOAL Dist: ", getDistanceToGoal());
         telemetry.addData("[Shooter] GOAL Angle: ", getAngleToGoal());
-        telemetry.addData("[Shooter] TAG X: ", tagX.getAsDouble());
-
-
 
         // --------------------------------------- Turret --------------------------------------- //
-        turretControllerTag.setP(kP);
-        turretControllerTag.setI(kI);
-        turretControllerTag.setD(kD);
-        FtcDashboard.getInstance().getTelemetry().addData("Tag Error: ", turretControllerTag.getPositionError());
-
-//        if((Math.abs(turretController.getPositionError()) > 10) && true) {
-//            turretController.setSetPoint(Range.clip(
-//                    (shooterLock != ShooterGoal.DISABLED) ? getAngleToGoal() : 0,
-//                    MIN_TURRET_ANGLE,
-//                    MAX_TURRET_ANGLE)
-//            );
-//
-//            turretMotor.set(Range.clip(
-//                    turretController.calculate(getTurretAngle()),
-//                    -MAX_TURRET_POWER,
-//                    MAX_TURRET_POWER
-//            ));
-//        } else {
-//            turretControllerTag.setSetPoint((shooterLock != ShooterGoal.DISABLED) ? getTagTargetX() : 0);
-//
-//            turretMotor.set(Range.clip(
-//                    turretControllerTag.calculate(tagX.getAsDouble()),
-//                    -monkeyMP(turretControllerTag.getPositionError()),
-//                    monkeyMP(turretControllerTag.getPositionError())
-//            ));
-//        }
-//
-//        turretMotor.set(Range.clip(
-//                turretController.calculate(getTurretAngle()),
-//                -MAX_TURRET_POWER,
-//                MAX_TURRET_POWER
-//        ));
+        Vector curShootingVector = calcShootingVector();
+        turretMotor.set(Range.clip(
+                turretController.calculate(Math.toDegrees(curShootingVector.getAngle())),
+                -MAX_TURRET_POWER,
+                MAX_TURRET_POWER
+        ));
 
 //        if(!inLUTRange()) return;
 
@@ -266,10 +226,6 @@ public class Shooter extends SubsystemBase {
                 MIN_HOOD_POS,
                 MAX_HOOD_POS
         ));
-
-//        hoodServo.setPosition((
-//                customHOOD
-//        ));
 
 //        hoodServo.setPosition(Range.scale(
 //                (hoodLockEnabled ? hoodAngle.get(getDistanceToGoal()) : 0),
@@ -289,14 +245,6 @@ public class Shooter extends SubsystemBase {
             wheel1.set(getControlledWheelPower(customVEL));
             wheel2.set(getControlledWheelPower(customVEL));
         }
-    }
-
-    public double monkeyMP(double error) {
-        double MAX_OUTPUT;
-        error = Math.abs(error);
-        MAX_OUTPUT = Range.scale(error, 320, 0, maxMP, minMP);
-        FtcDashboard.getInstance().getTelemetry().addData("MAX OUTPUT: ", MAX_OUTPUT);
-        return MAX_OUTPUT;
     }
 
     public void cacheCurrentDistance() {
@@ -337,8 +285,7 @@ public class Shooter extends SubsystemBase {
 
     // ----------------------------------------- Turret ----------------------------------------- //
     public double getTurretAngle() {
-//        return (((turretMotor.getCurrentPosition())%TICKS_PER_FULL_ROTATION)*360.0/TICKS_PER_FULL_ROTATION)*(180.0/181.4)*(178.0/180.0) - turretZeroOffset;
-        return (((turretMotor.getCurrentPosition())%TICKS_PER_FULL_ROTATION)*360.0/TICKS_PER_FULL_ROTATION)*(180.0/180.3797) - turretZeroOffset;
+        return (((turretMotor.getCurrentPosition())%TICKS_PER_FULL_ROTATION)*360.0/TICKS_PER_FULL_ROTATION)*(180.0/181.4)*(178.0/180.0) - turretZeroOffset;
     }
 
     public void resetOffset() {
@@ -394,6 +341,18 @@ public class Shooter extends SubsystemBase {
         return relativeAngle;
     }
 
+    public Vector calcShootingVector() {
+        double stationary_angle = Math.toRadians(getAngleToGoal());
+        double artifact_velocity = wheelSpeed.get(getDistanceToGoal())*0.964;
+        Vector stationaryVec = new Vector(artifact_velocity, stationary_angle, true);
+        Vector robotVelocityVec = new Vector(artifact_velocity, stationary_angle, true);
+
+        Vector scaledStationaryVec = VectorMath.scale_vector(stationaryVec, stationaryScale);
+        Vector scaledRobotVelocityVec = VectorMath.scale_vector(robotVelocityVec, robotVelocityScale);
+
+        return VectorMath.subtract_vectors(scaledStationaryVec, scaledRobotVelocityVec);
+    }
+
     public double getTagTargetX() {
         return 320.0;
     }
@@ -425,20 +384,4 @@ public class Shooter extends SubsystemBase {
 
     public void increase_turret_offset() { turretZeroOffset += 1.0; }
     public void decrease_turret_offset() { turretZeroOffset -= 1.0; }
-
-    public void enableObelisk() {
-        //pare mou mia pipa
-    }
-
-    public void disableObelisk() {
-        //pare mou mia pipa
-    }
-
-//    public void enableObelisk() {
-//        goalOrObelisk = false;
-//    }
-//
-//    public void disableObelisk() {
-//        goalOrObelisk = true;
-//    }
 }

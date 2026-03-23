@@ -19,10 +19,11 @@ public class Detection extends SubsystemBase {
     private final Limelight3A limelight;
 
     private int motifId = 0;
+    private double tagX = 0.0;
 
     public enum DetectionState {
         OBELISK(1),
-        GOAL(2),
+        GOAL(4),
         DISABLED;
 
         public final int pipeline;
@@ -66,18 +67,17 @@ public class Detection extends SubsystemBase {
             double parseLatency = result.getParseLatency();
             telemetry.addData("LL Latency", captureLatency + targetingLatency);
             telemetry.addData("Parse Latency", parseLatency);
+            telemetry.addData("Staleness", result.getStaleness());
             telemetry.addData("PythonOutput", java.util.Arrays.toString(result.getPythonOutput()));
-
-//            Pose3D botpose = result.getBotpose();
-//            telemetry.addData("LIME POSE", "X: %.2f, Y: %.2f, Z: %.2f", botpose.getPosition().x*39.370078, botpose.getPosition().y*39.370078, botpose.getPosition().z);
 
             List<LLResultTypes.FiducialResult> fiducialResults = result.getFiducialResults();
             if (fiducialResults.isEmpty()) {
                 motifId = 0;
+                tagX = 320;
                 telemetry.addData("Limelight", "No tag available");
                 return;
             }
-
+            tagX = fiducialResults.get(0).getTargetXPixels();
             motifId = fiducialResults.get(0).getFiducialId();
 
         } else {
@@ -115,5 +115,9 @@ public class Detection extends SubsystemBase {
 
     public void setGoalPip() {
         setState(DetectionState.GOAL);
+    }
+
+    public double getTagX() {
+        return tagX;
     }
 }
