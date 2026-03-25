@@ -20,6 +20,7 @@ public class Detection extends SubsystemBase {
 
     private int motifId = 0;
     private double tagX = 0.0;
+    private double angleError = 0.0;
 
     public enum DetectionState {
         OBELISK(1),
@@ -79,6 +80,7 @@ public class Detection extends SubsystemBase {
             }
             tagX = fiducialResults.get(0).getTargetXPixels();
             motifId = fiducialResults.get(0).getFiducialId();
+            angleError = fiducialResults.get(0).getTargetXDegrees();
 
         } else {
             telemetry.addData("Limelight", "No data available");
@@ -119,5 +121,9 @@ public class Detection extends SubsystemBase {
 
     public double getTagX() {
         return tagX;
+    }
+
+    public double getAngleError() {
+        return angleError;
     }
 }

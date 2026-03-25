@@ -210,7 +210,8 @@ public class DecodeRobotV2 {
             this::getPose,
             alliance,
             true,
-                () -> detection.getTagX()
+            () -> detection.getTagX(),
+            () -> detection.getAngleError()
         );
 
         commandSeriesVault = new CommandSeriesVault(intake, passthough, shooter);
