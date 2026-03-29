@@ -255,29 +255,18 @@ public class Shooter extends SubsystemBase {
         turretControllerTag.setD(kD);
         FtcDashboard.getInstance().getTelemetry().addData("Tag Error: ", turretControllerTag.getPositionError());
 
-//        if((Math.abs(turretController.getPositionError()) > 10) && true) {
-            turretController.setSetPoint(Range.clip(
-                    (shooterLock != ShooterGoal.DISABLED) ? odoPlusLLKalman : 0,
-                    MIN_TURRET_ANGLE,
-                    MAX_TURRET_ANGLE)
-            );
+        turretController.setSetPoint(Range.clip(
+                (shooterLock != ShooterGoal.DISABLED) ? odoPlusLLKalman : 0,
+                MIN_TURRET_ANGLE,
+                MAX_TURRET_ANGLE)
+        );
 
-            turretMotor.set(Range.clip(
-                    turretController.calculate(getTurretAngle()),
-                    -MAX_TURRET_POWER,
-                    MAX_TURRET_POWER
-            ));
+        turretMotor.set(Range.clip(
+                turretController.calculate(getTurretAngle()),
+                -MAX_TURRET_POWER,
+                MAX_TURRET_POWER
+        ));
 
-//        } else {
-//            turretControllerTag.setSetPoint((shooterLock != ShooterGoal.DISABLED) ? getTagTargetX() : 0);
-//
-//            turretMotor.set(Range.clip(
-//                    turretControllerTag.calculate(tagX.getAsDouble()),
-//                    -monkeyMP(turretControllerTag.getPositionError()),
-//                    monkeyMP(turretControllerTag.getPositionError())
-//            ));
-//        }
-//
 //        turretMotor.set(Range.clip(
 //                turretController.calculate(getTurretAngle()),
 //                -MAX_TURRET_POWER,

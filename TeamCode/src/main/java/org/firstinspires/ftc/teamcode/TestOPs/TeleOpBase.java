@@ -48,6 +48,7 @@ public class TeleOpBase extends CommandOpMode {
 
         // ---------------------------- Transfer Pose from Autonomous --------------------------- //
         pose = PoseStorage.currentPose;
+        pose = new Pose(0, 0, 0);
     }
 
     public void initAllianceRelated(DecodeRobotV2.Alliance alliance) {

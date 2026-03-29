@@ -12,24 +12,39 @@ public class CommandSeriesVault {
     private DecodeRobotV2.Alliance alliance;
     private Intake intake;
     private Passthough passthough;
-    private Shooter shooter;
+    private ShooterVectored shooter;
     private Detection detection;
 
     // --------------------------------------- Constants ---------------------------------------- //
     public static int FINGER_BETWEEN_MS = 40, FINGER_HOLD_MS = 200, FINGER_BETWEEN_MOTIF_MS = 500;
 //    public static int FINGER_BETWEEN_MS = 80, FINGER_HOLD_MS = 340, FINGER_BETWEEN_MOTIF_MS = 500;
 
-    public CommandSeriesVault(Intake intake, Passthough passthough, Shooter shooter, Detection detection) {
+    public CommandSeriesVault(Intake intake, Passthough passthough, ShooterVectored shooter, Detection detection) {
         this.intake = intake;
         this.passthough = passthough;
         this.shooter = shooter;
         this.detection = detection;
     }
 
-    public CommandSeriesVault(Intake intake, Passthough passthough, Shooter shooter) {
+    public CommandSeriesVault(Intake intake, Passthough passthough, ShooterVectored shooter) {
         this.intake = intake;
         this.passthough = passthough;
         this.shooter = shooter;
+        this.detection = null;
+    }
+
+    public CommandSeriesVault(Intake intake, Passthough passthough, Shooter shooter, Detection detection) {
+        this.intake = intake;
+        this.passthough = passthough;
+        this.shooter = null;
+        this.detection = detection;
+    }
+
+
+    public CommandSeriesVault(Intake intake, Passthough passthough, Shooter shooter) {
+        this.intake = intake;
+        this.passthough = passthough;
+        this.shooter = null;
         this.detection = null;
     }
 

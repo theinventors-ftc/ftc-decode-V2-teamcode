@@ -23,7 +23,7 @@ public class Vector {
     }
 
     public double getAngle() {
-        return magnitude;
+        return angle;
     }
 
     public double getVx() {
