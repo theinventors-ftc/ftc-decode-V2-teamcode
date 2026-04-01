@@ -19,7 +19,6 @@ import org.firstinspires.ftc.teamcode.Mechanisms.Detection;
 import org.firstinspires.ftc.teamcode.Mechanisms.Intake;
 import org.firstinspires.ftc.teamcode.Mechanisms.Passthough;
 import org.firstinspires.ftc.teamcode.Mechanisms.Shooter;
-import org.firstinspires.ftc.teamcode.Mechanisms.ShooterVectored;
 import org.firstinspires.ftc.teamcode.PurePursuit.Base.Coordination.Pose;
 import org.firstinspires.ftc.teamcode.PurePursuit.Base.Coordination.Vector;
 import org.firstinspires.ftc.teamcode.PurePursuit.Base.Math.MathFunction;
@@ -47,7 +46,7 @@ public class DecodeRobotV2 {
     // Mechanisms
     protected Intake intake;
     protected Passthough passthough;
-    protected ShooterVectored shooter;
+    protected Shooter shooter;
     protected Detection detection;
     protected CommandSeriesVault commandSeriesVault;
 
@@ -239,13 +238,12 @@ public class DecodeRobotV2 {
 //            () -> detection.getTagX(),
 //            () -> detection.getAngleError()
 //        );
-        shooter = new ShooterVectored(
+        shooter = new Shooter(
             robotMap,
             this::getPose,
             this::getPoseVelocity,
             alliance,
-            true,
-            () -> detection.getTagX()
+            true
         );
 
         commandSeriesVault = new CommandSeriesVault(intake, passthough, shooter);

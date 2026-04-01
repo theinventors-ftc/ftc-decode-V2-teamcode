@@ -22,7 +22,7 @@ import org.firstinspires.ftc.teamcode.DecodeRobotV2;
 import org.firstinspires.ftc.teamcode.Mechanisms.CommandSeriesVault;
 import org.firstinspires.ftc.teamcode.Mechanisms.Intake;
 import org.firstinspires.ftc.teamcode.Mechanisms.Passthough;
-import org.firstinspires.ftc.teamcode.Mechanisms.Shooter;
+import org.firstinspires.ftc.teamcode.Mechanisms.ShooterLimelight;
 import org.firstinspires.ftc.teamcode.MotifStorage;
 import org.firstinspires.ftc.teamcode.PoseStorage;
 import org.firstinspires.ftc.teamcode.RobotMap;
@@ -41,7 +41,7 @@ public class BLUE_15_Ball_HP extends CommandOpMode {
 
     private Intake intake;
     private Passthough passthough;
-    private Shooter shooter;
+    private ShooterLimelight shooter;
 
     private CommandSeriesVault commandVault;
 
@@ -61,7 +61,7 @@ public class BLUE_15_Ball_HP extends CommandOpMode {
 
         intake = new Intake(robotMap);
         passthough = new Passthough(robotMap, MotifStorage.Motif.PPG);
-        shooter = new Shooter(robotMap, this::getPoseFTCCoor, DecodeRobotV2.Alliance.BLUE, false);
+        shooter = new ShooterLimelight(robotMap, this::getPoseFTCCoor, DecodeRobotV2.Alliance.BLUE, false);
         commandVault = new CommandSeriesVault(intake, passthough, shooter);
 
         commandVault.enableWheels().schedule();
