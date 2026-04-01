@@ -276,44 +276,32 @@ public class Shooter extends SubsystemBase {
         if(!inLUTRange()) return;
 
         // ---------------------------------------- Hood ---------------------------------------- //
-        hoodServo.setPosition(Range.scale(
-                customHOOD,
-                0,
-                1,
-                MIN_HOOD_POS,
-                MAX_HOOD_POS
-        ));
-
-//        hoodServo.setPosition((
-//                customHOOD
-//        ));
-
 //        hoodServo.setPosition(Range.scale(
-//                (hoodLockEnabled ? hoodAngle.get(getDistanceToGoal()) : 0),
+//                customHOOD,
 //                0,
 //                1,
 //                MIN_HOOD_POS,
 //                MAX_HOOD_POS
 //        ));
 
+        hoodServo.setPosition(Range.scale(
+                (hoodLockEnabled ? Range.clip(hoodAngle.get(getDistanceToGoal())-0.48, 0.0, 1.0) : 0),
+                0,
+                1,
+                MIN_HOOD_POS,
+                MAX_HOOD_POS
+        ));
+
 //        FtcDashboard.getInstance().getTelemetry().addData("LUT Vel: ", wheelSpeed.get(getDistanceToGoal())*0.964);
 //        FtcDashboard.getInstance().getTelemetry().addData("LUT Hood: ", hoodAngle.get(getDistanceToGoal()));
 
         // --------------------------------------- Wheels --------------------------------------- //
         if(wheelsEnabled) {
-//            wheel1.set(getControlledWheelPower(wheelSpeed.get(getDistanceToGoal())*0.964));
-//            wheel2.set(getControlledWheelPower(wheelSpeed.get(getDistanceToGoal())*0.964));
-            wheel1.set(getControlledWheelPower(customVEL));
-            wheel2.set(getControlledWheelPower(customVEL));
+            wheel1.set(getControlledWheelPower(wheelSpeed.get(getDistanceToGoal())*0.964));
+            wheel2.set(getControlledWheelPower(wheelSpeed.get(getDistanceToGoal())*0.964));
+//            wheel1.set(getControlledWheelPower(customVEL));
+//            wheel2.set(getControlledWheelPower(customVEL));
         }
-    }
-
-    public double monkeyMP(double error) {
-        double MAX_OUTPUT;
-        error = Math.abs(error);
-        MAX_OUTPUT = Range.scale(error, 320, 0, maxMP, minMP);
-        FtcDashboard.getInstance().getTelemetry().addData("MAX OUTPUT: ", MAX_OUTPUT);
-        return MAX_OUTPUT;
     }
 
     public void cacheCurrentDistance() {

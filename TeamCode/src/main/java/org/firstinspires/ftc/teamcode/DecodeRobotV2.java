@@ -9,6 +9,7 @@ import com.arcrobotics.ftclib.command.button.Trigger;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Controllers.PIDFEx;
 import org.firstinspires.ftc.teamcode.Drive.DriveConstants;
 import org.firstinspires.ftc.teamcode.Drive.MecanumDrive;
 import org.firstinspires.ftc.teamcode.Hardware.GamepadExEx;
@@ -54,6 +55,11 @@ public class DecodeRobotV2 {
 
     public static boolean zeroPose = false;
 
+    private PIDFEx headingController;
+    private boolean headingControlEnabled = false;
+
+//    public static double kp = 2.0, ki = 0.0, kd = 0.002, setPoint = 30;
+
     public DecodeRobotV2(RobotMap robotMap, DriveConstants driveConstants, Alliance alliance,
                          Pose pose, MotifStorage.Motif motif
     ) {
@@ -89,7 +95,18 @@ public class DecodeRobotV2 {
     }
 
     public double drivetrainTurn() {
+        if(headingControlEnabled) return -headingController.calculate(Math.toRadians(getContinuousHeading()%360));
+
         return driverOp.getRightX();
+    }
+
+    public void enableGateHeadingControl() {
+        headingControlEnabled = true;
+        headingController.setSetPoint(alliance == Alliance.RED ? Math.toRadians(30) : Math.toRadians(150));
+    }
+
+    public void disableGateHeadingControl() {
+        headingControlEnabled = false;
     }
 
     public void drive_update() {
@@ -213,6 +230,7 @@ public class DecodeRobotV2 {
         passthough = new Passthough(robotMap, getMotif());
         detection = new Detection(robotMap);
         detection.setState(Detection.DetectionState.GOAL);
+        headingController = new PIDFEx(2.1, 0, 0.24, 0.008, 0.2, 0.0, Math.toRadians(40), 0.5);
 //        shooter = new Shooter(
 //            robotMap,
 //            this::getPose,
@@ -334,6 +352,16 @@ public class DecodeRobotV2 {
 //        );
 
         toolOp.getGamepadButton(GamepadKeys.Button.BACK).whenPressed(this::switchMotif);
+
+        driverOp.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER).whenPressed(new ConditionalCommand(
+                new InstantCommand(this::disableGateHeadingControl),
+                new InstantCommand(this::enableGateHeadingControl),
+                () -> headingControlEnabled
+        ));
+
+        new Trigger(() -> Math.abs(driverOp.getRightX()) > 0.3).whenActive(
+                new InstantCommand(this::disableGateHeadingControl)
+        );
     }
 
     public void switchMotif() {

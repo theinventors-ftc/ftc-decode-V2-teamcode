@@ -58,7 +58,7 @@ public class RobotMap {
         this.telemetry.setMsTransmissionInterval(11);
 
         if(driverOp != null) this.driverOp = new GamepadExEx(driverOp);
-        if(toolOp != null) this.toolOp = new GamepadExEx(driverOp);
+        if(toolOp != null) this.toolOp = new GamepadExEx(toolOp);
 
         hubs = hm.getAll(LynxModule.class);
         battery = new Battery(hm);
@@ -80,12 +80,12 @@ public class RobotMap {
         frontRight.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
 
         /*--Encoders--*/
-        if(driverOp != null || toolOp!=null) {
+//        if(driverOp != null || toolOp!=null) {
             odo = hm.get(GoBildaPinpointDriver.class, "odometry");
             encoderRes = GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD;
             forwardEncoderDirection = GoBildaPinpointDriver.EncoderDirection.FORWARD;
             strafeEncoderDirection = GoBildaPinpointDriver.EncoderDirection.REVERSED;
-        }
+//        }
 
         /*--Util--*/
         for (LynxModule module : hubs) {

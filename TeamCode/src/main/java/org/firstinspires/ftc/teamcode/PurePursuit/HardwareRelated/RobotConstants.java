@@ -12,10 +12,6 @@ public class RobotConstants {
         forwardY = 7.6377952755905511811023622047244,
         strafeX = -0.001,
 
-//    forwardY = 7.0+9.5/16.0,
-//            strafeX = -1.0/32.0,
-
-
         /*-- Robot Movement --*/
         maxVelocity = 10, // max target velocity for the path follow (ticks per second)
         maxAcceleration = 7, // max target acceleration and deceleration for the path follow

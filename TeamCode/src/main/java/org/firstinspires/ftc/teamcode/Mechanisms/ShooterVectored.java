@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.Mechanisms;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.command.SubsystemBase;
-import com.arcrobotics.ftclib.controller.wpilibcontroller.SimpleMotorFeedforward;
 import com.arcrobotics.ftclib.util.InterpLUT;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.ServoImplEx;
@@ -20,7 +19,6 @@ import org.firstinspires.ftc.teamcode.DecodeRobotV2;
 import org.firstinspires.ftc.teamcode.Hardware.MotorExEx;
 import org.firstinspires.ftc.teamcode.PurePursuit.Base.Coordination.Pose;
 import org.firstinspires.ftc.teamcode.RobotMap;
-import org.firstinspires.ftc.teamcode.Mechanisms.VectorMath;
 
 import java.util.ArrayList;
 import java.util.function.DoubleSupplier;
@@ -76,7 +74,7 @@ public class ShooterVectored extends SubsystemBase {
     private boolean turretZeroed = false;
     private double turretZeroPower = -0.25;
     private double turretZeroCurrentThreshold = 2.0;
-    public static double turretZeroOffset = 104.0;
+    public static double turretZeroOffset = 102.5;
     private StateMachine hasStalled;
 
     // ------------------------------------------ Util ------------------------------------------ //
@@ -85,8 +83,8 @@ public class ShooterVectored extends SubsystemBase {
     private ArrayList<Double> cachedDistances = new ArrayList<>();
 
     public static double customVEL = 0.0, customHOOD = 0.0, hoodOff = 0.48;
-    public static double stationaryScale = 1.0, robotVelocityScale = 0.00492, wheelSpeedFactor = 1.0;
-    public static double poseEstimationScale = 0.21;
+    private static final double stationaryScale = 1.0, robotVelocityScale = 0.00492, wheelSpeedFactor = 1.0;
+    private static final double poseEstimation_dt = 0.21;
 
 
     public ShooterVectored(RobotMap robotMap, Supplier<Pose> curPose, Supplier<Pose> curPoseVel, DecodeRobotV2.Alliance alliance, boolean doZero) {
@@ -105,7 +103,7 @@ public class ShooterVectored extends SubsystemBase {
         this.telemetry = robotMap.getTelemetry();
         this.tagX = tagX;
         this.curPose = curPose;
-        this.futurePose = () -> estimateFuturePose(poseEstimationScale);
+        this.futurePose = () -> estimateFuturePose(poseEstimation_dt);
         this.curPoseVel = curPoseVel;
 
         shooterLock = ShooterGoal.ALLIANCE_GOAL;
@@ -120,25 +118,22 @@ public class ShooterVectored extends SubsystemBase {
         goalPose = (alliance == DecodeRobotV2.Alliance.RED) ? REDGoalPose : BLUEGoalPose;
 
         coeffsTurret = new PIDFExCoeffs( //Salonika: kP=0.072, kI=0.16, kD=0.0018,
-                0.082,
-                0.16,
-                0.0022,
+                0.055,
+                0.13,
+                0.00225,
                 0.0,
-                0.1,
-                0.01,
-                16,
-                0.5
+                0.2,
+                0.0,
+                20,
+                0.6
         );
+
         turretController = new PIDFEx(coeffsTurret);
 
-//        0.1,
-//                0.16,
-//                0.0031, Working
-
         coeffsVelo = new PIDFExCoeffs(
-                23,
+                12.5, // 23
                 0.0,
-                0.09,
+                0.04, // 0.09
                 0.0,
                 0.0,
                 3,
@@ -151,31 +146,29 @@ public class ShooterVectored extends SubsystemBase {
         wheelSpeed = new InterpLUT();
         hoodAngle = new InterpLUT();
 
-        wheelSpeed.add(39.23, 0.61);
-        wheelSpeed.add(51.89, 0.63);
-        wheelSpeed.add(63.6, 0.662);
-        wheelSpeed.add(71.0, 0.675);
-        wheelSpeed.add(86.29, 0.729);
-        wheelSpeed.add(101.22, 0.76);
-        wheelSpeed.add(115.59, 0.81);
-        wheelSpeed.add(128.0, 0.81/0.964);
-        wheelSpeed.add(143.52, 0.83/0.964);
-        wheelSpeed.add(151.14, 0.86/0.964);
-        wheelSpeed.add(165.22, 0.91/0.964);
+        wheelSpeed.add(48.4, 0.6);
+        wheelSpeed.add(61.67, 0.605);
+        wheelSpeed.add(79.75, 0.69);
+        wheelSpeed.add(99.3, 0.74);
+        wheelSpeed.add(114.68, 0.769);
+        wheelSpeed.add(130.53, 0.865);
+        wheelSpeed.add(133.67, 0.872);
+        wheelSpeed.add(135.45, 0.9);
+        wheelSpeed.add(142.89, 0.89);
+        wheelSpeed.add(153.9, 0.901);
+        wheelSpeed.add(162.2, 0.922);
 
-        hoodAngle.add(39.23, 0.24);
-        hoodAngle.add(51.89, 0.3);
-        hoodAngle.add(63.6, 0.69);
-        hoodAngle.add(65.0, 0.69);
-        hoodAngle.add(71.0, 0.69);
-        hoodAngle.add(86.29, 0.84);
-        hoodAngle.add(101.22, 0.9);
-        hoodAngle.add(115.59, 0.95);
-        hoodAngle.add(127.0, 1.0);
-        hoodAngle.add(133.36, 1.0);
-        hoodAngle.add(143.52, 1.0);
-        hoodAngle.add(151.14, 1.0);
-        hoodAngle.add(165.22, 1.0);
+        hoodAngle.add(48.4, 0);
+        hoodAngle.add(61.67, 0);
+        hoodAngle.add(79.75, 0.38);
+        hoodAngle.add(99.3, 0.45);
+        hoodAngle.add(114.68, 0.46);
+        hoodAngle.add(130.53, 0.72);
+        hoodAngle.add(133.67, 0.64);
+        hoodAngle.add(135.45, 0.75);
+        hoodAngle.add(142.89, 0.64);
+        hoodAngle.add(153.9, 0.64);
+        hoodAngle.add(162.2, 0.64);
 
         wheelSpeed.createLUT();
         hoodAngle.createLUT();
@@ -213,12 +206,14 @@ public class ShooterVectored extends SubsystemBase {
         telemetry.addData("[Shooter] Parking State ", parking_state);
         telemetry.addData("[Shooter] Hood Lock ", hoodLockEnabled);
         telemetry.addData("[Shooter] Turret Angle: ", getTurretAngle());
+        telemetry.addData("[Shooter] Turret Ticks: ", turretMotor.getCurrentPosition());
         telemetry.addData("[Shooter] GOAL Dist: ", getDistanceToGoal(curPose.get()));
         telemetry.addData("[Shooter] GOAL Angle: ", getAngleToGoal());
 
         // --------------------------------------- Turret --------------------------------------- //
         Vector curShootingVector = calcShootingVector();
         turretController.setSetPoint(getTurretTarget(curShootingVector));
+
         turretMotor.set(Range.clip(
                 turretController.calculate(getTurretAngle()),
                 -MAX_TURRET_POWER,
@@ -229,15 +224,12 @@ public class ShooterVectored extends SubsystemBase {
 
         // ---------------------------------------- Hood ---------------------------------------- //
         hoodServo.setPosition(Range.scale(
-                (hoodLockEnabled ? Range.clip(hoodAngle.get(getDistanceToGoal(futurePose.get()))-hoodOff, 0.0, 1.0) : 0),
+                (hoodLockEnabled ? hoodAngle.get(getDistanceToGoal(futurePose.get())) : 0),
                 0,
                 1,
                 MIN_HOOD_POS,
                 MAX_HOOD_POS
         ));
-
-        FtcDashboard.getInstance().getTelemetry().addData("LUT Vel: ", wheelSpeed.get(getDistanceToGoal(curPose.get()))*0.964);
-        FtcDashboard.getInstance().getTelemetry().addData("LUT Hood: ", hoodAngle.get(getDistanceToGoal(curPose.get())));
 
         FtcDashboard.getInstance().getTelemetry().addData("Target Vel: ", 0.9 * customVEL * MAX_TICKS_PER_S);
         FtcDashboard.getInstance().getTelemetry().addData("Actual Vel: ", wheel1.getCorrectedVelocity());
@@ -246,11 +238,15 @@ public class ShooterVectored extends SubsystemBase {
         // --------------------------------------- Wheels --------------------------------------- //
         if(wheelsEnabled) {
             double futurePoseDist = getDistanceToGoal(futurePose.get());
-            wheel1.set(getControlledWheelPower(wheelSpeed.get(futurePoseDist)*0.964));
-            wheel2.set(getControlledWheelPower(wheelSpeed.get(futurePoseDist)*0.964));
-//            wheel1.set(getControlledWheelPower(customVEL));
-//            wheel2.set(getControlledWheelPower(customVEL));
+            wheel1.set(getControlledWheelPower(wheelSpeed.get(futurePoseDist)));
+            wheel2.set(getControlledWheelPower(wheelSpeed.get(futurePoseDist)));
+//            wheel1.set(wheelSpeedLinear(futurePoseDist)*0.964);
+//            wheel2.set(wheelSpeedLinear(futurePoseDist)*0.964);
         }
+    }
+
+    public double wheelSpeedLinear(double dist) {
+        return 0.0026*dist + 0.50;
     }
 
     public void cacheCurrentDistance() {
@@ -291,7 +287,8 @@ public class ShooterVectored extends SubsystemBase {
 
     // ----------------------------------------- Turret ----------------------------------------- //
     public double getTurretAngle() {
-        return (((turretMotor.getCurrentPosition())%TICKS_PER_FULL_ROTATION)*360.0/TICKS_PER_FULL_ROTATION)*(180.0/180.3797) - turretZeroOffset;
+        return turretMotor.getCurrentPosition()*(180.0/24209) - turretZeroOffset;
+//        return (((turretMotor.getCurrentPosition())%TICKS_PER_FULL_ROTATION)*360.0/TICKS_PER_FULL_ROTATION)*(180.0/180.3797) - turretZeroOffset;
     }
 
     public void resetOffset() {
@@ -396,7 +393,7 @@ public class ShooterVectored extends SubsystemBase {
     public boolean inLUTRange() {
         double dist = getDistanceToGoal(curPose.get());
         double distFutur = getDistanceToGoal(futurePose.get());
-        return (dist > 39.24 && dist < 165.21) && (distFutur > 39.24 && distFutur < 165.21);
+        return (dist > 48.4 && dist < 162.19) && (distFutur > 48.4 && distFutur < 162.19);
     }
 
     public boolean atSmallTriangle() {
