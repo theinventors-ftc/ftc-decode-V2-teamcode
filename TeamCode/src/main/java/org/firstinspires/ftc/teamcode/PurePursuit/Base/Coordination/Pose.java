@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode.PurePursuit.Base.Coordination;
 
+import com.arcrobotics.ftclib.geometry.Pose2d;
+import com.arcrobotics.ftclib.geometry.Rotation2d;
+
 public class Pose {
 
     private double x, y, theta;
@@ -30,6 +33,10 @@ public class Pose {
     public void setVec(Vector vector) {
         this.x = vector.getX();
         this.y = vector.getY();
+    }
+
+    public Pose2d ftcLibTrans() {
+        return new Pose2d(x, y, Rotation2d.fromDegrees(theta));
     }
 
     public Vector getVec() {

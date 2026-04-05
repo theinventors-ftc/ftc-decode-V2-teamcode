@@ -27,10 +27,10 @@ public class PIDTest extends CommandOpMode {
     private RobotMovement rm;
 
     public static double goal_x = 0, goal_y = 0, goal_theta = 0;
-    public static double thresh_x = 5.0, thresh_y = 5.0, thresh_theta = 10.0;
+    public static double thresh_x = 0.0, thresh_y = 0.0, thresh_theta = 0.0;
     public static double
         rotational_alpha = 0.0,
-        rotational_kPu = 0.00001,
+        rotational_kPu = 0.05,
         rotational_kIu = 0.0,
         rotational_kDu = 0.0,
         rotational_kPl = 0.0,
@@ -38,7 +38,7 @@ public class PIDTest extends CommandOpMode {
         rotational_kDl = 0.0;
     public static double
         parallel_alpha = 0.0,
-        parallel_kPu = 0.00001,
+        parallel_kPu = 0.05,
         parallel_kIu = 0.0,
         parallel_kDu = 0.0,
         parallel_kPl = 0.0,
@@ -46,7 +46,7 @@ public class PIDTest extends CommandOpMode {
         parallel_kDl = 0.0;
     public static double
         perpendicular_alpha = 0.0,
-        perpendicular_kPu = 0.00001,
+        perpendicular_kPu = 0.05,
         perpendicular_kIu = 0.0,
         perpendicular_kDu = 0.0,
         perpendicular_kPl = 0.0,
@@ -167,16 +167,20 @@ public class PIDTest extends CommandOpMode {
 //        double realTranslationalEndDistance = Math.hypot(goal.getX() - currentPose.getX(),
 //                                                         goal.getY() - currentPose.getY());
 
-        double realPerpendicularEndDistance = goal.getY() - currentPose.getY();
-        double realParallelEndDistance = goal.getX() - currentPose.getX();
+
 
         double realThetaEndDistance = getThetaError(goal.getTheta(), currentPose.getTheta());
 
-        Pose motorPowers = rm.goToPoint(rm.turnToRobotCentric(goal, currentPose, telemetry),
-                                        currentPose,
-                                        realPerpendicularEndDistance,
-                                        realParallelEndDistance,
-                                        realThetaEndDistance);
+        Pose robotCentricCoords = rm.turnToRobotCentric(goal, currentPose, telemetry);
+
+        double realPerpendicularEndDistance = robotCentricCoords.getY();
+        double realParallelEndDistance = robotCentricCoords.getX();
+
+//        Pose motorPowers = rm.goToPoint(robotCentricCoords,
+//                                        currentPose,
+//                                        realPerpendicularEndDistance,
+//                                        realParallelEndDistance,
+//                                        realThetaEndDistance);
 
 //        Pose motorPowers = rm.goToPoint(goal, currentPose,
 //                realPerpendicularEndDistance,
@@ -191,8 +195,8 @@ public class PIDTest extends CommandOpMode {
         RobotConstants.setLowerRotationalPID(lowerRotationalPID);
         rm.updateControllerCoefficients();
 
-        robot.drive_update(new Pose(-motorPowers.getY(), motorPowers.getX(),
-                                    motorPowers.getTheta()));
+//        robot.drive_update(new Pose(-robotCentricCoords.getY() * 0.2, robotCentricCoords.getX() * 0.2,
+//                                    -motorPowers.getTheta()));
 
         FtcDashboard.getInstance().getTelemetry().addData("Target X", goal_x);
         FtcDashboard.getInstance().getTelemetry().addData("Target Y", goal_y);
