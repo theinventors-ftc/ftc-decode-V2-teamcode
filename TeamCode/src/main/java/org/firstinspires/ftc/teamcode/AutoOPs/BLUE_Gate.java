@@ -33,7 +33,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.FollowerCommand;
 
 import java.util.ArrayList;
 
-@Autonomous(name = "RED_Gate", group = "Autonomous")
+@Autonomous(name = "BLUE_Gate", group = "Autonomous")
 @Configurable
 public class BLUE_Gate extends CommandOpMode {
     private TelemetryManager panelsTelemetry;

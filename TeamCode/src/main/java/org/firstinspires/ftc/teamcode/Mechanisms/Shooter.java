@@ -59,8 +59,8 @@ public class Shooter extends SubsystemBase {
 
     // ---------------------------------------- Poses ------------------------------------------- //
     private Supplier<Pose> curPose, curPoseVel, futurePose;
-    private final Pose REDGoalPose = new Pose(69.0, -68.0, 0);
-    private final Pose BLUEGoalPose = new Pose(69.0, 68.0, 0);
+    private final Pose REDGoalPose = new Pose(69.0, -67.0, 0);
+    private final Pose BLUEGoalPose = new Pose(69.0, 67.0, 0);
     private final Pose ObeliskPose = new Pose(72.5, 0, 0);
     private final Pose goalPose;
 
@@ -204,7 +204,7 @@ public class Shooter extends SubsystemBase {
 
         // --------------------------------------- Turret --------------------------------------- //
         Vector curShootingVector = calcShootingVector();
-        turretController.setSetPoint(getTurretTarget(curShootingVector));
+        turretController.setSetPoint(wheelsEnabled ? getTurretTarget(curShootingVector) : 0);
 
         turretMotor.set(Range.clip(
                 turretController.calculate(getTurretAngle()),

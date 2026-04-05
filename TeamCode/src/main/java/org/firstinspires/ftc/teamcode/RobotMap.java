@@ -18,6 +18,8 @@ import org.firstinspires.ftc.teamcode.PurePursuit.HardwareRelated.Localization.G
 import java.util.List;
 
 public class RobotMap {
+
+    public static double ROBOT_WIDTH = 17.1, ROBOT_LENGTH = 17.9;
     private HardwareMap hm;
 
     private GamepadExEx driverOp, toolOp;
@@ -80,12 +82,12 @@ public class RobotMap {
         frontRight.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
 
         /*--Encoders--*/
-//        if(driverOp != null || toolOp!=null) {
+        if(driverOp != null || toolOp!=null) {
             odo = hm.get(GoBildaPinpointDriver.class, "odometry");
             encoderRes = GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD;
             forwardEncoderDirection = GoBildaPinpointDriver.EncoderDirection.FORWARD;
             strafeEncoderDirection = GoBildaPinpointDriver.EncoderDirection.REVERSED;
-//        }
+        }
 
         /*--Util--*/
         for (LynxModule module : hubs) {
