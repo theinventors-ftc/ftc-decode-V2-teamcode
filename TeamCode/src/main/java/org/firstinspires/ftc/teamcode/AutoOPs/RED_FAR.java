@@ -3,8 +3,10 @@ package org.firstinspires.ftc.teamcode.AutoOPs;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.arcrobotics.ftclib.command.CommandOpMode;
 import com.arcrobotics.ftclib.command.CommandScheduler;
+import com.arcrobotics.ftclib.command.ConditionalCommand;
 import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.ParallelCommandGroup;
+import com.arcrobotics.ftclib.command.ParallelRaceGroup;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
 import com.arcrobotics.ftclib.command.WaitCommand;
 import com.bylazar.configurables.annotations.Configurable;
@@ -35,6 +37,8 @@ import org.firstinspires.ftc.teamcode.pedroPathing.FollowerCommand;
 
 import java.util.ArrayList;
 
+import kotlin.time.Instant;
+
 @Autonomous(name = "RED_FAR", group = "Autonomous")
 @Configurable
 public class RED_FAR extends CommandOpMode {
@@ -53,6 +57,7 @@ public class RED_FAR extends CommandOpMode {
     private Timer loopTime;
 
     private Paths paths;
+    private long safeTime = 2500;
 
     @Override
     public void initialize() {
@@ -81,10 +86,13 @@ public class RED_FAR extends CommandOpMode {
                 commandVault.autonomousWaitForTurret(),
                 commandVault.feedAllFingers(),
                 commandVault.startIntakeProc(),
-                new FollowerCommand(follower, paths.StartToHP1),
-                new WaitCommand(500),
+                new ParallelRaceGroup(
+                    new FollowerCommand(follower, paths.StartToHP1, 1),
+                    new WaitCommand(safeTime)
+                ),
+                new InstantCommand(follower::resumePathFollowing),
                 commandVault.stopIntakeProc(),
-                new FollowerCommand(follower, paths.HP1ToShoot),
+                new FollowerCommand(follower, paths.HP1ToShoot,1),
                 commandVault.autonomousWaitForTurret(),
                 new WaitCommand(100),
                 commandVault.feedAllFingers(),
@@ -92,10 +100,13 @@ public class RED_FAR extends CommandOpMode {
                 // Repeated Part
 
                 commandVault.startIntakeProc(),
-                new FollowerCommand(follower, paths.ShootToHP),
-                new WaitCommand(500),
+                new ParallelRaceGroup(
+                    new FollowerCommand(follower, paths.ShootToHP, 1),
+                    new WaitCommand(safeTime)
+                ),
+                new InstantCommand(follower::resumePathFollowing),
                 new ParallelCommandGroup(
-                        new FollowerCommand(follower, paths.HPToShoot),
+                        new FollowerCommand(follower, paths.HPToShoot,1),
                         new SequentialCommandGroup(
                                 commandVault.reverseIntake(),
                                 new WaitCommand(500),
@@ -107,10 +118,13 @@ public class RED_FAR extends CommandOpMode {
                 commandVault.feedAllFingers(),
 
                 commandVault.startIntakeProc(),
-                new FollowerCommand(follower, paths.ShootToHP),
-                new WaitCommand(500),
+                new ParallelRaceGroup(
+                    new FollowerCommand(follower, paths.ShootToHP, 1),
+                    new WaitCommand(safeTime)
+                ),
+                new InstantCommand(follower::resumePathFollowing),
                 new ParallelCommandGroup(
-                        new FollowerCommand(follower, paths.HPToShoot),
+                        new FollowerCommand(follower, paths.HPToShoot,1),
                         new SequentialCommandGroup(
                                 commandVault.reverseIntake(),
                                 new WaitCommand(500),
@@ -122,10 +136,13 @@ public class RED_FAR extends CommandOpMode {
                 commandVault.feedAllFingers(),
 
                 commandVault.startIntakeProc(),
-                new FollowerCommand(follower, paths.ShootToHP),
-                new WaitCommand(500),
+                new ParallelRaceGroup(
+                    new FollowerCommand(follower, paths.ShootToHP, 1),
+                    new WaitCommand(safeTime)
+                ),
+                new InstantCommand(follower::resumePathFollowing),
                 new ParallelCommandGroup(
-                        new FollowerCommand(follower, paths.HPToShoot),
+                        new FollowerCommand(follower, paths.HPToShoot, 1),
                         new SequentialCommandGroup(
                                 commandVault.reverseIntake(),
                                 new WaitCommand(500),
@@ -170,39 +187,51 @@ public class RED_FAR extends CommandOpMode {
 
         public Paths(Follower follower) {
             StartToHP1 = follower.pathBuilder().addPath(
-                            new BezierLine(
-                                    new Pose(101.9, 8.5),
-                                    new Pose(134.0, 10.0)
+                    new BezierLine(
+                            new Pose(101.9, 8.5),
+                            new Pose(126, 20.0)
+                    ))
+                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(330))
+                .setBrakingStrength(1.5)
+                .addPath(
+                        new BezierLine(
+                            new Pose(126, 20.0),
+                            new Pose(134.0, 12.0)
                             )
-                    ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(355))
-                    .setBrakingStrength(2)
-                    .build();
+                ).setLinearHeadingInterpolation(Math.toRadians(330), Math.toRadians(350))
+                .build();
 
             HP1ToShoot = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(134.0, 10.0),
+                                    new Pose(134.0, 13.0),
                                     new Pose(96.0, 11.0)
                             )
-                    ).setLinearHeadingInterpolation(Math.toRadians(355), Math.toRadians(0))
-                    .setBrakingStrength(2)
+                    ).setLinearHeadingInterpolation(Math.toRadians(350), Math.toRadians(0))
+                    .setBrakingStrength(4)
                     .build();
 
             ShootToHP = follower.pathBuilder().addPath(
                             new BezierLine(
                                     new Pose(96.0, 11.0),
-                                    new Pose(132.5, 14.0)
-                            )
-                    ).setConstantHeadingInterpolation(0)
-                    .setBrakingStrength(2)
+                                    new Pose(126, 20.0)
+                            ))
+                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(330))
+                .setBrakingStrength(1.5)
+                .addPath(
+                        new BezierLine(
+                            new Pose(126, 20.0),
+                            new Pose(134.0, 12.0)
+                        )
+                    ).setLinearHeadingInterpolation(Math.toRadians(330), Math.toRadians(350))
                     .build();
 
             HPToShoot = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(132.5, 14.0),
+                                    new Pose(134.5, 13.0),
                                     new Pose(96.0, 11.0)
                             )
-                    ).setConstantHeadingInterpolation(0)
-                    .setBrakingStrength(2)
+                    ).setLinearHeadingInterpolation(Math.toRadians(350), Math.toRadians(0))
+                    .setBrakingStrength(4)
                     .build();
 
             ShootToPark = follower.pathBuilder().addPath(
@@ -211,7 +240,7 @@ public class RED_FAR extends CommandOpMode {
                                     new Pose(104.0, 12.0)
                             )
                     ).setConstantHeadingInterpolation(0)
-                    .setBrakingStrength(2)
+                    .setBrakingStrength(4)
                     .build();
         }
     }
