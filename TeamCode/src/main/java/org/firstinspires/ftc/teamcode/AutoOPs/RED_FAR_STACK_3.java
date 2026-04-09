@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.AutoOPs;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.arcrobotics.ftclib.command.CommandOpMode;
 import com.arcrobotics.ftclib.command.CommandScheduler;
-import com.arcrobotics.ftclib.command.ConditionalCommand;
 import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.ParallelCommandGroup;
 import com.arcrobotics.ftclib.command.ParallelRaceGroup;
@@ -14,7 +13,6 @@ import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.ftc.FTCCoordinates;
-import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathChain;
@@ -27,7 +25,6 @@ import org.firstinspires.ftc.teamcode.Mechanisms.Detection;
 import org.firstinspires.ftc.teamcode.Mechanisms.Intake;
 import org.firstinspires.ftc.teamcode.Mechanisms.Passthough;
 import org.firstinspires.ftc.teamcode.Mechanisms.Shooter;
-import org.firstinspires.ftc.teamcode.Mechanisms.ShooterLimelight;
 import org.firstinspires.ftc.teamcode.MotifStorage;
 import org.firstinspires.ftc.teamcode.PoseStorage;
 import org.firstinspires.ftc.teamcode.RobotMap;
@@ -35,13 +32,9 @@ import org.firstinspires.ftc.teamcode.Util.Timer;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.pedroPathing.FollowerCommand;
 
-import java.util.ArrayList;
-
-import kotlin.time.Instant;
-
-@Autonomous(name = "RED_FAR", group = "Autonomous")
+@Autonomous(name = "RED_FAR_STACK_3", group = "Autonomous")
 @Configurable
-public class RED_FAR extends CommandOpMode {
+public class RED_FAR_STACK_3 extends CommandOpMode {
     private TelemetryManager panelsTelemetry;
     public Follower follower;
     private RobotMap robotMap;
@@ -66,7 +59,7 @@ public class RED_FAR extends CommandOpMode {
         robotMap = new RobotMap(hardwareMap, telemetry,null,null);
 
         follower = Constants.createFollower(hardwareMap);
-        follower.setStartingPose(new Pose(101.9, 8.5, Math.toRadians(0)));
+        follower.setStartingPose(new Pose(101.9, 9.8, Math.toRadians(0)));
         paths = new Paths(follower);
 
         intake = new Intake(robotMap);
@@ -197,7 +190,7 @@ public class RED_FAR extends CommandOpMode {
                         new BezierLine(
                             new Pose(126, 20.0),
                             new Pose(134.0, 12.0)
-                            )
+                        )
                 ).setLinearHeadingInterpolation(Math.toRadians(330), Math.toRadians(350))
                 .build();
 

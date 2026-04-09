@@ -18,6 +18,7 @@ public class CommandSeriesVault {
     // --------------------------------------- Constants ---------------------------------------- //
     public static int FINGER_BETWEEN_MS = 40, FINGER_HOLD_MS = 200, FINGER_BETWEEN_MOTIF_MS = 500;
 //    public static int FINGER_BETWEEN_MS = 80, FINGER_HOLD_MS = 340, FINGER_BETWEEN_MOTIF_MS = 500;
+    private int artifact_count = 15;
 
     public CommandSeriesVault(Intake intake, Passthough passthough, Shooter shooter, Detection detection) {
         this.intake = intake;
@@ -71,16 +72,19 @@ public class CommandSeriesVault {
                 ),
                 new WaitUntilCommand(() -> shooter.wheelsAtSpeed() && shooter.turretInRange()),
                 new InstantCommand(() -> passthough.setState(0, Passthough.FingerState.FEED), passthough),
+                new InstantCommand(this::increaseArtifacts),
                 new WaitCommand(FINGER_HOLD_MS),
                 new InstantCommand(() -> passthough.setState(0, Passthough.FingerState.HOLD), passthough),
                 new WaitCommand(FINGER_BETWEEN_MS),
                 new WaitUntilCommand(() -> shooter.wheelsAtSpeed() && shooter.turretInRange()),
                 new InstantCommand(() -> passthough.setState(1, Passthough.FingerState.FEED), passthough),
+                new InstantCommand(this::increaseArtifacts),
                 new WaitCommand(FINGER_HOLD_MS),
                 new InstantCommand(() -> passthough.setState(1, Passthough.FingerState.HOLD), passthough),
                 new WaitCommand(FINGER_BETWEEN_MS),
                 new WaitUntilCommand(() -> shooter.wheelsAtSpeed() && shooter.turretInRange()),
                 new InstantCommand(() -> passthough.setState(2, Passthough.FingerState.FEED), passthough),
+                new InstantCommand(this::increaseArtifacts),
                 new WaitCommand(FINGER_HOLD_MS),
                 new InstantCommand(() -> passthough.setState(2, Passthough.FingerState.HOLD), passthough),
                 new WaitCommand(FINGER_BETWEEN_MS)
@@ -137,16 +141,19 @@ public class CommandSeriesVault {
                 ),
                 new WaitUntilCommand(() -> shooter.wheelsAtSpeed() && shooter.turretInRange()),
                 new InstantCommand(() -> passthough.setState(passthough.getShooting_order(0), Passthough.FingerState.FEED), passthough),
+                new InstantCommand(this::increaseArtifacts),
                 new WaitCommand(FINGER_HOLD_MS),
                 new InstantCommand(() -> passthough.setState(passthough.getShooting_order(0), Passthough.FingerState.HOLD), passthough),
                 new WaitCommand(FINGER_BETWEEN_MS),
                 new WaitUntilCommand(() -> shooter.wheelsAtSpeed() && shooter.turretInRange()),
                 new InstantCommand(() -> passthough.setState(passthough.getShooting_order(1), Passthough.FingerState.FEED), passthough),
+                new InstantCommand(this::increaseArtifacts),
                 new WaitCommand(FINGER_HOLD_MS),
                 new InstantCommand(() -> passthough.setState(passthough.getShooting_order(1), Passthough.FingerState.HOLD), passthough),
                 new WaitCommand(FINGER_BETWEEN_MS),
                 new WaitUntilCommand(() -> shooter.wheelsAtSpeed() && shooter.turretInRange()),
                 new InstantCommand(() -> passthough.setState(passthough.getShooting_order(2), Passthough.FingerState.FEED), passthough),
+                new InstantCommand(this::increaseArtifacts),
                 new WaitCommand(FINGER_HOLD_MS),
                 new InstantCommand(() -> passthough.setState(passthough.getShooting_order(2), Passthough.FingerState.HOLD), passthough),
                 new WaitCommand(FINGER_BETWEEN_MS)
@@ -261,5 +268,18 @@ public class CommandSeriesVault {
 
     public InstantCommand disableObelisk() {
         return new InstantCommand(shooter::disableObelisk);
+    }
+
+    public void increaseArtifacts() {
+        artifact_count++;
+    }
+
+    public void decreaseArtifacts() {
+        artifact_count++;
+        if(artifact_count<0) artifact_count = 0;
+    }
+
+    public int getArtifact_count() {
+        return artifact_count;
     }
 }

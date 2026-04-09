@@ -115,6 +115,7 @@ public class DecodeRobotV2 {
             getPose().getX(), getPose().getY(), getPose().getTheta());
         telemetry.addData("Alliance: ", getAlliance());
         telemetry.addData("MOTIF: ", getMotif());
+        telemetry.addData("ARTIFACTS: ", commandSeriesVault.getArtifact_count());
 
         drive.drive(
             drivetrainStrafe(),
