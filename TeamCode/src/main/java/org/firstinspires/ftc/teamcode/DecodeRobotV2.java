@@ -239,6 +239,7 @@ public class DecodeRobotV2 {
 //            () -> detection.getTagX(),
 //            () -> detection.getAngleError()
 //        );
+
         shooter = new Shooter(
             robotMap,
             this::getPose,

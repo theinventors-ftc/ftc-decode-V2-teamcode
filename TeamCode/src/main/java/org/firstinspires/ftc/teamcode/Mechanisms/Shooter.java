@@ -42,7 +42,11 @@ public class Shooter extends SubsystemBase {
     private static final double MIN_TURRET_ANGLE = -90.0, MAX_TURRET_ANGLE = 188.0;
 
     // IK (Vectoring)
-    private static final double stationaryScale = 1.0, robotVelocityScale = 0.00492, wheelSpeedFactor = 1.0;
+    private static final double
+        stationaryScale = 1.0,
+        robotVelocityScale = 0.00492,
+        wheelSpeedFactor = 1.0;
+
     private static final double poseEstimation_dt = 0.21;
 
     // ----------------------------------------- States ----------------------------------------- //
@@ -69,12 +73,15 @@ public class Shooter extends SubsystemBase {
     private PIDFEx turretController, veloController;
     private PIDFExCoeffs coeffsTurret, coeffsVelo;
     private MotorFF feedforward = new MotorFF(0.02, 1.02, 0.12);
+    private boolean accelWheel = false;
 
     // ------------------------------------ Turret Zeroing -------------------------------------- //
     private boolean turretZeroed = false;
     private double turretZeroPower = -0.25;
     private double turretZeroCurrentThreshold = 2.0;
-    public static double turretZeroOffset = 102.5;
+    private static double turretZeroOffset = 102.5;
+    private static double turretZeroOffsetReversed = -195.5346;
+    private boolean startReversed = false;
     private StateMachine hasStalled;
 
     // ------------------------------------------ Util ------------------------------------------ //
@@ -83,6 +90,13 @@ public class Shooter extends SubsystemBase {
 
     public Shooter(RobotMap robotMap, Supplier<Pose> curPose, Supplier<Pose> curPoseVel,
                    DecodeRobotV2.Alliance alliance, boolean doZero) {
+
+        this(robotMap, curPose, curPoseVel, alliance, doZero, false, false);
+    }
+
+    public Shooter(RobotMap robotMap, Supplier<Pose> curPose, Supplier<Pose> curPoseVel,
+                   DecodeRobotV2.Alliance alliance, boolean doZero, boolean startReversed,
+                   boolean accelWheel) {
         this.wheel1 = robotMap.getShooterWheel1Motor();
         this.wheel2 = robotMap.getShooterWheel2Motor();
 
@@ -92,6 +106,8 @@ public class Shooter extends SubsystemBase {
         turretMotor.setInverted(true);
         turretMotor.resetEncoder();
         turretZeroed = !doZero;
+        this.startReversed = !doZero && startReversed;
+        this.accelWheel = accelWheel;
 
         this.telemetry = robotMap.getTelemetry();
 
@@ -212,6 +228,11 @@ public class Shooter extends SubsystemBase {
                 MAX_TURRET_POWER
         ));
 
+        if(accelWheel && !inLUTRange()) {
+            wheel1.set(getControlledWheelPower(1.0));
+            wheel2.set(getControlledWheelPower(1.0));
+        }
+
         if(!inLUTRange()) return;
 
         // ---------------------------------------- Hood ---------------------------------------- //
@@ -260,11 +281,15 @@ public class Shooter extends SubsystemBase {
 
     // ----------------------------------------- Turret ----------------------------------------- //
     public double getTurretAngle() {
+        if (startReversed) {
+            return turretMotor.getCurrentPosition()*(360.0/TICKS_PER_FULL_ROTATION) - turretZeroOffsetReversed;
+        }
+
         return turretMotor.getCurrentPosition()*(360.0/TICKS_PER_FULL_ROTATION) - turretZeroOffset;
     }
 
     public void resetOffset() {
-        turretZeroOffset = 0;
+        turretZeroOffset = startReversed ? 102.5 : 195.5346;
     }
 
     public boolean turretInRange() {
@@ -334,7 +359,7 @@ public class Shooter extends SubsystemBase {
 
     public Vector calcShootingVector() {
         if(!inLUTRange()) {
-            return new Vector(0.6, Math.toRadians(getAngleToGoal()), true);
+            return new Vector(0.9, Math.toRadians(getAngleToGoal()), true);
         }
 
         double stationary_angle = Math.toRadians(getAngleToGoal());

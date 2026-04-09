@@ -203,8 +203,8 @@ public class RED_FAR extends CommandOpMode {
 
             HP1ToShoot = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(134.0, 13.0),
-                                    new Pose(94.0, 13.0)
+                                    new Pose(134.0,14.05),
+                                    new Pose(94.0, 14.05)
                             )
                     ).setLinearHeadingInterpolation(Math.toRadians(350), Math.toRadians(0))
                     .setBrakingStrength(4)
@@ -212,7 +212,7 @@ public class RED_FAR extends CommandOpMode {
 
             ShootToHP = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(94.0, 13.0),
+                                    new Pose(94.0, 14.05),
                                     new Pose(126, 20.0)
                             ))
                 .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(330))
@@ -227,8 +227,8 @@ public class RED_FAR extends CommandOpMode {
 
             HPToShoot = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(134.5, 13.0),
-                                    new Pose(94.0, 13.0)
+                                    new Pose(134.5, 14.05),
+                                    new Pose(94.0, 14.05)
                             )
                     ).setLinearHeadingInterpolation(Math.toRadians(350), Math.toRadians(0))
                     .setBrakingStrength(4)
@@ -236,8 +236,8 @@ public class RED_FAR extends CommandOpMode {
 
             ShootToPark = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(94.0, 13.0),
-                                    new Pose(104.0, 12.0)
+                                    new Pose(94.0, 14.05),
+                                    new Pose(104.0, 14.05)
                             )
                     ).setConstantHeadingInterpolation(0)
                     .setBrakingStrength(4)
@@ -246,17 +246,9 @@ public class RED_FAR extends CommandOpMode {
     }
 
     public org.firstinspires.ftc.teamcode.PurePursuit.Base.Coordination.Pose getPoseFTCCoor() {
-        Pose pedroPose = new Pose(
-                follower.getPose().getX(),
-                follower.getPose().getY(),
-                follower.getPose().getHeading()
-        ).getAsCoordinateSystem(FTCCoordinates.INSTANCE);
+        Pose pedroPose = new Pose(follower.getPose().getX(), follower.getPose().getY(), follower.getPose().getHeading()).getAsCoordinateSystem(FTCCoordinates.INSTANCE);
 
-        return new org.firstinspires.ftc.teamcode.PurePursuit.Base.Coordination.Pose(
-                pedroPose.getX(),
-                pedroPose.getY(),
-                Math.toDegrees(pedroPose.getHeading())
-        );
+        return new org.firstinspires.ftc.teamcode.PurePursuit.Base.Coordination.Pose(pedroPose.getX(), pedroPose.getY(), Math.toDegrees(pedroPose.getHeading()));
     }
 
     @Override

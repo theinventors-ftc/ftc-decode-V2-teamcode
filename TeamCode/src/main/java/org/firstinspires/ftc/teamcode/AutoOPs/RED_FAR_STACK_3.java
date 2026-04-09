@@ -13,6 +13,7 @@ import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.ftc.FTCCoordinates;
+import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathChain;
@@ -59,7 +60,7 @@ public class RED_FAR_STACK_3 extends CommandOpMode {
         robotMap = new RobotMap(hardwareMap, telemetry,null,null);
 
         follower = Constants.createFollower(hardwareMap);
-        follower.setStartingPose(new Pose(101.9, 9.8, Math.toRadians(0)));
+        follower.setStartingPose(new Pose(101.9, 8.5, Math.toRadians(0)));
         paths = new Paths(follower);
 
         intake = new Intake(robotMap);
@@ -76,79 +77,79 @@ public class RED_FAR_STACK_3 extends CommandOpMode {
         loopTime = new Timer();
 
         new SequentialCommandGroup(
-                commandVault.autonomousWaitForTurret(),
-                commandVault.feedAllFingers(),
-                commandVault.startIntakeProc(),
-                new ParallelRaceGroup(
-                    new FollowerCommand(follower, paths.StartToHP1, 1),
-                    new WaitCommand(safeTime)
-                ),
-                new InstantCommand(follower::resumePathFollowing),
-                commandVault.stopIntakeProc(),
-                new FollowerCommand(follower, paths.HP1ToShoot,1),
-                commandVault.autonomousWaitForTurret(),
-                new WaitCommand(100),
-                commandVault.feedAllFingers(),
+            commandVault.autonomousWaitForTurret(),
+            commandVault.feedAllFingers(),
+            commandVault.startIntakeProc(),
+            new ParallelRaceGroup(
+                new FollowerCommand(follower, paths.StartToStack, 1),
+                new WaitCommand(3500)
+            ),
+            new InstantCommand(follower::resumePathFollowing),
+            commandVault.stopIntakeProc(),
+            new FollowerCommand(follower, paths.StackToShoot,1),
+            commandVault.autonomousWaitForTurret(),
+            new WaitCommand(100),
+            commandVault.feedAllFingers(),
 
-                // Repeated Part
+            // Repeated Part
 
-                commandVault.startIntakeProc(),
-                new ParallelRaceGroup(
-                    new FollowerCommand(follower, paths.ShootToHP, 1),
-                    new WaitCommand(safeTime)
-                ),
-                new InstantCommand(follower::resumePathFollowing),
-                new ParallelCommandGroup(
-                        new FollowerCommand(follower, paths.HPToShoot,1),
-                        new SequentialCommandGroup(
-                                commandVault.reverseIntake(),
-                                new WaitCommand(500),
-                                commandVault.stopIntakeProc()
-                        )
-                ),
-                commandVault.autonomousWaitForTurret(),
-                new WaitCommand(100),
-                commandVault.feedAllFingers(),
+            commandVault.startIntakeProc(),
+            new ParallelRaceGroup(
+                new FollowerCommand(follower, paths.ShootToHP, 1),
+                new WaitCommand(safeTime)
+            ),
+            new InstantCommand(follower::resumePathFollowing),
+            new ParallelCommandGroup(
+                new FollowerCommand(follower, paths.HPToShoot,1),
+                new SequentialCommandGroup(
+                    commandVault.reverseIntake(),
+                    new WaitCommand(500),
+                    commandVault.stopIntakeProc()
+                )
+            ),
+            commandVault.autonomousWaitForTurret(),
+            new WaitCommand(100),
+            commandVault.feedAllFingers(),
 
-                commandVault.startIntakeProc(),
-                new ParallelRaceGroup(
-                    new FollowerCommand(follower, paths.ShootToHP, 1),
-                    new WaitCommand(safeTime)
-                ),
-                new InstantCommand(follower::resumePathFollowing),
-                new ParallelCommandGroup(
-                        new FollowerCommand(follower, paths.HPToShoot,1),
-                        new SequentialCommandGroup(
-                                commandVault.reverseIntake(),
-                                new WaitCommand(500),
-                                commandVault.stopIntakeProc()
-                        )
-                ),
-                commandVault.autonomousWaitForTurret(),
-                new WaitCommand(100),
-                commandVault.feedAllFingers(),
+            commandVault.startIntakeProc(),
+            new ParallelRaceGroup(
+                new FollowerCommand(follower, paths.ShootToHP, 1),
+                new WaitCommand(safeTime)
+            ),
+            new InstantCommand(follower::resumePathFollowing),
+            new ParallelCommandGroup(
+                new FollowerCommand(follower, paths.HPToShoot,1),
+                new SequentialCommandGroup(
+                    commandVault.reverseIntake(),
+                    new WaitCommand(500),
+                    commandVault.stopIntakeProc()
+                )
+            ),
+            commandVault.autonomousWaitForTurret(),
+            new WaitCommand(100),
+            commandVault.feedAllFingers(),
 
-                commandVault.startIntakeProc(),
-                new ParallelRaceGroup(
-                    new FollowerCommand(follower, paths.ShootToHP, 1),
-                    new WaitCommand(safeTime)
-                ),
-                new InstantCommand(follower::resumePathFollowing),
-                new ParallelCommandGroup(
-                        new FollowerCommand(follower, paths.HPToShoot, 1),
-                        new SequentialCommandGroup(
-                                commandVault.reverseIntake(),
-                                new WaitCommand(500),
-                                commandVault.stopIntakeProc()
-                        )
-                ),
-                commandVault.autonomousWaitForTurret(),
-                new WaitCommand(100),
-                commandVault.feedAllFingers(),
+            commandVault.startIntakeProc(),
+            new ParallelRaceGroup(
+                new FollowerCommand(follower, paths.ShootToHP, 1),
+                new WaitCommand(safeTime)
+            ),
+            new InstantCommand(follower::resumePathFollowing),
+            new ParallelCommandGroup(
+                new FollowerCommand(follower, paths.HPToShoot, 1),
+                new SequentialCommandGroup(
+                    commandVault.reverseIntake(),
+                    new WaitCommand(500),
+                    commandVault.stopIntakeProc()
+                )
+            ),
+            commandVault.autonomousWaitForTurret(),
+            new WaitCommand(100),
+            commandVault.feedAllFingers(),
 
-                //
-                new FollowerCommand(follower, paths.ShootToPark),
-                commandVault.parkShooter()
+            //
+            new FollowerCommand(follower, paths.ShootToPark),
+            commandVault.parkShooter()
         ).schedule();
     }
 
@@ -166,90 +167,77 @@ public class RED_FAR_STACK_3 extends CommandOpMode {
         FtcDashboard.getInstance().getTelemetry().addData("Y", getPoseFTCCoor().getY());
         FtcDashboard.getInstance().getTelemetry().addData("Heading", getPoseFTCCoor().getTheta());
         FtcDashboard.getInstance().getTelemetry().update();
-//        ArrayList<Double> dists = shooter.getCachedDistances();
-//        for (int i = 0; i < dists.size(); i++) {
-//            telemetry.addData("Dist " + i, dists.get(i));
-//        }
-//        telemetry.addData("Dists", shooter.getCachedDistances());
+        //        ArrayList<Double> dists = shooter.getCachedDistances();
+        //        for (int i = 0; i < dists.size(); i++) {
+        //            telemetry.addData("Dist " + i, dists.get(i));
+        //        }
+        //        telemetry.addData("Dists", shooter.getCachedDistances());
         telemetry.update();
     }
 
-
     public static class Paths {
-        public PathChain StartToHP1, HP1ToShoot, ShootToHP, HPToShoot, ShootToPark;
+        public PathChain StartToStack, StackToShoot, ShootToHP, HPToShoot, ShootToPark;
 
         public Paths(Follower follower) {
-            StartToHP1 = follower.pathBuilder().addPath(
+            StartToStack = follower.pathBuilder().addPath(
+                    new BezierCurve(
+                        new Pose(101.9, 8.5),
+                        new Pose(97.6, 35),
+                        new Pose(94.6, 36.5),
+                        new Pose(124.0, 36.0)
+                    ))
+                .setConstantHeadingInterpolation(Math.toRadians(0))
+                .setBrakingStrength(0.7)
+                .build();
+
+            StackToShoot = follower.pathBuilder().addPath(
                     new BezierLine(
-                            new Pose(101.9, 8.5),
-                            new Pose(126, 20.0)
+                        new Pose(120.0,36.0),
+                        new Pose(94.0, 14.05)
+                    )
+                ).setConstantHeadingInterpolation(Math.toRadians(0))
+                .setBrakingStrength(4)
+                .build();
+
+            ShootToHP = follower.pathBuilder().addPath(
+                    new BezierLine(
+                        new Pose(94.0, 14.05),
+                        new Pose(126, 20.0)
                     ))
                 .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(330))
                 .setBrakingStrength(1.5)
                 .addPath(
-                        new BezierLine(
-                            new Pose(126, 20.0),
-                            new Pose(134.0, 12.0)
-                        )
+                    new BezierLine(
+                        new Pose(126, 20.0),
+                        new Pose(134.0, 12.0)
+                    )
                 ).setLinearHeadingInterpolation(Math.toRadians(330), Math.toRadians(350))
                 .build();
 
-            HP1ToShoot = follower.pathBuilder().addPath(
-                            new BezierLine(
-                                    new Pose(134.0, 13.0),
-                                    new Pose(94.0, 13.0)
-                            )
-                    ).setLinearHeadingInterpolation(Math.toRadians(350), Math.toRadians(0))
-                    .setBrakingStrength(4)
-                    .build();
-
-            ShootToHP = follower.pathBuilder().addPath(
-                            new BezierLine(
-                                    new Pose(94.0, 13.0),
-                                    new Pose(126, 20.0)
-                            ))
-                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(330))
-                .setBrakingStrength(1.5)
-                .addPath(
-                        new BezierLine(
-                            new Pose(126, 20.0),
-                            new Pose(134.0, 12.0)
-                        )
-                    ).setLinearHeadingInterpolation(Math.toRadians(330), Math.toRadians(350))
-                    .build();
-
             HPToShoot = follower.pathBuilder().addPath(
-                            new BezierLine(
-                                    new Pose(134.5, 13.0),
-                                    new Pose(94.0, 13.0)
-                            )
-                    ).setLinearHeadingInterpolation(Math.toRadians(350), Math.toRadians(0))
-                    .setBrakingStrength(4)
-                    .build();
+                    new BezierLine(
+                        new Pose(134.5, 14.05),
+                        new Pose(94.0, 14.05)
+                    )
+                ).setLinearHeadingInterpolation(Math.toRadians(350), Math.toRadians(0))
+                .setBrakingStrength(4)
+                .build();
 
             ShootToPark = follower.pathBuilder().addPath(
-                            new BezierLine(
-                                    new Pose(94.0, 13.0),
-                                    new Pose(104.0, 12.0)
-                            )
-                    ).setConstantHeadingInterpolation(0)
-                    .setBrakingStrength(4)
-                    .build();
+                    new BezierLine(
+                        new Pose(94.0, 14.05),
+                        new Pose(104.0, 14.05)
+                    )
+                ).setConstantHeadingInterpolation(0)
+                .setBrakingStrength(4)
+                .build();
         }
     }
 
     public org.firstinspires.ftc.teamcode.PurePursuit.Base.Coordination.Pose getPoseFTCCoor() {
-        Pose pedroPose = new Pose(
-                follower.getPose().getX(),
-                follower.getPose().getY(),
-                follower.getPose().getHeading()
-        ).getAsCoordinateSystem(FTCCoordinates.INSTANCE);
+        Pose pedroPose = new Pose(follower.getPose().getX(), follower.getPose().getY(), follower.getPose().getHeading()).getAsCoordinateSystem(FTCCoordinates.INSTANCE);
 
-        return new org.firstinspires.ftc.teamcode.PurePursuit.Base.Coordination.Pose(
-                pedroPose.getX(),
-                pedroPose.getY(),
-                Math.toDegrees(pedroPose.getHeading())
-        );
+        return new org.firstinspires.ftc.teamcode.PurePursuit.Base.Coordination.Pose(pedroPose.getX(), pedroPose.getY(), Math.toDegrees(pedroPose.getHeading()));
     }
 
     @Override
