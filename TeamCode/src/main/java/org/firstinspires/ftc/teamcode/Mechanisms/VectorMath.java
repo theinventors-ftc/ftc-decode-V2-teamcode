@@ -5,8 +5,26 @@ public class VectorMath {
         return new Vector(v1.getVx() + v2.getVx(), v1.getVy() + v2.getVy(), false);
     }
 
+    public static Vector add_vectors(Vector... vectors) {
+
+        Vector sum = new Vector(0, 0);
+
+        for (Vector vec : vectors) sum = add_vectors(sum, vec);
+
+        return sum;
+    }
+
     public static Vector subtract_vectors(Vector v1, Vector v2) {
         return new Vector(v1.getVx() - v2.getVx(), v1.getVy() - v2.getVy(), false);
+    }
+
+    public static Vector subtract_vectors(Vector... vectors) {
+
+        Vector sum = new Vector(0, 0);
+
+        for (Vector vec : vectors) sum = subtract_vectors(sum, vec);
+
+        return sum;
     }
 
     public static Vector scale_vector(Vector v, double scalar) {

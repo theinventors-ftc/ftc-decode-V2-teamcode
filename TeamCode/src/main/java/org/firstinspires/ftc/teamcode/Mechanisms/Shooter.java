@@ -45,6 +45,7 @@ public class Shooter extends SubsystemBase {
     private static final double
         stationaryScale = 1.0,
         robotVelocityScale = 0.00492,
+        robotVelocityScaleAuto = 0.003,
         wheelSpeedFactor = 1.0;
 
     private static final double poseEstimation_dt = 0.21;
@@ -62,7 +63,7 @@ public class Shooter extends SubsystemBase {
     private ShooterGoal shooterLock;
 
     // ---------------------------------------- Poses ------------------------------------------- //
-    private Supplier<Pose> curPose, curPoseVel, futurePose;
+    private Supplier<Pose> curPose, curPoseVel, futurePose, curPoseAccel;
     private final Pose REDGoalPose = new Pose(69.0, -67.0, 0);
     private final Pose BLUEGoalPose = new Pose(69.0, 67.0, 0);
     private final Pose ObeliskPose = new Pose(72.5, 0, 0);
@@ -73,7 +74,7 @@ public class Shooter extends SubsystemBase {
     private PIDFEx turretController, veloController;
     private PIDFExCoeffs coeffsTurret, coeffsVelo;
     private MotorFF feedforward = new MotorFF(0.02, 1.02, 0.12);
-    private boolean accelWheel = false;
+    private boolean inAuto = false;
 
     // ------------------------------------ Turret Zeroing -------------------------------------- //
     private boolean turretZeroed = false;
@@ -91,12 +92,13 @@ public class Shooter extends SubsystemBase {
     public Shooter(RobotMap robotMap, Supplier<Pose> curPose, Supplier<Pose> curPoseVel,
                    DecodeRobotV2.Alliance alliance, boolean doZero) {
 
-        this(robotMap, curPose, curPoseVel, alliance, doZero, false, false);
+        this(robotMap, curPose, curPoseVel, () -> new Pose(0,0,0), alliance, doZero, false, false);
     }
 
-    public Shooter(RobotMap robotMap, Supplier<Pose> curPose, Supplier<Pose> curPoseVel,
+    public Shooter(RobotMap robotMap, Supplier<Pose> curPose, Supplier<Pose> curPoseVel, Supplier<Pose> curPoseAccel,
                    DecodeRobotV2.Alliance alliance, boolean doZero, boolean startReversed,
-                   boolean accelWheel) {
+                   boolean inAuto
+    ) {
         this.wheel1 = robotMap.getShooterWheel1Motor();
         this.wheel2 = robotMap.getShooterWheel2Motor();
 
@@ -107,13 +109,14 @@ public class Shooter extends SubsystemBase {
         turretMotor.resetEncoder();
         turretZeroed = !doZero;
         this.startReversed = !doZero && startReversed;
-        this.accelWheel = accelWheel;
+        this.inAuto = inAuto;
 
         this.telemetry = robotMap.getTelemetry();
 
         this.curPose = curPose;
         this.futurePose = () -> estimateFuturePose(poseEstimation_dt);
         this.curPoseVel = curPoseVel;
+        this.curPoseAccel = curPoseAccel;
 
         shooterLock = ShooterGoal.ALLIANCE_GOAL;
 
@@ -154,6 +157,7 @@ public class Shooter extends SubsystemBase {
         wheelSpeed = new InterpLUT();
         hoodAngle = new InterpLUT();
 
+        wheelSpeed.add(23.92697, 0.8);
         wheelSpeed.add(48.4, 0.6);
         wheelSpeed.add(61.67, 0.605);
         wheelSpeed.add(79.75, 0.69);
@@ -166,6 +170,7 @@ public class Shooter extends SubsystemBase {
         wheelSpeed.add(153.9, 0.901);
         wheelSpeed.add(162.2, 0.922);
 
+        hoodAngle.add(23.92697, 0);
         hoodAngle.add(48.4, 0);
         hoodAngle.add(61.67, 0);
         hoodAngle.add(79.75, 0.38);
@@ -215,7 +220,7 @@ public class Shooter extends SubsystemBase {
         telemetry.addData("[Shooter] Shooter ", shooterLock);
         telemetry.addData("[Shooter] Turret Angle: ", getTurretAngle());
         telemetry.addData("[Shooter] Turret Ticks: ", turretMotor.getCurrentPosition());
-        telemetry.addData("[Shooter] GOAL Dist: ", getDistanceToGoal(curPose.get()));
+        telemetry.addData("[Shooter] GOAL Dist: ", getDistanceToGoal(futurePose.get()));
         telemetry.addData("[Shooter] GOAL Angle: ", getAngleToGoal());
 
         // --------------------------------------- Turret --------------------------------------- //
@@ -228,10 +233,10 @@ public class Shooter extends SubsystemBase {
                 MAX_TURRET_POWER
         ));
 
-        if(accelWheel && !inLUTRange()) {
-            wheel1.set(getControlledWheelPower(1.0));
-            wheel2.set(getControlledWheelPower(1.0));
-        }
+//        if(accelWheel && !inLUTRange()) {
+//            wheel1.set(getControlledWheelPower(1.0));
+//            wheel2.set(getControlledWheelPower(1.0));
+//        }
 
         if(!inLUTRange()) return;
 
@@ -344,14 +349,19 @@ public class Shooter extends SubsystemBase {
 
     public Pose estimateFuturePose(double dt) {
         Vector robotVelocityVec = new Vector(curPoseVel.get().getX(), curPoseVel.get().getY(), false);
+        Vector robotAccelVec = new Vector(curPoseAccel.get().getX(), curPoseAccel.get().getY(), false);
 
-        Vector deltaPose = VectorMath.scale_vector(robotVelocityVec, dt);
+        Vector Ut = VectorMath.scale_vector(robotVelocityVec, dt);
+
+        Vector At = VectorMath.scale_vector(robotAccelVec, 0.5 * (dt * dt));
+
         Vector futureVector = VectorMath.add_vectors(
                 new Vector(
                     curPose.get().getX(),
                     curPose.get().getY(), false
                 ),
-                deltaPose
+                Ut,
+                At
         );
 
         return new Pose(futureVector.getVx(), futureVector.getVy());
@@ -359,17 +369,24 @@ public class Shooter extends SubsystemBase {
 
     public Vector calcShootingVector() {
         if(!inLUTRange()) {
-            return new Vector(0.9, Math.toRadians(getAngleToGoal()), true);
+            return new Vector(1, Math.toRadians(getAngleToGoal()), true);
         }
 
         double stationary_angle = Math.toRadians(getAngleToGoal());
-        double artifact_velocity = wheelSpeed.get(getDistanceToGoal(curPose.get()))*0.964;
+        double artifact_velocity = wheelSpeed.get(getDistanceToGoal(futurePose.get()))*0.964;
 
         Vector stationaryVec = new Vector(artifact_velocity, stationary_angle, true);
         Vector robotVelocityVec = new Vector(curPoseVel.get().getX(), curPoseVel.get().getY(), false);
 
         Vector scaledStationaryVec = VectorMath.scale_vector(stationaryVec, stationaryScale);
-        Vector scaledRobotVelocityVec = VectorMath.scale_vector(robotVelocityVec, robotVelocityScale);
+
+        Vector scaledRobotVelocityVec;
+
+        if (!inAuto) {
+            scaledRobotVelocityVec = VectorMath.scale_vector(robotVelocityVec, robotVelocityScale);
+        } else {
+            scaledRobotVelocityVec = VectorMath.scale_vector(robotVelocityVec, robotVelocityScaleAuto);
+        }
 
         telemetry.addData("[Shooter] Stationary Vector (r, θ): ", "(%.2f, %.2f)", stationaryVec.getMagnitude(), Math.toDegrees(stationaryVec.getAngle()));
         telemetry.addData("[Shooter] Velocity Vector (x, y): ", "(%.2f, %.2f)", robotVelocityVec.getVx(), robotVelocityVec.getVy());
@@ -384,13 +401,12 @@ public class Shooter extends SubsystemBase {
     }
 
     public boolean inLUTRange() {
-        double dist = getDistanceToGoal(curPose.get());
         double distFutur = getDistanceToGoal(futurePose.get());
-        return (dist > 48.4 && dist < 162.19) && (distFutur > 48.4 && distFutur < 162.19);
+        return (!inAuto) ? (distFutur > 48.4 && distFutur < 162.19) : (distFutur > 23.92697 && distFutur < 162.19);
     }
 
     public boolean atSmallTriangle() {
-        return getDistanceToGoal(curPose.get()) > (325.0/2.54);
+        return getDistanceToGoal(futurePose.get()) > (325.0/2.54);
     }
 
     public void zeroTurret() {

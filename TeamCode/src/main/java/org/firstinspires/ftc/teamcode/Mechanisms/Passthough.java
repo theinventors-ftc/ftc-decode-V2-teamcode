@@ -17,7 +17,6 @@ public class Passthough extends SubsystemBase {
     // ---------------------------------------- Hardware ---------------------------------------- //
     private final ServoImplEx fingerF, fingerC, fingerR; // F: Front, C: Center, R: Rear
     private ColorSensor colorSensorF, colorSensorC, colorSensorR; // F: Front, C: Center, R: Rear
-
     private final ServoImplEx[] fingers;
     private final ColorSensor[] colorSensors;
 

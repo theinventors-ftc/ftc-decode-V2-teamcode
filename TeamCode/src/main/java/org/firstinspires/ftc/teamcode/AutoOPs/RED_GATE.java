@@ -4,11 +4,13 @@ import static org.firstinspires.ftc.teamcode.PurePursuit.Base.Math.MathFunction.
 
 import com.arcrobotics.ftclib.command.CommandOpMode;
 import com.arcrobotics.ftclib.command.CommandScheduler;
+import com.arcrobotics.ftclib.command.ConditionalCommand;
 import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.ParallelCommandGroup;
 import com.arcrobotics.ftclib.command.ParallelRaceGroup;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
 import com.arcrobotics.ftclib.command.WaitCommand;
+import com.arcrobotics.ftclib.command.WaitUntilCommand;
 import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
@@ -70,8 +72,8 @@ public class RED_GATE extends CommandOpMode {
         intake = new Intake(robotMap);
         passthough = new Passthough(robotMap, MotifStorage.Motif.PPG);
         shooter = new Shooter(robotMap, this::getPoseFTCCoor, this::getVelPoseFTCCoor,
-                              DecodeRobotV2.Alliance.RED, false, true,
-                              true);
+                              this::getAccelPoseFTCCoor, DecodeRobotV2.Alliance.RED,
+                              false, true, true);
         commandVault = new CommandSeriesVault(intake, passthough, shooter);
 
         commandVault.enableWheels().schedule();
@@ -82,66 +84,116 @@ public class RED_GATE extends CommandOpMode {
         loopTime = new Timer();
 
         new SequentialCommandGroup(
-                new ParallelCommandGroup(
-                    new FollowerCommand(follower, paths.StartToStack2, 0.6),
-                    new SequentialCommandGroup(
-                        commandVault.autonomousWaitForTurret(),
-                        commandVault.feedAllFingers(),
-                        commandVault.startIntakeProc())
+            new ParallelCommandGroup(
+                new FollowerCommand(follower, paths.StartToStack2, 0.45, true),
+                new SequentialCommandGroup(
+                    commandVault.autonomousWaitForTurret(),
+                    commandVault.feedAllFingers(),
+                    new InstantCommand(() -> follower.setMaxPower(1)),
+                    commandVault.startIntakeProc()
                 )
-//                new FollowerCommand(follower, paths.Stack2ToShoot, 0.89),
-//                new InstantCommand(follower::resumePathFollowing),
-//                new WaitCommand(550),
-//                new FollowerCommand(follower, paths.ShootToGate, 1),
-//                commandVault.stopIntakeProc(),
-//                new WaitCommand(160),
-//                new FollowerCommand(follower, paths.GateToShoot),
-//                commandVault.autonomousWaitForTurret(),
-//
-//                new WaitCommand(150),
-//                commandVault.feedAllFingers(),
-//                commandVault.startIntakeProc(),
-//                new FollowerCommand(follower, paths.ShootToStack1, 1),
-//                new WaitCommand(100),
-//                new FollowerCommand(follower, paths.Stack1ToShoot),
-//                commandVault.stopIntakeProc(),
-//                commandVault.autonomousWaitForTurret(),
-//                new WaitCommand(100),
-//
-//                commandVault.feedAllFingers(),
-//                commandVault.startIntakeProc(),
-//                new FollowerCommand(follower, paths., 0.95, true),
-//                new InstantCommand(follower::resumePathFollowing),
-//                new WaitCommand(250),
-//                new ParallelCommandGroup(
-//                        new FollowerCommand(follower, paths.IntakeStack3ToSmallLaunchArea),
-//                        new SequentialCommandGroup(
-//                                new WaitCommand(320),
-//                                commandVault.reverseIntake()
-//                        )
-//                ),
-//                commandVault.autonomousWaitForTurret(),
-//                commandVault.stopIntakeProc(),
-//                new WaitCommand(200),
-////                new InstantCommand(shooter::cacheCurrentDistance),
-//                commandVault.feedAllFingers(),
-//                commandVault.startIntakeProc(),
-//                new FollowerCommand(follower, paths.SmallLaunchAreaToHP),
-//                new WaitCommand(400),
-//                new ParallelCommandGroup(
-//                        new FollowerCommand(follower, paths.HPToSmallLaunchArea),
-//                        new SequentialCommandGroup(
-//                                new WaitCommand(150),
-//                                commandVault.reverseIntake()
-//                        )
-//                ),
-//                commandVault.autonomousWaitForTurret(),
-//                commandVault.stopIntakeProc(),
-//                new WaitCommand(250),
-////                new InstantCommand(shooter::cacheCurrentDistance),
-//                commandVault.feedAllFingers(),
-//                commandVault.parkShooter(),
-//                new FollowerCommand(follower, paths.Park)
+            ),
+
+            new InstantCommand(follower::resumePathFollowing),
+
+            new ParallelRaceGroup(
+                new ParallelCommandGroup(
+                    new FollowerCommand(follower, paths.Stack2ToShoot,1),
+                    new SequentialCommandGroup(
+                        commandVault.reverseIntake(),
+                        new WaitCommand(500),
+                        commandVault.stopIntakeProc()
+                    ),
+                    new WaitCommand(300000)
+                ),
+                new WaitUntilCommand(() -> follower.getPose().getX() <= 105)
+            ),
+            commandVault.autonomousWaitForTurret(),
+            commandVault.feedAllFingers(),
+            commandVault.startIntakeProc(),
+
+            // 1
+
+            new FollowerCommand(follower, paths.ShootToGate,1, false, true),
+            new WaitCommand(1500),
+
+            new ParallelRaceGroup(
+                new ParallelCommandGroup(
+                    new FollowerCommand(follower, paths.GateToShoot,1),
+                    new SequentialCommandGroup(
+                        commandVault.reverseIntake(),
+                        new WaitCommand(500),
+                        commandVault.stopIntakeProc()
+                    ),
+                    new WaitCommand(300000)
+                ),
+                new WaitUntilCommand(() -> follower.getPose().getX() <= 105)
+            ),
+            commandVault.autonomousWaitForTurret(),
+            commandVault.feedAllFingers(),
+            commandVault.startIntakeProc(),
+
+            // 2
+
+            new FollowerCommand(follower, paths.ShootToGate,1, false, true),
+            new WaitCommand(1500),
+
+            new ParallelRaceGroup(
+                new ParallelCommandGroup(
+                    new FollowerCommand(follower, paths.GateToShoot,1),
+                    new SequentialCommandGroup(
+                        commandVault.reverseIntake(),
+                        new WaitCommand(500),
+                        commandVault.stopIntakeProc()
+                    ),
+                    new WaitCommand(300000)
+                ),
+                new WaitUntilCommand(() -> follower.getPose().getX() <= 105)
+            ),
+            commandVault.autonomousWaitForTurret(),
+            commandVault.feedAllFingers(),
+            commandVault.startIntakeProc(),
+
+            // 3
+
+            new FollowerCommand(follower, paths.ShootToGate,1, false, true),
+            new WaitCommand(1500),
+
+            new ParallelRaceGroup(
+                new ParallelCommandGroup(
+                    new FollowerCommand(follower, paths.GateToShoot,1),
+                    new SequentialCommandGroup(
+                        commandVault.reverseIntake(),
+                        new WaitCommand(500),
+                        commandVault.stopIntakeProc()
+                    ),
+                    new WaitCommand(300000)
+                ),
+                new WaitUntilCommand(() -> follower.getPose().getX() <= 105)
+            ),
+            commandVault.autonomousWaitForTurret(),
+            commandVault.feedAllFingers(),
+            commandVault.startIntakeProc(),
+
+            new FollowerCommand(follower, paths.ShootToStack1,1, true),
+            new InstantCommand(follower::resumePathFollowing),
+
+            new ParallelRaceGroup(
+                new ParallelCommandGroup(
+                    new FollowerCommand(follower, paths.Stack1ToShoot,1),
+                    new SequentialCommandGroup(
+                        commandVault.reverseIntake(),
+                        new WaitCommand(500),
+                        commandVault.stopIntakeProc()
+                    ),
+                    new WaitCommand(3000000)
+                ),
+                new WaitUntilCommand(() -> follower.getPose().getX() <= 105)
+            ),
+            commandVault.autonomousWaitForTurret(),
+            commandVault.feedAllFingers(),
+
+            new FollowerCommand(follower, paths.Park, 1, true)
         ).schedule();
     }
 
@@ -183,65 +235,72 @@ public class RED_GATE extends CommandOpMode {
             StartToStack2 = follower.pathBuilder().addPath(
                             new BezierCurve(
                                     new Pose(117.5, 130.5),
-                                    new Pose(50.3, 74.2),
+                                    new Pose(52.3, 74.2),
                                     new Pose(81.2, 54.8),
                                     new Pose(94.4, 57.9),
-                                    new Pose(134.0, 58)
+                                    new Pose(138.0, 60)
                             )
                     ).setTangentHeadingInterpolation()
+                    .setBrakingStrength(4)
                     .build();
 
             Stack2ToShoot = follower.pathBuilder().addPath(
                             new BezierCurve(
-                                    new Pose(134.0, 58),
+                                    new Pose(134.0, 60),
                                     new Pose(99, 58),
-                                    new Pose(88, 75)
+                                    new Pose(90, 75)
                             )
                     ).setConstantHeadingInterpolation(0)
-                    .setBrakingStrength(1.3)
+                    .setBrakingStart(1.2)
+                    .setBrakingStrength(0.5)
                     .build();
 
             ShootToGate = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(88, 75),
-                                    new Pose(130, 60.57)
+                                    new Pose(90, 75),
+                                    new Pose(131, 62)
                             )
                     ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(30))
-                    .setBrakingStrength(0.4)
+                    .setBrakingStart(2)
+                    .setBrakingStrength(0.5)
                     .build();
 
             GateToShoot = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(130, 60.57),
-                                    new Pose(88, 75)
+                                    new Pose(131, 62),
+                                    new Pose(90, 75)
                             )
                     ).setLinearHeadingInterpolation(Math.toRadians(30), Math.toRadians(0))
+                    .setBrakingStart(1.2)
+                    .setBrakingStrength(0.5)
                     .build();
 
             ShootToStack1 = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(88, 75),
-                                    new Pose(125.5, 83.5)
+                                    new Pose(90, 83.5),
+                                    new Pose(129, 83.5)
                             )
                     ).setConstantHeadingInterpolation(Math.toRadians(0))
-                    .setBrakingStrength(1.9)
+                    .setBrakingStrength(3.5)
                     .build();
 
             Stack1ToShoot = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(125.5, 83.5),
-                                    new Pose(88, 83.5)
+                                    new Pose(127.5, 83.5),
+                                    new Pose(90, 83.5)
                             )
                     ).setConstantHeadingInterpolation(Math.toRadians(0))
+                    .setBrakingStart(1.2)
+                    .setBrakingStrength(0.5)
                     .build();
 
             Park = follower.pathBuilder().addPath(
-                            new BezierLine(
-                                    new Pose(88, 83.5),
-                                    new Pose(88, 60)
-                            )
-                    ).setConstantHeadingInterpolation(Math.toRadians(0))
-                    .build();
+                             new BezierLine(
+                                    new Pose(90, 83.5),
+                                    new Pose(90, 60)
+                             )
+                ).setConstantHeadingInterpolation(Math.toRadians(0))
+                .build();
         }
     }
 
@@ -269,6 +328,15 @@ public class RED_GATE extends CommandOpMode {
         return new org.firstinspires.ftc.teamcode.PurePursuit.Base.Coordination.Pose(
             deltaPose.getY() / (deltaTimeNano / Math.pow(10.0, 9)),
             deltaPose.getX() / (deltaTimeNano / Math.pow(10.0, 9)),
+            0
+        );
+    }
+
+    public org.firstinspires.ftc.teamcode.PurePursuit.Base.Coordination.Pose getAccelPoseFTCCoor() {
+
+        return new org.firstinspires.ftc.teamcode.PurePursuit.Base.Coordination.Pose(
+            follower.getAcceleration().getYComponent(),
+            follower.getAcceleration().getXComponent(),
             0
         );
     }
