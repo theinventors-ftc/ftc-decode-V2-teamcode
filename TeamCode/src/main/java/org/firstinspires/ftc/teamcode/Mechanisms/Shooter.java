@@ -57,6 +57,7 @@ public class Shooter extends SubsystemBase {
     public enum ShooterGoal {
         ALLIANCE_GOAL,
         OBELISK,
+        AUTO_CUSTOM,
         DISABLED
     }
 
@@ -84,6 +85,8 @@ public class Shooter extends SubsystemBase {
     private static double turretZeroOffsetReversed = -195.5346;
     private boolean startReversed = false;
     private StateMachine hasStalled;
+
+    private double auto_custom_angle = 0.0;
 
     // ------------------------------------------ Util ------------------------------------------ //
     private Telemetry telemetry;
@@ -225,7 +228,13 @@ public class Shooter extends SubsystemBase {
 
         // --------------------------------------- Turret --------------------------------------- //
         Vector curShootingVector = calcShootingVector();
-        turretController.setSetPoint(wheelsEnabled ? getTurretTarget(curShootingVector) : 0);
+        if(shooterLock == ShooterGoal.ALLIANCE_GOAL) {
+            turretController.setSetPoint(wheelsEnabled ? getTurretTarget(curShootingVector) : 0);
+        }
+
+        if(shooterLock == ShooterGoal.AUTO_CUSTOM) {
+            turretController.setSetPoint(auto_custom_angle);
+        }
 
         turretMotor.set(Range.clip(
                 turretController.calculate(getTurretAngle()),
@@ -304,6 +313,10 @@ public class Shooter extends SubsystemBase {
 
     public boolean turretAtGoal() {
         return Math.abs(turretController.getPositionError()) < (atSmallTriangle() ? 1.2 : 0.7);
+    }
+
+    public boolean turretAtGoal(double threshold) {
+        return Math.abs(turretController.getPositionError()) < threshold;
     }
 
     // ---------------------------------------- IK Stuff ---------------------------------------- //
@@ -434,5 +447,10 @@ public class Shooter extends SubsystemBase {
 
     public void disableObelisk() {
         //pare mou mia pipa
+    }
+
+    public void enableAutoCustom(double customAngle) {
+        shooterLock = ShooterGoal.AUTO_CUSTOM;
+        auto_custom_angle = customAngle;
     }
 }

@@ -23,6 +23,7 @@ import org.firstinspires.ftc.teamcode.Mechanisms.CommandSeriesVault;
 import org.firstinspires.ftc.teamcode.Mechanisms.Detection;
 import org.firstinspires.ftc.teamcode.Mechanisms.Intake;
 import org.firstinspires.ftc.teamcode.Mechanisms.Passthough;
+import org.firstinspires.ftc.teamcode.Mechanisms.Shooter;
 import org.firstinspires.ftc.teamcode.Mechanisms.ShooterLimelight;
 import org.firstinspires.ftc.teamcode.MotifStorage;
 import org.firstinspires.ftc.teamcode.PoseStorage;
@@ -44,7 +45,7 @@ public class RED_12_Ball extends CommandOpMode {
 
     private Intake intake;
     private Passthough passthough;
-    private ShooterLimelight shooter;
+    private Shooter shooter;
 
     private CommandSeriesVault commandVault;
 
@@ -60,11 +61,12 @@ public class RED_12_Ball extends CommandOpMode {
 
         follower = Constants.createFollower(hardwareMap);
         follower.setStartingPose(new Pose(120 - 5.625, 128.89763779, Math.toRadians(0)));
+        follower.setStartingPose(new Pose(117, 129.3, Math.toRadians(46)));
         paths = new Paths(follower);
 
         intake = new Intake(robotMap);
         passthough = new Passthough(robotMap, MotifStorage.Motif.PPG);
-        shooter = new ShooterLimelight(robotMap, this::getPoseFTCCoor, DecodeRobotV2.Alliance.RED, false);
+        shooter = new Shooter(robotMap, this::getPoseFTCCoor, () -> new org.firstinspires.ftc.teamcode.PurePursuit.Base.Coordination.Pose(0, 0, 0), DecodeRobotV2.Alliance.RED, false);
         detection = new Detection(robotMap);
         commandVault = new CommandSeriesVault(intake, passthough, shooter, detection);
 
@@ -78,14 +80,13 @@ public class RED_12_Ball extends CommandOpMode {
         new SequentialCommandGroup(
                 new FollowerCommand(follower, paths.StartToGoal),
                 commandVault.autonomousWaitForTurret(),
-//                new InstantCommand(shooter::cacheCurrentDistance),
-                commandVault.feedAllFingers(),
-                commandVault.enableObelisk(),
-                commandVault.autonomousWaitForTurret(),
-                new WaitCommand(200),
-                commandVault.updateMotifPassthrough(),
-                new WaitCommand(100),
-                commandVault.disableObelisk(),
+                commandVault.feedAllHingesFingers(),
+//                commandVault.enableObelisk(),
+//                commandVault.autonomousWaitForTurret(),
+//                new WaitCommand(200),
+//                commandVault.updateMotifPassthrough(),
+//                new WaitCommand(100),
+//                commandVault.disableObelisk(),
                 commandVault.startIntakeProc(),
                 new FollowerCommand(follower, paths.GoalToIntakeStack2, 0.9, true),
                 new InstantCommand(follower::resumePathFollowing),
@@ -95,9 +96,8 @@ public class RED_12_Ball extends CommandOpMode {
                 new WaitCommand(160),
                 new FollowerCommand(follower, paths.OpenGate2ToLaunchArea2),
                 commandVault.autonomousWaitForTurret(),
-//                new InstantCommand(shooter::cacheCurrentDistance),
                 new WaitCommand(150),
-                commandVault.feedAllFingers(),
+                commandVault.feedAllHingesFingers(),
                 commandVault.startIntakeProc(),
                 new FollowerCommand(follower, paths.LauchArea2ToIntakeStack1, 1),
                 new WaitCommand(100),
@@ -105,8 +105,7 @@ public class RED_12_Ball extends CommandOpMode {
                 commandVault.stopIntakeProc(),
                 commandVault.autonomousWaitForTurret(),
                 new WaitCommand(100),
-//                new InstantCommand(shooter::cacheCurrentDistance),
-                commandVault.feedAllFingers(),
+                commandVault.feedAllHingesFingers(),
                 commandVault.startIntakeProc(),
                 new FollowerCommand(follower, paths.LauchArea1ToIntakeStack3, 0.95, true),
                 new InstantCommand(follower::resumePathFollowing),
@@ -121,9 +120,7 @@ public class RED_12_Ball extends CommandOpMode {
                 commandVault.autonomousWaitForTurret(),
                 commandVault.stopIntakeProc(),
                 new WaitCommand(200),
-//                new InstantCommand(shooter::cacheCurrentDistance),
-                commandVault.feedAllFingers(),
-                commandVault.startIntakeProc(),
+                commandVault.feedAllHingesFingers(),
                 commandVault.parkShooter(),
                 new FollowerCommand(follower, paths.SmallLaunchAreaToParking)
         ).schedule();
@@ -142,11 +139,6 @@ public class RED_12_Ball extends CommandOpMode {
         telemetry.addData("X", getPoseFTCCoor().getX());
         telemetry.addData("Y", getPoseFTCCoor().getY());
         telemetry.addData("Heading", getPoseFTCCoor().getTheta());
-        ArrayList<Double> dists = shooter.getCachedDistances();
-        for (int i = 0; i < dists.size(); i++) {
-            telemetry.addData("Dist " + i, dists.get(i));
-        }
-        telemetry.addData("Dists", shooter.getCachedDistances());
         telemetry.update();
     }
 
@@ -171,10 +163,10 @@ public class RED_12_Ball extends CommandOpMode {
         public Paths(Follower follower) {
             StartToGoal = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(108.0, 135.0),
+                                    new Pose(117, 129.3), // new Pose(108.0, 135.0),
                                     new Pose(91, 102.0)
                             )
-                    ).setConstantHeadingInterpolation(0)
+                    ).setLinearHeadingInterpolation(Math.toRadians(46), Math.toRadians(46))
                     .build();
 
             GoalToIntakeStack2 = follower.pathBuilder().addPath(

@@ -83,14 +83,21 @@ public class RED_GATE extends CommandOpMode {
 
         loopTime = new Timer();
 
+        long gateWaitTime = 1500;
+        double preloadShootAngle = 170, stack2ShootAngle = 50, stack1ShootAngle = 80.3;
+        double[] gateShootAngle = {47, 49, 48.3, 48.4};
+
         new SequentialCommandGroup(
+            new InstantCommand(() -> shooter.enableAutoCustom(preloadShootAngle)),
             new ParallelCommandGroup(
-                new FollowerCommand(follower, paths.StartToStack2, 0.45, true),
+                new FollowerCommand(follower, paths.StartToStack2, 0.5, true),
                 new SequentialCommandGroup(
-                    commandVault.autonomousWaitForTurret(),
-                    commandVault.feedAllFingers(),
+                    new WaitCommand(550),
+                    commandVault.feedAllHingesFingersAUTO(),
                     new InstantCommand(() -> follower.setMaxPower(1)),
-                    commandVault.startIntakeProc()
+                    commandVault.startIntakeProc(),
+                    new WaitCommand(400),
+                    new InstantCommand(() -> shooter.enableAutoCustom(stack2ShootAngle))
                 )
             ),
 
@@ -98,7 +105,8 @@ public class RED_GATE extends CommandOpMode {
 
             new ParallelRaceGroup(
                 new ParallelCommandGroup(
-                    new FollowerCommand(follower, paths.Stack2ToShoot,1),
+                    new InstantCommand(() -> shooter.enableAutoCustom(stack2ShootAngle)),
+                    new FollowerCommand(follower, paths.Stack2ToShoot,1, false, true),
                     new SequentialCommandGroup(
                         commandVault.reverseIntake(),
                         new WaitCommand(500),
@@ -106,20 +114,20 @@ public class RED_GATE extends CommandOpMode {
                     ),
                     new WaitCommand(300000)
                 ),
-                new WaitUntilCommand(() -> follower.getPose().getX() <= 105)
+                new WaitUntilCommand(() -> follower.getPose().getX() <= 95)
             ),
-            commandVault.autonomousWaitForTurret(),
-            commandVault.feedAllFingers(),
+            commandVault.feedAllHingesFingersAUTO(),
             commandVault.startIntakeProc(),
 
             // 1
 
             new FollowerCommand(follower, paths.ShootToGate,1, false, true),
-            new WaitCommand(1500),
+            new WaitCommand(gateWaitTime),
 
             new ParallelRaceGroup(
                 new ParallelCommandGroup(
-                    new FollowerCommand(follower, paths.GateToShoot,1),
+                    new InstantCommand(() -> shooter.enableAutoCustom(gateShootAngle[0])),
+                    new FollowerCommand(follower, paths.GateToShoot,1, false, true),
                     new SequentialCommandGroup(
                         commandVault.reverseIntake(),
                         new WaitCommand(500),
@@ -127,20 +135,20 @@ public class RED_GATE extends CommandOpMode {
                     ),
                     new WaitCommand(300000)
                 ),
-                new WaitUntilCommand(() -> follower.getPose().getX() <= 105)
+                new WaitUntilCommand(() -> follower.getPose().getX() <= 95)
             ),
-            commandVault.autonomousWaitForTurret(),
-            commandVault.feedAllFingers(),
+            commandVault.feedAllHingesFingersAUTO(),
             commandVault.startIntakeProc(),
 
             // 2
 
             new FollowerCommand(follower, paths.ShootToGate,1, false, true),
-            new WaitCommand(1500),
+            new WaitCommand(gateWaitTime),
 
             new ParallelRaceGroup(
                 new ParallelCommandGroup(
-                    new FollowerCommand(follower, paths.GateToShoot,1),
+                    new InstantCommand(() -> shooter.enableAutoCustom(gateShootAngle[1])),
+                    new FollowerCommand(follower, paths.GateToShoot,1, false, true),
                     new SequentialCommandGroup(
                         commandVault.reverseIntake(),
                         new WaitCommand(500),
@@ -148,20 +156,20 @@ public class RED_GATE extends CommandOpMode {
                     ),
                     new WaitCommand(300000)
                 ),
-                new WaitUntilCommand(() -> follower.getPose().getX() <= 105)
+                new WaitUntilCommand(() -> follower.getPose().getX() <= 95)
             ),
-            commandVault.autonomousWaitForTurret(),
-            commandVault.feedAllFingers(),
+            commandVault.feedAllHingesFingersAUTO(),
             commandVault.startIntakeProc(),
 
             // 3
 
             new FollowerCommand(follower, paths.ShootToGate,1, false, true),
-            new WaitCommand(1500),
+            new WaitCommand(gateWaitTime),
 
             new ParallelRaceGroup(
                 new ParallelCommandGroup(
-                    new FollowerCommand(follower, paths.GateToShoot,1),
+                    new InstantCommand(() -> shooter.enableAutoCustom(gateShootAngle[2])),
+                    new FollowerCommand(follower, paths.GateToShoot,1, false, true),
                     new SequentialCommandGroup(
                         commandVault.reverseIntake(),
                         new WaitCommand(500),
@@ -169,31 +177,53 @@ public class RED_GATE extends CommandOpMode {
                     ),
                     new WaitCommand(300000)
                 ),
-                new WaitUntilCommand(() -> follower.getPose().getX() <= 105)
+                new WaitUntilCommand(() -> follower.getPose().getX() <= 95)
             ),
-            commandVault.autonomousWaitForTurret(),
-            commandVault.feedAllFingers(),
+            commandVault.feedAllHingesFingersAUTO(),
             commandVault.startIntakeProc(),
 
-            new FollowerCommand(follower, paths.ShootToStack1,1, true),
-            new InstantCommand(follower::resumePathFollowing),
+            // 4
+
+            new FollowerCommand(follower, paths.ShootToGate,1, false, true),
+            new WaitCommand(gateWaitTime),
+
+            new ParallelRaceGroup(
+                    new ParallelCommandGroup(
+                            new InstantCommand(() -> shooter.enableAutoCustom(gateShootAngle[3])),
+                            new FollowerCommand(follower, paths.GateToShoot,1, false, true),
+                            new SequentialCommandGroup(
+                                    commandVault.reverseIntake(),
+                                    new WaitCommand(500),
+                                    commandVault.stopIntakeProc()
+                            ),
+                            new WaitCommand(300000)
+                    ),
+                    new WaitUntilCommand(() -> follower.getPose().getX() <= 95)
+            ),
+            commandVault.feedAllHingesFingersAUTO(),
+            commandVault.startIntakeProc(),
+
+            //////////////////////////////////////////
+
+            new FollowerCommand(follower, paths.ShootToStack1,1, false, true),
+            new WaitCommand(200),
 
             new ParallelRaceGroup(
                 new ParallelCommandGroup(
-                    new FollowerCommand(follower, paths.Stack1ToShoot,1),
+                    new InstantCommand(() -> shooter.enableAutoCustom(stack1ShootAngle)),
+                    new FollowerCommand(follower, paths.Stack1ToShoot,1, false, true),
                     new SequentialCommandGroup(
                         commandVault.reverseIntake(),
-                        new WaitCommand(500),
+                        new WaitCommand(300),
                         commandVault.stopIntakeProc()
                     ),
                     new WaitCommand(3000000)
                 ),
-                new WaitUntilCommand(() -> follower.getPose().getX() <= 105)
+                new WaitUntilCommand(() -> follower.getPose().getX() <= 102)
             ),
-            commandVault.autonomousWaitForTurret(),
-            commandVault.feedAllFingers(),
-
-            new FollowerCommand(follower, paths.Park, 1, true)
+            commandVault.stopIntakeProc(),
+            commandVault.feedAllHingesFingersAUTO(),
+            commandVault.parkShooter()
         ).schedule();
     }
 
@@ -210,11 +240,6 @@ public class RED_GATE extends CommandOpMode {
         telemetry.addData("X", getPoseFTCCoor().getX());
         telemetry.addData("Y", getPoseFTCCoor().getY());
         telemetry.addData("Heading", getPoseFTCCoor().getTheta());
-//        ArrayList<Double> dists = shooter.getCachedDistances();
-//        for (int i = 0; i < dists.size(); i++) {
-//            telemetry.addData("Dist " + i, dists.get(i));
-//        }
-//        telemetry.addData("Dists", shooter.getCachedDistances());
         telemetry.update();
     }
 
@@ -287,9 +312,9 @@ public class RED_GATE extends CommandOpMode {
             Stack1ToShoot = follower.pathBuilder().addPath(
                             new BezierLine(
                                     new Pose(127.5, 83.5),
-                                    new Pose(90, 83.5)
+                                    new Pose(88.3, 102)
                             )
-                    ).setConstantHeadingInterpolation(Math.toRadians(0))
+                    ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(315))
                     .setBrakingStart(1.2)
                     .setBrakingStrength(0.5)
                     .build();

@@ -231,14 +231,6 @@ public class DecodeRobotV2 {
         detection = new Detection(robotMap);
         detection.setState(Detection.DetectionState.GOAL);
         headingController = new PIDFEx(2.1, 0, 0.24, 0.008, 0.2, 0.0, Math.toRadians(40), 0.5);
-//        shooter = new Shooter(
-//            robotMap,
-//            this::getPose,
-//            alliance,
-//            true,
-//            () -> detection.getTagX(),
-//            () -> detection.getAngleError()
-//        );
 
         shooter = new Shooter(
             robotMap,
@@ -297,7 +289,7 @@ public class DecodeRobotV2 {
         );
 
         toolOp.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER).whenPressed(new ConditionalCommand(
-                commandSeriesVault.feedAllFingers(),
+                commandSeriesVault.feedAllHingesFingers(), // commandSeriesVault.feedAllFingers(),
                 new InstantCommand(),
                 () -> shooter.turretInRange() && shooter.inLUTRange() && shooter.areWheelsEnabled()
         ));
@@ -325,11 +317,11 @@ public class DecodeRobotV2 {
                 new InstantCommand(shooter::resetOffset)
         );
 
-//        new Trigger(() -> toolOp.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) > 0.75).whenActive(new ConditionalCommand(
-//                commandSeriesVault.parkShooter(),
-//                commandSeriesVault.unparkShooter(),
-//                () -> !shooter.isParked()
-//        ));
+        new Trigger(() -> toolOp.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) > 0.75).whenActive(new ConditionalCommand(
+                commandSeriesVault.parkShooter(),
+                commandSeriesVault.unparkShooter(),
+                () -> !shooter.isParked()
+        ));
 
 //        toolOp.getGamepadButton(GamepadKeys.Button.).whenPressed(
 //                new InstantCommand(detection::setGoalPip)

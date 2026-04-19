@@ -51,6 +51,7 @@ public class FollowerCommand extends CommandBase {
                 return true;
             }
         }
-        return !follower.isBusy();
+//        return !follower.isBusy();
+        return follower.getCurrentTValue() >= 0.95;
     }
 }

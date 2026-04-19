@@ -1,13 +1,16 @@
 package org.firstinspires.ftc.teamcode.Mechanisms;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.command.ConditionalCommand;
 import com.arcrobotics.ftclib.command.InstantCommand;
+import com.arcrobotics.ftclib.command.ParallelCommandGroup;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
 import com.arcrobotics.ftclib.command.WaitCommand;
 import com.arcrobotics.ftclib.command.WaitUntilCommand;
 
 import org.firstinspires.ftc.teamcode.DecodeRobotV2;
 
+@Config
 public class CommandSeriesVault {
     private DecodeRobotV2.Alliance alliance;
     private Intake intake;
@@ -17,6 +20,7 @@ public class CommandSeriesVault {
 
     // --------------------------------------- Constants ---------------------------------------- //
     public static int FINGER_BETWEEN_MS = 40, FINGER_HOLD_MS = 200, FINGER_BETWEEN_MOTIF_MS = 500;
+    public static long hinge_hold = 180, hinge_between = 160, hinge_hold_AUTO = 210, hinge_between_AUTO = 180;
 //    public static int FINGER_BETWEEN_MS = 80, FINGER_HOLD_MS = 340, FINGER_BETWEEN_MOTIF_MS = 500;
     private int artifact_count = 15;
 
@@ -88,6 +92,62 @@ public class CommandSeriesVault {
                 new WaitCommand(FINGER_HOLD_MS),
                 new InstantCommand(() -> passthough.setState(2, Passthough.FingerState.HOLD), passthough),
                 new WaitCommand(FINGER_BETWEEN_MS)
+        );
+    }
+
+    public SequentialCommandGroup feedAllHingesFingers() {
+        return new SequentialCommandGroup(
+                new WaitUntilCommand(() -> shooter.wheelsAtSpeed() && shooter.turretInRange()),
+                new ParallelCommandGroup(
+                        new SequentialCommandGroup(
+                                new InstantCommand(() -> passthough.setState(0, Passthough.FingerState.FEED)),
+                                new InstantCommand(this::increaseArtifacts),
+                                new WaitCommand(hinge_hold),
+                                new InstantCommand(() -> passthough.setState(0, Passthough.FingerState.HOLD))
+                        ),
+                        new SequentialCommandGroup(
+                                new WaitCommand(hinge_between),
+                                new InstantCommand(() -> passthough.setState(2, Passthough.FingerState.FEED)),
+                                new InstantCommand(this::increaseArtifacts),
+                                new WaitCommand(hinge_hold),
+                                new InstantCommand(() -> passthough.setState(2, Passthough.FingerState.HOLD))
+                        ),
+                        new SequentialCommandGroup(
+                                new WaitCommand(2*hinge_between),
+                                new InstantCommand(() -> passthough.setState(1, Passthough.FingerState.FEED)),
+                                new InstantCommand(this::increaseArtifacts),
+                                new WaitCommand(hinge_hold),
+                                new InstantCommand(() -> passthough.setState(1, Passthough.FingerState.HOLD))
+                        )
+                )
+        );
+    }
+
+    public SequentialCommandGroup feedAllHingesFingersAUTO() {
+        return new SequentialCommandGroup(
+                new WaitUntilCommand(() -> shooter.wheelsAtSpeed() && shooter.turretInRange()),
+                new ParallelCommandGroup(
+                        new SequentialCommandGroup(
+                                new InstantCommand(() -> passthough.setState(0, Passthough.FingerState.FEED)),
+                                new InstantCommand(this::increaseArtifacts),
+                                new WaitCommand(hinge_hold_AUTO),
+                                new InstantCommand(() -> passthough.setState(0, Passthough.FingerState.HOLD))
+                        ),
+                        new SequentialCommandGroup(
+                                new WaitCommand(hinge_between_AUTO),
+                                new InstantCommand(() -> passthough.setState(2, Passthough.FingerState.FEED)),
+                                new InstantCommand(this::increaseArtifacts),
+                                new WaitCommand(hinge_hold_AUTO),
+                                new InstantCommand(() -> passthough.setState(2, Passthough.FingerState.HOLD))
+                        ),
+                        new SequentialCommandGroup(
+                                new WaitCommand(2*hinge_between_AUTO),
+                                new InstantCommand(() -> passthough.setState(1, Passthough.FingerState.FEED)),
+                                new InstantCommand(this::increaseArtifacts),
+                                new WaitCommand(hinge_hold_AUTO),
+                                new InstantCommand(() -> passthough.setState(1, Passthough.FingerState.HOLD))
+                        )
+                )
         );
     }
 
@@ -206,9 +266,9 @@ public class CommandSeriesVault {
 
     public SequentialCommandGroup reverseIntake() {
         return new SequentialCommandGroup(
-                new InstantCommand(() -> passthough.setState(0, Passthough.FingerState.INTAKE), passthough),
-                new InstantCommand(() -> passthough.setState(1, Passthough.FingerState.INTAKE), passthough),
-                new InstantCommand(() -> passthough.setState(2, Passthough.FingerState.INTAKE), passthough),
+                new InstantCommand(() -> passthough.setState(0, Passthough.FingerState.HOLD), passthough),
+                new InstantCommand(() -> passthough.setState(1, Passthough.FingerState.HOLD), passthough),
+                new InstantCommand(() -> passthough.setState(2, Passthough.FingerState.HOLD), passthough),
                 new InstantCommand(intake::reverse, intake)
         );
     }
@@ -244,6 +304,13 @@ public class CommandSeriesVault {
     public SequentialCommandGroup autonomousWaitForTurret() {
         return new SequentialCommandGroup(
                 new WaitUntilCommand(() -> shooter.turretAtGoal()),
+                new WaitUntilCommand(() -> shooter.wheelsAtSpeed())
+        );
+    }
+
+    public SequentialCommandGroup autonomousWaitForTurretCustom(double angleThresh) {
+        return new SequentialCommandGroup(
+                new WaitUntilCommand(() -> shooter.turretAtGoal(angleThresh)),
                 new WaitUntilCommand(() -> shooter.wheelsAtSpeed())
         );
     }

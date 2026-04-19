@@ -173,11 +173,6 @@ public class RED_FAR extends CommandOpMode {
         FtcDashboard.getInstance().getTelemetry().addData("Y", getPoseFTCCoor().getY());
         FtcDashboard.getInstance().getTelemetry().addData("Heading", getPoseFTCCoor().getTheta());
         FtcDashboard.getInstance().getTelemetry().update();
-//        ArrayList<Double> dists = shooter.getCachedDistances();
-//        for (int i = 0; i < dists.size(); i++) {
-//            telemetry.addData("Dist " + i, dists.get(i));
-//        }
-//        telemetry.addData("Dists", shooter.getCachedDistances());
         telemetry.update();
     }
 

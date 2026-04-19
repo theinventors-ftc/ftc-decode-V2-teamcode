@@ -22,6 +22,7 @@ import org.firstinspires.ftc.teamcode.DecodeRobotV2;
 import org.firstinspires.ftc.teamcode.Mechanisms.CommandSeriesVault;
 import org.firstinspires.ftc.teamcode.Mechanisms.Intake;
 import org.firstinspires.ftc.teamcode.Mechanisms.Passthough;
+import org.firstinspires.ftc.teamcode.Mechanisms.Shooter;
 import org.firstinspires.ftc.teamcode.Mechanisms.ShooterLimelight;
 import org.firstinspires.ftc.teamcode.MotifStorage;
 import org.firstinspires.ftc.teamcode.PoseStorage;
@@ -41,7 +42,7 @@ public class RED_15_Ball_HP extends CommandOpMode {
 
     private Intake intake;
     private Passthough passthough;
-    private ShooterLimelight shooter;
+    private Shooter shooter;
 
     private CommandSeriesVault commandVault;
 
@@ -61,7 +62,7 @@ public class RED_15_Ball_HP extends CommandOpMode {
 
         intake = new Intake(robotMap);
         passthough = new Passthough(robotMap, MotifStorage.Motif.PPG);
-        shooter = new ShooterLimelight(robotMap, this::getPoseFTCCoor, DecodeRobotV2.Alliance.RED, false);
+        shooter = new Shooter(robotMap, this::getPoseFTCCoor, () -> new org.firstinspires.ftc.teamcode.PurePursuit.Base.Coordination.Pose(0, 0, 0), DecodeRobotV2.Alliance.RED, false);
         commandVault = new CommandSeriesVault(intake, passthough, shooter);
 
         commandVault.enableWheels().schedule();
@@ -146,11 +147,6 @@ public class RED_15_Ball_HP extends CommandOpMode {
         telemetry.addData("X", getPoseFTCCoor().getX());
         telemetry.addData("Y", getPoseFTCCoor().getY());
         telemetry.addData("Heading", getPoseFTCCoor().getTheta());
-        ArrayList<Double> dists = shooter.getCachedDistances();
-        for (int i = 0; i < dists.size(); i++) {
-            telemetry.addData("Dist " + i, dists.get(i));
-        }
-        telemetry.addData("Dists", shooter.getCachedDistances());
         telemetry.update();
     }
 
