@@ -261,8 +261,8 @@ public class Shooter extends SubsystemBase {
         // --------------------------------------- Wheels --------------------------------------- //
         if(wheelsEnabled) {
             double futurePoseDist = getDistanceToGoal(futurePose.get());
-            wheel1.set(getControlledWheelPower(wheelSpeed.get(futurePoseDist)));
-            wheel2.set(getControlledWheelPower(wheelSpeed.get(futurePoseDist)));
+            wheel1.set(getControlledWheelPower(wheelSpeed.get(futurePoseDist)) * 1.2);
+            wheel2.set(getControlledWheelPower(wheelSpeed.get(futurePoseDist)) * 1.2);
         }
     }
 

@@ -83,9 +83,9 @@ public class RED_GATE extends CommandOpMode {
 
         loopTime = new Timer();
 
-        long gateWaitTime = 1500;
-        double preloadShootAngle = 170, stack2ShootAngle = 50, stack1ShootAngle = 80.3;
-        double[] gateShootAngle = {47, 49, 48.3, 48.4};
+        long gateWaitTime = 2000;
+        double preloadShootAngle = 170, stack2ShootAngle = 53, stack1ShootAngle = 75;
+        double[] gateShootAngle = {52, 52, 52, 52};
 
         new SequentialCommandGroup(
             new InstantCommand(() -> shooter.enableAutoCustom(preloadShootAngle)),
@@ -108,6 +108,7 @@ public class RED_GATE extends CommandOpMode {
                     new InstantCommand(() -> shooter.enableAutoCustom(stack2ShootAngle)),
                     new FollowerCommand(follower, paths.Stack2ToShoot,1, false, true),
                     new SequentialCommandGroup(
+                        new WaitCommand(300),
                         commandVault.reverseIntake(),
                         new WaitCommand(500),
                         commandVault.stopIntakeProc()
@@ -205,7 +206,8 @@ public class RED_GATE extends CommandOpMode {
 
             //////////////////////////////////////////
 
-            new FollowerCommand(follower, paths.ShootToStack1,1, false, true),
+            new FollowerCommand(follower, paths.ShootToStack1,1, true),
+            new InstantCommand(follower::resumePathFollowing),
             new WaitCommand(200),
 
             new ParallelRaceGroup(
@@ -263,7 +265,7 @@ public class RED_GATE extends CommandOpMode {
                                     new Pose(52.3, 74.2),
                                     new Pose(81.2, 54.8),
                                     new Pose(94.4, 57.9),
-                                    new Pose(138.0, 60)
+                                    new Pose(140.0, 60)
                             )
                     ).setTangentHeadingInterpolation()
                     .setBrakingStrength(4)
@@ -271,13 +273,13 @@ public class RED_GATE extends CommandOpMode {
 
             Stack2ToShoot = follower.pathBuilder().addPath(
                             new BezierCurve(
-                                    new Pose(134.0, 60),
+                                    new Pose(140.0, 60),
                                     new Pose(99, 58),
                                     new Pose(90, 75)
                             )
                     ).setConstantHeadingInterpolation(0)
-                    .setBrakingStart(1.2)
-                    .setBrakingStrength(0.5)
+//                    .setBrakingStart(1.2)
+                    .setBrakingStrength(4)
                     .build();
 
             ShootToGate = follower.pathBuilder().addPath(
@@ -306,13 +308,13 @@ public class RED_GATE extends CommandOpMode {
                                     new Pose(129, 83.5)
                             )
                     ).setConstantHeadingInterpolation(Math.toRadians(0))
-                    .setBrakingStrength(3.5)
+                    .setBrakingStrength(4)
                     .build();
 
             Stack1ToShoot = follower.pathBuilder().addPath(
                             new BezierLine(
                                     new Pose(127.5, 83.5),
-                                    new Pose(88.3, 102)
+                                    new Pose(85.3, 102)
                             )
                     ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(315))
                     .setBrakingStart(1.2)
