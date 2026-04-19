@@ -88,9 +88,13 @@ public class Shooter extends SubsystemBase {
 
     private double auto_custom_angle = 0.0;
 
+    private boolean accelWheel = false;
+
     // ------------------------------------------ Util ------------------------------------------ //
     private Telemetry telemetry;
     private DoubleSupplier voltage;
+
+    public static double hoodOff = 0.0, velMult = 1.12;
 
     public Shooter(RobotMap robotMap, Supplier<Pose> curPose, Supplier<Pose> curPoseVel,
                    DecodeRobotV2.Alliance alliance, boolean doZero) {
@@ -101,6 +105,13 @@ public class Shooter extends SubsystemBase {
     public Shooter(RobotMap robotMap, Supplier<Pose> curPose, Supplier<Pose> curPoseVel, Supplier<Pose> curPoseAccel,
                    DecodeRobotV2.Alliance alliance, boolean doZero, boolean startReversed,
                    boolean inAuto
+    ) {
+        this(robotMap, curPose, curPoseVel, curPoseAccel, alliance, doZero, startReversed, inAuto, false);
+    }
+
+    public Shooter(RobotMap robotMap, Supplier<Pose> curPose, Supplier<Pose> curPoseVel, Supplier<Pose> curPoseAccel,
+                   DecodeRobotV2.Alliance alliance, boolean doZero, boolean startReversed,
+                   boolean inAuto, boolean accelWheel
     ) {
         this.wheel1 = robotMap.getShooterWheel1Motor();
         this.wheel2 = robotMap.getShooterWheel2Motor();
@@ -113,6 +124,7 @@ public class Shooter extends SubsystemBase {
         turretZeroed = !doZero;
         this.startReversed = !doZero && startReversed;
         this.inAuto = inAuto;
+        this.accelWheel = accelWheel;
 
         this.telemetry = robotMap.getTelemetry();
 
@@ -242,16 +254,16 @@ public class Shooter extends SubsystemBase {
                 MAX_TURRET_POWER
         ));
 
-//        if(accelWheel && !inLUTRange()) {
-//            wheel1.set(getControlledWheelPower(1.0));
-//            wheel2.set(getControlledWheelPower(1.0));
-//        }
+        if(accelWheel && !inLUTRange()) {
+            wheel1.set(getControlledWheelPower(1.0));
+            wheel2.set(getControlledWheelPower(1.0));
+        }
 
         if(!inLUTRange()) return;
 
         // ---------------------------------------- Hood ---------------------------------------- //
         hoodServo.setPosition(Range.scale(
-                (hoodLockEnabled ? hoodAngle.get(getDistanceToGoal(futurePose.get())) : 0),
+                (hoodLockEnabled ? Range.clip(hoodAngle.get(getDistanceToGoal(futurePose.get())) + hoodOff, 0, 1) : 0),
                 0,
                 1,
                 MIN_HOOD_POS,

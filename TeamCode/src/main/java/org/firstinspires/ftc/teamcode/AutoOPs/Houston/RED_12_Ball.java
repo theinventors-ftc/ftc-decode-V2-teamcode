@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.AutoOPs;
+package org.firstinspires.ftc.teamcode.AutoOPs.Houston;
 
 import com.arcrobotics.ftclib.command.CommandOpMode;
 import com.arcrobotics.ftclib.command.CommandScheduler;
@@ -24,15 +24,13 @@ import org.firstinspires.ftc.teamcode.Mechanisms.Detection;
 import org.firstinspires.ftc.teamcode.Mechanisms.Intake;
 import org.firstinspires.ftc.teamcode.Mechanisms.Passthough;
 import org.firstinspires.ftc.teamcode.Mechanisms.Shooter;
-import org.firstinspires.ftc.teamcode.Mechanisms.ShooterLimelight;
 import org.firstinspires.ftc.teamcode.MotifStorage;
 import org.firstinspires.ftc.teamcode.PoseStorage;
+import org.firstinspires.ftc.teamcode.PurePursuit.HardwareRelated.Localization.NanoTimer;
 import org.firstinspires.ftc.teamcode.RobotMap;
 import org.firstinspires.ftc.teamcode.Util.Timer;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.pedroPathing.FollowerCommand;
-
-import java.util.ArrayList;
 
 @Autonomous(name = "RED_12_Ball", group = "Autonomous")
 @Configurable
@@ -50,23 +48,30 @@ public class RED_12_Ball extends CommandOpMode {
     private CommandSeriesVault commandVault;
 
     private Timer loopTime;
+    private Pose pinpointPose;
+    private NanoTimer timer;
+    private long deltaTimeNano;
 
     private Paths paths;
 
     @Override
     public void initialize() {
+        pinpointPose = new Pose(117.5, 129.3, Math.toRadians(46));
+        timer = new NanoTimer();
+        deltaTimeNano = 1;
         CommandScheduler.getInstance().reset(); // Ultra SOS
         panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
         robotMap = new RobotMap(hardwareMap, telemetry,null,null);
 
         follower = Constants.createFollower(hardwareMap);
-        follower.setStartingPose(new Pose(120 - 5.625, 128.89763779, Math.toRadians(0)));
         follower.setStartingPose(new Pose(117, 129.3, Math.toRadians(46)));
         paths = new Paths(follower);
 
         intake = new Intake(robotMap);
         passthough = new Passthough(robotMap, MotifStorage.Motif.PPG);
-        shooter = new Shooter(robotMap, this::getPoseFTCCoor, () -> new org.firstinspires.ftc.teamcode.PurePursuit.Base.Coordination.Pose(0, 0, 0), DecodeRobotV2.Alliance.RED, false);
+        shooter = new Shooter(robotMap, this::getPoseFTCCoor, this::getVelPoseFTCCoor,
+                this::getAccelPoseFTCCoor, DecodeRobotV2.Alliance.RED,
+                false, true, true);
         detection = new Detection(robotMap);
         commandVault = new CommandSeriesVault(intake, passthough, shooter, detection);
 
@@ -80,7 +85,7 @@ public class RED_12_Ball extends CommandOpMode {
         new SequentialCommandGroup(
                 new FollowerCommand(follower, paths.StartToGoal),
                 commandVault.autonomousWaitForTurret(),
-                commandVault.feedAllHingesFingers(),
+                commandVault.feedAllHingesFingersAUTO(),
 //                commandVault.enableObelisk(),
 //                commandVault.autonomousWaitForTurret(),
 //                new WaitCommand(200),
@@ -97,7 +102,7 @@ public class RED_12_Ball extends CommandOpMode {
                 new FollowerCommand(follower, paths.OpenGate2ToLaunchArea2),
                 commandVault.autonomousWaitForTurret(),
                 new WaitCommand(150),
-                commandVault.feedAllHingesFingers(),
+                commandVault.feedAllHingesFingersAUTO(),
                 commandVault.startIntakeProc(),
                 new FollowerCommand(follower, paths.LauchArea2ToIntakeStack1, 1),
                 new WaitCommand(100),
@@ -105,7 +110,7 @@ public class RED_12_Ball extends CommandOpMode {
                 commandVault.stopIntakeProc(),
                 commandVault.autonomousWaitForTurret(),
                 new WaitCommand(100),
-                commandVault.feedAllHingesFingers(),
+                commandVault.feedAllHingesFingersAUTO(),
                 commandVault.startIntakeProc(),
                 new FollowerCommand(follower, paths.LauchArea1ToIntakeStack3, 0.95, true),
                 new InstantCommand(follower::resumePathFollowing),
@@ -120,7 +125,7 @@ public class RED_12_Ball extends CommandOpMode {
                 commandVault.autonomousWaitForTurret(),
                 commandVault.stopIntakeProc(),
                 new WaitCommand(200),
-                commandVault.feedAllHingesFingers(),
+                commandVault.feedAllHingesFingersAUTO(),
                 commandVault.parkShooter(),
                 new FollowerCommand(follower, paths.SmallLaunchAreaToParking)
         ).schedule();
@@ -275,6 +280,29 @@ public class RED_12_Ball extends CommandOpMode {
                 pedroPose.getX(),
                 pedroPose.getY(),
                 Math.toDegrees(pedroPose.getHeading())
+        );
+    }
+
+    public org.firstinspires.ftc.teamcode.PurePursuit.Base.Coordination.Pose getVelPoseFTCCoor() {
+        deltaTimeNano = timer.getElapsedTime();
+        timer.resetTimer();
+
+        Pose deltaPose = follower.getPose().minus(pinpointPose);
+        pinpointPose = follower.getPose();
+
+        return new org.firstinspires.ftc.teamcode.PurePursuit.Base.Coordination.Pose(
+                deltaPose.getY() / (deltaTimeNano / Math.pow(10.0, 9)),
+                deltaPose.getX() / (deltaTimeNano / Math.pow(10.0, 9)),
+                0
+        );
+    }
+
+    public org.firstinspires.ftc.teamcode.PurePursuit.Base.Coordination.Pose getAccelPoseFTCCoor() {
+
+        return new org.firstinspires.ftc.teamcode.PurePursuit.Base.Coordination.Pose(
+                follower.getAcceleration().getYComponent(),
+                follower.getAcceleration().getXComponent(),
+                0
         );
     }
 

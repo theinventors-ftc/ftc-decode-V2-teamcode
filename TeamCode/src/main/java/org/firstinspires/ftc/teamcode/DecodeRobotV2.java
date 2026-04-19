@@ -249,7 +249,7 @@ public class DecodeRobotV2 {
         ));
 
         toolOp.getGamepadButton(GamepadKeys.Button.A).whenPressed(new ConditionalCommand(
-                commandSeriesVault.feedOneFinger(0),
+                commandSeriesVault.feedOneFingerHinge(0),
                 new InstantCommand(),
                 () -> shooter.turretInRange() && shooter.inLUTRange() && shooter.areWheelsEnabled()
         ));
@@ -261,7 +261,7 @@ public class DecodeRobotV2 {
         ));
 
         toolOp.getGamepadButton(GamepadKeys.Button.Y).whenPressed(new ConditionalCommand(
-                commandSeriesVault.feedOneFinger(2),
+                commandSeriesVault.feedOneFingerHinge(2),
                 new InstantCommand(),
                 () -> shooter.turretInRange() && shooter.inLUTRange() && shooter.areWheelsEnabled()
         ));
@@ -317,43 +317,43 @@ public class DecodeRobotV2 {
                 new InstantCommand(shooter::resetOffset)
         );
 
-        new Trigger(() -> toolOp.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) > 0.75).whenActive(new ConditionalCommand(
-                commandSeriesVault.parkShooter(),
-                commandSeriesVault.unparkShooter(),
-                () -> !shooter.isParked()
-        ));
+//        new Trigger(() -> toolOp.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) > 0.75).whenActive(new ConditionalCommand(
+//                commandSeriesVault.parkShooter(),
+//                commandSeriesVault.unparkShooter(),
+//                () -> !shooter.isParked()
+//        ));
 
 //        toolOp.getGamepadButton(GamepadKeys.Button.).whenPressed(
 //                new InstantCommand(detection::setGoalPip)
 //        );
 
-        driverOp.getGamepadButton(GamepadKeys.Button.BACK).whenPressed( //11+1/8, 9+1/8
-                new ConditionalCommand(
-                        new InstantCommand(() -> teleOpLocalizer.setVector(
-                                new Vector(72-(9+1.0/8.0), -24-(11+1.0/8.0)))
-                        ),
-                        new InstantCommand(() -> teleOpLocalizer.setVector(
-                                new Vector(72-(9+1.0/8.0), 24+(11+1.0/8.0)))
-                        ),
-                        () -> getAlliance() != Alliance.BLUE
-                )
-        );
+//        driverOp.getGamepadButton(GamepadKeys.Button.BACK).whenPressed( //11+1/8, 9+1/8
+//                new ConditionalCommand(
+//                        new InstantCommand(() -> teleOpLocalizer.setVector(
+//                                new Vector(72-(9+1.0/8.0), -24-(11+1.0/8.0)))
+//                        ),
+//                        new InstantCommand(() -> teleOpLocalizer.setVector(
+//                                new Vector(72-(9+1.0/8.0), 24+(11+1.0/8.0)))
+//                        ),
+//                        () -> getAlliance() != Alliance.BLUE
+//                )
+//        );
 
 //        toolOp.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER).whenPressed(
 //                new InstantCommand(() -> teleOpLocalizer.setPose(new Pose(0, 0, 0)))
 //        );
 
-        toolOp.getGamepadButton(GamepadKeys.Button.BACK).whenPressed(this::switchMotif);
+//        toolOp.getGamepadButton(GamepadKeys.Button.BACK).whenPressed(this::switchMotif);
 
-        driverOp.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER).whenPressed(new ConditionalCommand(
-                new InstantCommand(this::disableGateHeadingControl),
-                new InstantCommand(this::enableGateHeadingControl),
-                () -> headingControlEnabled
-        ));
-
-        new Trigger(() -> Math.abs(driverOp.getRightX()) > 0.3).whenActive(
-                new InstantCommand(this::disableGateHeadingControl)
-        );
+//        driverOp.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER).whenPressed(new ConditionalCommand(
+//                new InstantCommand(this::disableGateHeadingControl),
+//                new InstantCommand(this::enableGateHeadingControl),
+//                () -> headingControlEnabled
+//        ));
+//
+//        new Trigger(() -> Math.abs(driverOp.getRightX()) > 0.3).whenActive(
+//                new InstantCommand(this::disableGateHeadingControl)
+//        );
     }
 
     public void switchMotif() {

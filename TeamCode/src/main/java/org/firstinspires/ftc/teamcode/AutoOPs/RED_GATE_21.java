@@ -1,10 +1,7 @@
 package org.firstinspires.ftc.teamcode.AutoOPs;
 
-import static org.firstinspires.ftc.teamcode.PurePursuit.Base.Math.MathFunction.subtractPoses;
-
 import com.arcrobotics.ftclib.command.CommandOpMode;
 import com.arcrobotics.ftclib.command.CommandScheduler;
-import com.arcrobotics.ftclib.command.ConditionalCommand;
 import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.ParallelCommandGroup;
 import com.arcrobotics.ftclib.command.ParallelRaceGroup;
@@ -38,7 +35,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.FollowerCommand;
 
 @Autonomous(name = "RED_GATE", group = "Autonomous")
 @Configurable
-public class RED_GATE extends CommandOpMode {
+public class RED_GATE_21 extends CommandOpMode {
     private TelemetryManager panelsTelemetry;
     public Follower follower;
     private RobotMap robotMap;

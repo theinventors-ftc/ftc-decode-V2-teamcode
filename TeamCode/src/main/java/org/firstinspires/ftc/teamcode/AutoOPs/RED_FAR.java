@@ -191,18 +191,18 @@ public class RED_FAR extends CommandOpMode {
                 .addPath(
                         new BezierLine(
                             new Pose(126, 20.0),
-                            new Pose(134.0, 12.0)
+                            new Pose(127.0, 12.0)
                             )
                 ).setLinearHeadingInterpolation(Math.toRadians(330), Math.toRadians(350))
                 .build();
 
             HP1ToShoot = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(134.0,14.05),
+                                    new Pose(127.0,14.05),
                                     new Pose(94.0, 14.05)
                             )
                     ).setLinearHeadingInterpolation(Math.toRadians(350), Math.toRadians(0))
-                    .setBrakingStrength(4)
+                    .setBrakingStrength(0.5)
                     .build();
 
             ShootToHP = follower.pathBuilder().addPath(
@@ -215,18 +215,18 @@ public class RED_FAR extends CommandOpMode {
                 .addPath(
                         new BezierLine(
                             new Pose(126, 20.0),
-                            new Pose(134.0, 12.0)
+                            new Pose(127.0, 12.0)
                         )
                     ).setLinearHeadingInterpolation(Math.toRadians(330), Math.toRadians(350))
                     .build();
 
             HPToShoot = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(134.5, 14.05),
+                                    new Pose(127.0, 14.05),
                                     new Pose(94.0, 14.05)
                             )
                     ).setLinearHeadingInterpolation(Math.toRadians(350), Math.toRadians(0))
-                    .setBrakingStrength(4)
+                    .setBrakingStrength(0.5)
                     .build();
 
             ShootToPark = follower.pathBuilder().addPath(
@@ -235,7 +235,6 @@ public class RED_FAR extends CommandOpMode {
                                     new Pose(104.0, 14.05)
                             )
                     ).setConstantHeadingInterpolation(0)
-                    .setBrakingStrength(4)
                     .build();
         }
     }

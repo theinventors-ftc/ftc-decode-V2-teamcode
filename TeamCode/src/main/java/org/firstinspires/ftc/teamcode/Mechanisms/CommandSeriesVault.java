@@ -20,7 +20,7 @@ public class CommandSeriesVault {
 
     // --------------------------------------- Constants ---------------------------------------- //
     public static int FINGER_BETWEEN_MS = 40, FINGER_HOLD_MS = 200, FINGER_BETWEEN_MOTIF_MS = 500;
-    public static long hinge_hold = 180, hinge_between = 160, hinge_hold_AUTO = 210, hinge_between_AUTO = 180;
+    public static long hinge_hold = 240, hinge_between = 170, hinge_hold_AUTO = 240, hinge_between_AUTO = 260;
 //    public static int FINGER_BETWEEN_MS = 80, FINGER_HOLD_MS = 340, FINGER_BETWEEN_MOTIF_MS = 500;
     private int artifact_count = 15;
 
@@ -58,6 +58,15 @@ public class CommandSeriesVault {
                 new WaitUntilCommand(() -> shooter.wheelsAtSpeed()),
                 new InstantCommand(() -> passthough.setState(fingerIdx, Passthough.FingerState.FEED), passthough),
                 new WaitCommand(FINGER_HOLD_MS),
+                new InstantCommand(() -> passthough.setState(fingerIdx, Passthough.FingerState.HOLD), passthough)
+        );
+    }
+
+    public SequentialCommandGroup feedOneFingerHinge(int fingerIdx) {
+        return new SequentialCommandGroup(
+                new WaitUntilCommand(() -> shooter.wheelsAtSpeed()),
+                new InstantCommand(() -> passthough.setState(fingerIdx, Passthough.FingerState.FEED), passthough),
+                new WaitCommand(hinge_hold),
                 new InstantCommand(() -> passthough.setState(fingerIdx, Passthough.FingerState.HOLD), passthough)
         );
     }
