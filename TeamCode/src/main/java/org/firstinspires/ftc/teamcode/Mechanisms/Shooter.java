@@ -71,7 +71,7 @@ public class Shooter extends SubsystemBase {
     private final Pose goalPose;
 
     // ---------------------------------- Controllers and LUTs ---------------------------------- //
-    private InterpLUT wheelSpeed, hoodAngle;
+    private LookUpValues lu_values;
     private PIDFEx turretController, veloController;
     private PIDFExCoeffs coeffsTurret, coeffsVelo;
     private MotorFF feedforward = new MotorFF(0.02, 1.02, 0.12);
@@ -94,7 +94,7 @@ public class Shooter extends SubsystemBase {
     private Telemetry telemetry;
     private DoubleSupplier voltage;
 
-    public static double hoodOff = 0.0, velMult = 1.12;
+    public static double custom_vel = 0.2, custom_hood = 0.0;
 
     public Shooter(RobotMap robotMap, Supplier<Pose> curPose, Supplier<Pose> curPoseVel,
                    DecodeRobotV2.Alliance alliance, boolean doZero) {
@@ -157,9 +157,9 @@ public class Shooter extends SubsystemBase {
         turretController = new PIDFEx(coeffsTurret);
 
         coeffsVelo = new PIDFExCoeffs(
-                12.5, // 23
+                20, // 23
                 0.0,
-                0.04, // 0.09
+                0.05, // 0.09
                 0.0,
                 0.0,
                 3,
@@ -168,38 +168,34 @@ public class Shooter extends SubsystemBase {
         );
         veloController = new PIDFEx(coeffsVelo);
 
-        // Initialize LUTs here
-        wheelSpeed = new InterpLUT();
-        hoodAngle = new InterpLUT();
+        lu_values = new LookUpValues(LookUpValues.CurrentWheel.BRONZE_HEAVY);
+        lu_values.fiilWithValues();
 
-        wheelSpeed.add(23.92697, 0.8);
-        wheelSpeed.add(48.4, 0.6);
-        wheelSpeed.add(61.67, 0.605);
-        wheelSpeed.add(79.75, 0.69);
-        wheelSpeed.add(99.3, 0.74);
-        wheelSpeed.add(114.68, 0.769);
-        wheelSpeed.add(130.53, 0.865);
-        wheelSpeed.add(133.67, 0.872);
-        wheelSpeed.add(135.45, 0.9);
-        wheelSpeed.add(142.89, 0.89);
-        wheelSpeed.add(153.9, 0.901);
-        wheelSpeed.add(162.2, 0.922);
-
-        hoodAngle.add(23.92697, 0);
-        hoodAngle.add(48.4, 0);
-        hoodAngle.add(61.67, 0);
-        hoodAngle.add(79.75, 0.38);
-        hoodAngle.add(99.3, 0.45);
-        hoodAngle.add(114.68, 0.46);
-        hoodAngle.add(130.53, 0.72);
-        hoodAngle.add(133.67, 0.64);
-        hoodAngle.add(135.45, 0.75);
-        hoodAngle.add(142.89, 0.64);
-        hoodAngle.add(153.9, 0.64);
-        hoodAngle.add(162.2, 0.64);
-
-        wheelSpeed.createLUT();
-        hoodAngle.createLUT();
+//        wheelSpeed.add(23.92697, 0.8);
+//        wheelSpeed.add(48.4, 0.6);
+//        wheelSpeed.add(61.67, 0.605);
+//        wheelSpeed.add(79.75, 0.69);
+//        wheelSpeed.add(99.3, 0.74);
+//        wheelSpeed.add(114.68, 0.769);
+//        wheelSpeed.add(130.53, 0.865);
+//        wheelSpeed.add(133.67, 0.872);
+//        wheelSpeed.add(135.45, 0.9);
+//        wheelSpeed.add(142.89, 0.89);
+//        wheelSpeed.add(153.9, 0.901);
+//        wheelSpeed.add(162.2, 0.922);
+//
+//        hoodAngle.add(23.92697, 0);
+//        hoodAngle.add(48.4, 0);
+//        hoodAngle.add(61.67, 0);
+//        hoodAngle.add(79.75, 0.38);
+//        hoodAngle.add(99.3, 0.45);
+//        hoodAngle.add(114.68, 0.46);
+//        hoodAngle.add(130.53, 0.72);
+//        hoodAngle.add(133.67, 0.64);
+//        hoodAngle.add(135.45, 0.75);
+//        hoodAngle.add(142.89, 0.64);
+//        hoodAngle.add(153.9, 0.64);
+//        hoodAngle.add(162.2, 0.64);
 
         voltage = () -> robotMap.getBattery().getVoltage();
     }
@@ -254,27 +250,38 @@ public class Shooter extends SubsystemBase {
                 MAX_TURRET_POWER
         ));
 
-        if(accelWheel && !inLUTRange()) {
-            wheel1.set(getControlledWheelPower(1.0));
-            wheel2.set(getControlledWheelPower(1.0));
+        if(accelWheel && !accelVelTarget()) {
+            wheel1.set(1.0);
+            wheel2.set(1.0);
+            accelWheel = false;
         }
 
         if(!inLUTRange()) return;
 
         // ---------------------------------------- Hood ---------------------------------------- //
         hoodServo.setPosition(Range.scale(
-                (hoodLockEnabled ? Range.clip(hoodAngle.get(getDistanceToGoal(futurePose.get())) + hoodOff, 0, 1) : 0),
+                (hoodLockEnabled ? lu_values.getHood(getDistanceToGoal(futurePose.get())) : 0),
                 0,
                 1,
                 MIN_HOOD_POS,
                 MAX_HOOD_POS
         ));
 
+//        hoodServo.setPosition(Range.scale(
+//                (hoodLockEnabled ? custom_hood : 0),
+//                0,
+//                1,
+//                MIN_HOOD_POS,
+//                MAX_HOOD_POS
+//        ));
+
         // --------------------------------------- Wheels --------------------------------------- //
         if(wheelsEnabled) {
             double futurePoseDist = getDistanceToGoal(futurePose.get());
-            wheel1.set(getControlledWheelPower(wheelSpeed.get(futurePoseDist)) * 1.2);
-            wheel2.set(getControlledWheelPower(wheelSpeed.get(futurePoseDist)) * 1.2);
+            wheel1.set(getControlledWheelPower(lu_values.getWheel(futurePoseDist)));
+            wheel2.set(getControlledWheelPower(lu_values.getWheel(futurePoseDist)));
+//            wheel1.set(getControlledWheelPower(custom_vel));
+//            wheel2.set(getControlledWheelPower(custom_vel));
         }
     }
 
@@ -285,6 +292,10 @@ public class Shooter extends SubsystemBase {
         double velocity = veloController.calculate(wheel1.getCorrectedVelocity()) +
                 feedforward.calculate(speed, wheel1.getAcceleration());
         return velocity / MAX_TICKS_PER_S;
+    }
+
+    public boolean accelVelTarget() {
+        return wheel1.getCorrectedVelocity() > 1750;
     }
 
     public void enableWheels() {
@@ -374,6 +385,9 @@ public class Shooter extends SubsystemBase {
 
     public Pose estimateFuturePose(double dt) {
         Vector robotVelocityVec = new Vector(curPoseVel.get().getX(), curPoseVel.get().getY(), false);
+
+        if(robotVelocityVec.getMagnitude() < 0.5) return curPose.get();
+
         Vector robotAccelVec = new Vector(curPoseAccel.get().getX(), curPoseAccel.get().getY(), false);
 
         Vector Ut = VectorMath.scale_vector(robotVelocityVec, dt);
@@ -398,7 +412,7 @@ public class Shooter extends SubsystemBase {
         }
 
         double stationary_angle = Math.toRadians(getAngleToGoal());
-        double artifact_velocity = wheelSpeed.get(getDistanceToGoal(futurePose.get()))*0.964;
+        double artifact_velocity = lu_values.getWheel(getDistanceToGoal(futurePose.get())); // piapaaa
 
         Vector stationaryVec = new Vector(artifact_velocity, stationary_angle, true);
         Vector robotVelocityVec = new Vector(curPoseVel.get().getX(), curPoseVel.get().getY(), false);
@@ -426,8 +440,7 @@ public class Shooter extends SubsystemBase {
     }
 
     public boolean inLUTRange() {
-        double distFutur = getDistanceToGoal(futurePose.get());
-        return (!inAuto) ? (distFutur > 48.4 && distFutur < 162.19) : (distFutur > 23.92697 && distFutur < 162.19);
+        return lu_values.inRange(getDistanceToGoal(futurePose.get()));
     }
 
     public boolean atSmallTriangle() {

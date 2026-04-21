@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.pedroPathing;
 
 import com.pedropathing.control.FilteredPIDFCoefficients;
 import com.pedropathing.control.PIDFCoefficients;
+import com.pedropathing.control.PredictiveBrakingCoefficients;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.follower.FollowerConstants;
 import com.pedropathing.ftc.FollowerBuilder;
@@ -22,19 +23,23 @@ public class Constants {
         .lateralZeroPowerAcceleration(-70.87594153)
         .forwardZeroPowerAcceleration(-30.73492250)
 
-        .useSecondaryDrivePIDF(false)
-        .useSecondaryTranslationalPIDF(true)
+//        .useSecondaryDrivePIDF(false)
+//        .useSecondaryTranslationalPIDF(true)
         .useSecondaryHeadingPIDF(true)
-
-        .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.024, 0.0, 0.003, 0.6, 0.001))
-
-        .translationalPIDFCoefficients(new PIDFCoefficients(0.23, 0.00005, 0.02, 0))
-        .secondaryTranslationalPIDFCoefficients(new PIDFCoefficients(0.27,0.0,0.03,0))
-
+//
+//        .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.024, 0.0, 0.003, 0.6, 0.001))
+//
+//        .translationalPIDFCoefficients(new PIDFCoefficients(0.23, 0.00005, 0.02, 0))
+//        .secondaryTranslationalPIDFCoefficients(new PIDFCoefficients(0.27,0.0,0.03,0))
+//
+//        .headingPIDFCoefficients(new PIDFCoefficients(1.8, 0, 0.002, 0.008))
+//        .secondaryHeadingPIDFCoefficients(new PIDFCoefficients(2,0.01,0.2,0))
+//
+//        .centripetalScaling(0.0003);
         .headingPIDFCoefficients(new PIDFCoefficients(1.8, 0, 0.002, 0.008))
         .secondaryHeadingPIDFCoefficients(new PIDFCoefficients(2,0.01,0.2,0))
-
-        .centripetalScaling(0.0003);
+        .predictiveBrakingCoefficients(new PredictiveBrakingCoefficients(0.21, 0.06870882327783609, 0.001685008056645471)) // (kP, kLinear, kQuadratic)
+        .centripetalScaling(0);
 
     public static MecanumConstants driveConstants = new MecanumConstants()
             .maxPower(1)
@@ -58,7 +63,7 @@ public class Constants {
             .forwardEncoderDirection(GoBildaPinpointDriver.EncoderDirection.FORWARD)
             .strafeEncoderDirection(GoBildaPinpointDriver.EncoderDirection.REVERSED);
 
-    public static PathConstraints pathConstraints = new PathConstraints(0.99, 100, 0.6, 1);
+    public static PathConstraints pathConstraints = new PathConstraints(0.97, 100, 0.6, 1);
 
     public static Follower createFollower(HardwareMap hardwareMap) {
         return new FollowerBuilder(followerConstants, hardwareMap)

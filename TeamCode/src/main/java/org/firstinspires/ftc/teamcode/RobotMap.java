@@ -19,7 +19,7 @@ import java.util.List;
 
 public class RobotMap {
 
-    public static double ROBOT_WIDTH = 17.1, ROBOT_LENGTH = 17.9;
+    public static final double ROBOT_WIDTH = 17.1, ROBOT_LENGTH = 17.9;
     private HardwareMap hm;
 
     private GamepadExEx driverOp, toolOp;

@@ -5,7 +5,6 @@ import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.command.CommandScheduler;
 import com.arcrobotics.ftclib.command.ConditionalCommand;
 import com.arcrobotics.ftclib.command.InstantCommand;
-import com.arcrobotics.ftclib.command.button.Trigger;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -20,7 +19,6 @@ import org.firstinspires.ftc.teamcode.Mechanisms.Intake;
 import org.firstinspires.ftc.teamcode.Mechanisms.Passthough;
 import org.firstinspires.ftc.teamcode.Mechanisms.Shooter;
 import org.firstinspires.ftc.teamcode.PurePursuit.Base.Coordination.Pose;
-import org.firstinspires.ftc.teamcode.PurePursuit.Base.Coordination.Vector;
 import org.firstinspires.ftc.teamcode.PurePursuit.Base.Math.MathFunction;
 import org.firstinspires.ftc.teamcode.PurePursuit.HardwareRelated.Localization.PinpointLocalizer;
 
@@ -56,8 +54,6 @@ public class DecodeRobotV2 {
 
     private PIDFEx headingController;
     private boolean headingControlEnabled = false;
-
-//    public static double kp = 2.0, ki = 0.0, kd = 0.002, setPoint = 30;
 
     public DecodeRobotV2(RobotMap robotMap, DriveConstants driveConstants, Alliance alliance,
                          Pose pose, MotifStorage.Motif motif
@@ -291,7 +287,7 @@ public class DecodeRobotV2 {
         toolOp.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER).whenPressed(new ConditionalCommand(
                 commandSeriesVault.feedAllHingesFingers(), // commandSeriesVault.feedAllFingers(),
                 new InstantCommand(),
-                () -> shooter.turretInRange() && shooter.inLUTRange() && shooter.areWheelsEnabled()
+                () -> (shooter.turretInRange() && shooter.inLUTRange() && shooter.areWheelsEnabled()) || true
         ));
 
 //        new Trigger(() -> toolOp.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) > 0.75).whenActive(new ConditionalCommand(
