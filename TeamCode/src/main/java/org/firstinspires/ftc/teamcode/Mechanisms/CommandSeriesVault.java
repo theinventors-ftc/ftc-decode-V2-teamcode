@@ -4,6 +4,8 @@ import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.command.ConditionalCommand;
 import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.ParallelCommandGroup;
+import com.arcrobotics.ftclib.command.ParallelRaceGroup;
+import com.arcrobotics.ftclib.command.PerpetualCommand;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
 import com.arcrobotics.ftclib.command.WaitCommand;
 import com.arcrobotics.ftclib.command.WaitUntilCommand;
@@ -250,15 +252,7 @@ public class CommandSeriesVault {
                 new InstantCommand(() -> passthough.setState(0, Passthough.FingerState.REARRANGE), passthough),
                 new InstantCommand(() -> passthough.setState(1, Passthough.FingerState.REARRANGE), passthough),
                 new InstantCommand(() -> passthough.setState(2, Passthough.FingerState.REARRANGE), passthough),
-                new WaitCommand(75),
-                new InstantCommand(() -> passthough.setState(0, Passthough.FingerState.HOLD), passthough),
-                new InstantCommand(() -> passthough.setState(1, Passthough.FingerState.HOLD), passthough),
-                new InstantCommand(() -> passthough.setState(2, Passthough.FingerState.HOLD), passthough),
-                new WaitCommand(75),
-                new InstantCommand(() -> passthough.setState(0, Passthough.FingerState.REARRANGE), passthough),
-                new InstantCommand(() -> passthough.setState(1, Passthough.FingerState.REARRANGE), passthough),
-                new InstantCommand(() -> passthough.setState(2, Passthough.FingerState.REARRANGE), passthough),
-                new WaitCommand(75),
+                new WaitCommand(15),
                 new InstantCommand(() -> passthough.setState(0, Passthough.FingerState.HOLD), passthough),
                 new InstantCommand(() -> passthough.setState(1, Passthough.FingerState.HOLD), passthough),
                 new InstantCommand(() -> passthough.setState(2, Passthough.FingerState.HOLD), passthough)
@@ -295,9 +289,9 @@ public class CommandSeriesVault {
         return new SequentialCommandGroup(
                 new WaitCommand(passthough.getState(0) != Passthough.FingerState.HOLD ? 100 : 0),
                 new InstantCommand(intake::intake, intake),
-                new InstantCommand(() -> passthough.setState(0, Passthough.FingerState.INTAKE), passthough),
-                new InstantCommand(() -> passthough.setState(1, Passthough.FingerState.INTAKE), passthough),
-                new InstantCommand(() -> passthough.setState(2, Passthough.FingerState.INTAKE), passthough)
+                new InstantCommand(() -> passthough.setState(0, Passthough.FingerState.HOLD), passthough),
+                new InstantCommand(() -> passthough.setState(1, Passthough.FingerState.HOLD), passthough),
+                new InstantCommand(() -> passthough.setState(2, Passthough.FingerState.HOLD), passthough)
         );
     }
 
@@ -307,6 +301,96 @@ public class CommandSeriesVault {
                 new InstantCommand(() -> passthough.setState(1, Passthough.FingerState.HOLD), passthough),
                 new InstantCommand(() -> passthough.setState(2, Passthough.FingerState.HOLD), passthough),
                 new InstantCommand(intake::stop, intake)
+        );
+    }
+
+    public ParallelRaceGroup waitAtGate() {
+        return new ParallelRaceGroup(
+                new WaitCommand(1500)
+//                new SequentialCommandGroup(
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts(),
+//                        rearrangeArtifacts()
+//                )
         );
     }
 

@@ -30,9 +30,9 @@ public class Passthough extends SubsystemBase {
         FLICK;
 
         double[][] positions = {
-                {0.925, 0.975, 0.39, 0.86, 0.76}, // FRONT
-                {0.9, 0.955, 0.375, 0.86, 0.75}, // CENTER
-                {0.08, 0.045, 0.625, 0.13, 0.22}  // REAR
+                {0.925, 0.975, 0.39, 0.95, 0.78}, // FRONT
+                {0.9, 0.955, 0.375, 0.93, 0.775}, // CENTER
+                {0.08, 0.045, 0.625, 0.056, 0.21}  // REAR
         };
 
         public double getPosition(int idx) {

@@ -5,7 +5,6 @@ import com.arcrobotics.ftclib.command.CommandScheduler;
 import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.ParallelCommandGroup;
 import com.arcrobotics.ftclib.command.ParallelRaceGroup;
-import com.arcrobotics.ftclib.command.PerpetualCommand;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
 import com.arcrobotics.ftclib.command.WaitCommand;
 import com.arcrobotics.ftclib.command.WaitUntilCommand;
@@ -17,6 +16,7 @@ import com.pedropathing.ftc.FTCCoordinates;
 import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
+import com.pedropathing.paths.HeadingInterpolator;
 import com.pedropathing.paths.PathChain;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -34,9 +34,11 @@ import org.firstinspires.ftc.teamcode.Util.Timer;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.pedroPathing.FollowerCommand;
 
-@Autonomous(name = "RED_GATE_18", group = "Autonomous")
+import java.math.MathContext;
+
+@Autonomous(name = "BLUE_GATE_18", group = "Autonomous")
 @Configurable
-public class RED_GATE_18 extends CommandOpMode {
+public class BLUE_GATE_18 extends CommandOpMode {
     private TelemetryManager panelsTelemetry;
     public Follower follower;
     private RobotMap robotMap;
@@ -56,7 +58,7 @@ public class RED_GATE_18 extends CommandOpMode {
 
     @Override
     public void initialize() {
-        pinpointPose = new Pose(117.5, 130.5, Math.toRadians(225));
+        pinpointPose = new Pose(144-117.5, 130.5, Math.toRadians(135));
         timer = new NanoTimer();
         deltaTimeNano = 1;
         CommandScheduler.getInstance().reset(); // Ultra SOS
@@ -64,14 +66,14 @@ public class RED_GATE_18 extends CommandOpMode {
         robotMap = new RobotMap(hardwareMap, telemetry,null,null);
 
         follower = Constants.createFollower(hardwareMap);
-        follower.setStartingPose(new Pose(117.5, 130.5, Math.toRadians(225)));
+        follower.setStartingPose(new Pose(144-117.5, 130.5, Math.toRadians(135)));
         paths = new Paths(follower);
 
         intake = new Intake(robotMap);
         passthough = new Passthough(robotMap, MotifStorage.Motif.PPG);
         shooter = new Shooter(robotMap, this::getPoseFTCCoor, this::getVelPoseFTCCoor,
-                              this::getAccelPoseFTCCoor, DecodeRobotV2.Alliance.RED,
-                              false, true, true, true);
+                              this::getAccelPoseFTCCoor, DecodeRobotV2.Alliance.BLUE,
+                              false, false, true, true);
         commandVault = new CommandSeriesVault(intake, passthough, shooter);
 
         commandVault.enableWheels().schedule();
@@ -82,17 +84,17 @@ public class RED_GATE_18 extends CommandOpMode {
         loopTime = new Timer();
 
         long gateWaitTime = 1500;
-        double preloadShootAngle = 170, stack2ShootAngle = 53, stack1ShootAngle = 80;
-        double[] gateShootAngle = {53, 52, 52};
+        double preloadShootAngle = 2, stack2ShootAngle = -53, stack1ShootAngle = -80;
+        double[] gateShootAngle = {-53, -52, -52};
 
         new SequentialCommandGroup(
             new InstantCommand(() -> shooter.enableAutoCustom(preloadShootAngle)),
             new ParallelCommandGroup(
-                new FollowerCommand(follower, paths.StartToStack2, 0.5, false),
+                new FollowerCommand(follower, paths.StartToStack2, 0.6, false),
                 new SequentialCommandGroup(
-                    new WaitCommand(650),
-                    new WaitUntilCommand(() -> shooter.getDistanceToGoal() > 30),
-                    new InstantCommand(() -> follower.setMaxPower(0.2)),
+//                    new WaitCommand(550),
+                    new WaitUntilCommand(() -> shooter.getDistanceToGoal() > 48),
+                    new InstantCommand(() -> follower.setMaxPower(0.18)),
                     commandVault.feedAllHingesFingersAUTO(),
                     new WaitCommand(100),
                     new InstantCommand(() -> follower.setMaxPower(1)),
@@ -117,7 +119,7 @@ public class RED_GATE_18 extends CommandOpMode {
                     ),
                     new WaitCommand(300000)
                 ),
-                new WaitUntilCommand(() -> follower.getPose().getX() <= 95)
+                new WaitUntilCommand(() -> follower.getPose().getX() >= 49)
             ),
             commandVault.feedAllHingesFingersAUTO(),
             commandVault.startIntakeProc(),
@@ -138,7 +140,7 @@ public class RED_GATE_18 extends CommandOpMode {
                     ),
                     new WaitCommand(300000)
                 ),
-                new WaitUntilCommand(() -> follower.getPose().getX() <= 95)
+                new WaitUntilCommand(() -> follower.getPose().getX() >= 49)
             ),
             commandVault.feedAllHingesFingersAUTO(),
             commandVault.startIntakeProc(),
@@ -159,7 +161,7 @@ public class RED_GATE_18 extends CommandOpMode {
                     ),
                     new WaitCommand(300000)
                 ),
-                new WaitUntilCommand(() -> follower.getPose().getX() <= 95)
+                new WaitUntilCommand(() -> follower.getPose().getX() >= 49)
             ),
             commandVault.feedAllHingesFingersAUTO(),
             commandVault.startIntakeProc(),
@@ -180,7 +182,7 @@ public class RED_GATE_18 extends CommandOpMode {
                     ),
                     new WaitCommand(300000)
                 ),
-                new WaitUntilCommand(() -> follower.getPose().getX() <= 95)
+                new WaitUntilCommand(() -> follower.getPose().getX() >= 49)
             ),
             commandVault.feedAllHingesFingersAUTO(),
             commandVault.startIntakeProc(),
@@ -202,7 +204,7 @@ public class RED_GATE_18 extends CommandOpMode {
                     ),
                     new WaitCommand(3000000)
                 ),
-                new WaitUntilCommand(() -> follower.getPose().getX() <= 102)
+                new WaitUntilCommand(() -> follower.getPose().getX() >= 42)
             ),
             commandVault.stopIntakeProc(),
             commandVault.feedAllHingesFingersAUTO(),
@@ -241,62 +243,64 @@ public class RED_GATE_18 extends CommandOpMode {
         public Paths(Follower follower) {
             StartToStack2 = follower.pathBuilder().addPath(
                             new BezierCurve(
-                                    new Pose(117.5, 130.5),
-                                    new Pose(68, 69),
-                                    new Pose(83, 54.8),
-                                    new Pose(94.4, 57.9),
-                                    new Pose(133.5, 58)
+                                    new Pose(144-117.5, 130.5),
+                                    new Pose(144-68, 69),
+                                    new Pose(144-83, 54.8),
+                                    new Pose(144-94.4, 57.9),
+                                    new Pose(144-133.5, 63)
                             )
-                    ).setTangentHeadingInterpolation()
+                    ).setHeadingInterpolation(HeadingInterpolator.piecewise(
+                            new HeadingInterpolator.PiecewiseNode(0, 0.35, HeadingInterpolator.constant(Math.toRadians(135))),
+                            new HeadingInterpolator.PiecewiseNode(0.35, 0.5, HeadingInterpolator.linear(Math.toRadians(135), Math.toRadians(180))),
+                            new HeadingInterpolator.PiecewiseNode(0.5, 1.0, HeadingInterpolator.constant(Math.toRadians(180)))
+                    ))
                     .setBrakingStrength(4)
                     .build();
 
             Stack2ToShoot = follower.pathBuilder().addPath(
                             new BezierCurve(
-                                    new Pose(133.5, 60),
-                                    new Pose(99, 58),
-                                    new Pose(90, 75)
+                                    new Pose(144-133.5, 63),
+                                    new Pose(144-99, 58),
+                                    new Pose(144-88, 77)
                             )
-                    ).setConstantHeadingInterpolation(0)
+                    ).setConstantHeadingInterpolation(Math.toRadians(180))
 //                    .setBrakingStart(1.2)
                     .setBrakingStrength(4)
                     .build();
 
             ShootToGate = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(90, 75),
-                                    new Pose(131.5, 62)
+                                    new Pose(144-88, 77),
+                                    new Pose(144-131, 63)
                             )
-                    ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(30))
-                    .setBrakingStart(2)
-                    .setBrakingStrength(0.5)
+                    ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(150))
                     .build();
 
             GateToShoot = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(131.5, 62),
-                                    new Pose(90, 75)
+                                    new Pose(144-131, 63),
+                                    new Pose(144-88, 77)
                             )
-                    ).setLinearHeadingInterpolation(Math.toRadians(30), Math.toRadians(0))
+                    ).setLinearHeadingInterpolation(Math.toRadians(150), Math.toRadians(180))
                     .setBrakingStart(1.2)
                     .setBrakingStrength(0.5)
                     .build();
 
             ShootToStack1 = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(90, 83.5),
-                                    new Pose(128, 83.5)
+                                    new Pose(144-88, 83.5),
+                                    new Pose(144-128, 83.5)
                             )
-                    ).setConstantHeadingInterpolation(Math.toRadians(0))
+                    ).setConstantHeadingInterpolation(Math.toRadians(180))
                     .setBrakingStrength(4)
                     .build();
 
             Stack1ToShoot = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(127.5, 83.5),
-                                    new Pose(87, 105.5)
+                                    new Pose(144-127.5, 83.5),
+                                    new Pose(144-87, 105.5)
                             )
-                    ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(315))
+                    ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(225))
                     .setBrakingStart(1.2)
                     .setBrakingStrength(0.5)
                     .build();

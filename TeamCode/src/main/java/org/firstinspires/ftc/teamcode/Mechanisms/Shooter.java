@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.Mechanisms;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.command.SubsystemBase;
 import com.arcrobotics.ftclib.util.InterpLUT;
@@ -48,7 +49,7 @@ public class Shooter extends SubsystemBase {
         robotVelocityScaleAuto = 0.003,
         wheelSpeedFactor = 1.0;
 
-    private static final double poseEstimation_dt = 0.21;
+    private double poseEstimation_dt = 0.21;
 
     // ----------------------------------------- States ----------------------------------------- //
     private boolean wheelsEnabled = false;
@@ -157,9 +158,9 @@ public class Shooter extends SubsystemBase {
         turretController = new PIDFEx(coeffsTurret);
 
         coeffsVelo = new PIDFExCoeffs(
-                20, // 23
+                23,
                 0.0,
-                0.05, // 0.09
+                0.05,
                 0.0,
                 0.0,
                 3,
@@ -171,33 +172,9 @@ public class Shooter extends SubsystemBase {
         lu_values = new LookUpValues(LookUpValues.CurrentWheel.BRONZE_HEAVY);
         lu_values.fiilWithValues();
 
-//        wheelSpeed.add(23.92697, 0.8);
-//        wheelSpeed.add(48.4, 0.6);
-//        wheelSpeed.add(61.67, 0.605);
-//        wheelSpeed.add(79.75, 0.69);
-//        wheelSpeed.add(99.3, 0.74);
-//        wheelSpeed.add(114.68, 0.769);
-//        wheelSpeed.add(130.53, 0.865);
-//        wheelSpeed.add(133.67, 0.872);
-//        wheelSpeed.add(135.45, 0.9);
-//        wheelSpeed.add(142.89, 0.89);
-//        wheelSpeed.add(153.9, 0.901);
-//        wheelSpeed.add(162.2, 0.922);
-//
-//        hoodAngle.add(23.92697, 0);
-//        hoodAngle.add(48.4, 0);
-//        hoodAngle.add(61.67, 0);
-//        hoodAngle.add(79.75, 0.38);
-//        hoodAngle.add(99.3, 0.45);
-//        hoodAngle.add(114.68, 0.46);
-//        hoodAngle.add(130.53, 0.72);
-//        hoodAngle.add(133.67, 0.64);
-//        hoodAngle.add(135.45, 0.75);
-//        hoodAngle.add(142.89, 0.64);
-//        hoodAngle.add(153.9, 0.64);
-//        hoodAngle.add(162.2, 0.64);
-
         voltage = () -> robotMap.getBattery().getVoltage();
+
+        poseEstimation_dt = inAuto ? 0.34 : 0.21;
     }
 
     @Override
@@ -250,13 +227,20 @@ public class Shooter extends SubsystemBase {
                 MAX_TURRET_POWER
         ));
 
-        if(accelWheel && !accelVelTarget()) {
-            wheel1.set(1.0);
-            wheel2.set(1.0);
-            accelWheel = false;
-        }
+//        if(accelWheel && !accelVelTarget()) {
+//            wheel1.set(1.0);
+//            wheel2.set(1.0);
+//            accelWheel = false;
+//        }
 
-        if(!inLUTRange()) return;
+        if(!inLUTRange()) {
+            if(inAuto) {
+                wheel1.set(getControlledWheelPower(0.58));
+                wheel2.set(getControlledWheelPower(0.58));
+            }
+
+            return;
+        }
 
         // ---------------------------------------- Hood ---------------------------------------- //
         hoodServo.setPosition(Range.scale(
@@ -291,11 +275,16 @@ public class Shooter extends SubsystemBase {
         veloController.setSetPoint(speed);
         double velocity = veloController.calculate(wheel1.getCorrectedVelocity()) +
                 feedforward.calculate(speed, wheel1.getAcceleration());
+
+        FtcDashboard.getInstance().getTelemetry().addData("Target VEL: ", speed);
+        FtcDashboard.getInstance().getTelemetry().addData("Actual VEL: ", wheel1.getCorrectedVelocity());
+        FtcDashboard.getInstance().getTelemetry().update();
+
         return velocity / MAX_TICKS_PER_S;
     }
 
     public boolean accelVelTarget() {
-        return wheel1.getCorrectedVelocity() > 1750;
+        return wheel1.getCorrectedVelocity() > 800;
     }
 
     public void enableWheels() {
@@ -346,6 +335,12 @@ public class Shooter extends SubsystemBase {
     public double getDistanceToGoal(Pose posaki) {
         double dx = goalPose.getX() - posaki.getX();
         double dy = goalPose.getY() - posaki.getY();
+        return Math.hypot(dx, dy);
+    }
+
+    public double getDistanceToGoal() {
+        double dx = goalPose.getX() - curPose.get().getX();
+        double dy = goalPose.getY() - curPose.get().getY();
         return Math.hypot(dx, dy);
     }
 
