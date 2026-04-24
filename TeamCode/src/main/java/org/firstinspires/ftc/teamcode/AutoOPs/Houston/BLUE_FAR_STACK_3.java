@@ -35,9 +35,9 @@ import org.firstinspires.ftc.teamcode.Util.Timer;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.pedroPathing.FollowerCommand;
 
-@Autonomous(name = "RED_FAR_STACK_3_Straight", group = "Autonomous")
+@Autonomous(name = "BLUE_FAR_STACK_3", group = "Autonomous")
 @Configurable
-public class RED_FAR_STACK_3_Straight extends CommandOpMode {
+public class BLUE_FAR_STACK_3 extends CommandOpMode {
     private TelemetryManager panelsTelemetry;
     public Follower follower;
     private RobotMap robotMap;
@@ -64,7 +64,7 @@ public class RED_FAR_STACK_3_Straight extends CommandOpMode {
         elapsedTime = new Timer();
 
         follower = Constants.createFollower(hardwareMap);
-        follower.setStartingPose(new Pose(87.3, 8.95, Math.toRadians(90)));
+        follower.setStartingPose(new Pose(144-87.3, 8.95, Math.toRadians(90)));
         paths = new Paths(follower);
 
         intake = new Intake(robotMap);
@@ -74,7 +74,7 @@ public class RED_FAR_STACK_3_Straight extends CommandOpMode {
                 this::getPoseFTCCoor,
                 () -> new org.firstinspires.ftc.teamcode.PurePursuit.Base.Coordination.Pose(0, 0, 0),
                 () -> new org.firstinspires.ftc.teamcode.PurePursuit.Base.Coordination.Pose(0, 0, 0),
-                DecodeRobotV2.Alliance.RED,
+                DecodeRobotV2.Alliance.BLUE,
                 false,
                 false,
                 true
@@ -213,8 +213,10 @@ public class RED_FAR_STACK_3_Straight extends CommandOpMode {
                         new InstantCommand(),
                         () -> elapsedTime.getElapsedTimeSeconds() < 25.5
                 ),
-                new FollowerCommand(follower, paths.ShootToPark),
-                commandVault.parkShooter()
+                new ParallelCommandGroup(
+                        new FollowerCommand(follower, paths.ShootToPark),
+                        commandVault.parkShooter()
+                )
         ).schedule();
     }
 
@@ -240,28 +242,28 @@ public class RED_FAR_STACK_3_Straight extends CommandOpMode {
         public PathChain StartToStack, StackToShoot, ShootToHP, HPToShoot, ShootToPark;
 
         public Paths(Follower follower) {
-            double intake_x = 132.2;
-            double wall_y = 10;
+            double intake_x = 12.3;
+            double wall_y = 10.5;
             StartToStack = follower.pathBuilder().addPath(
                             new BezierCurve(
-                                    new Pose(87.3, 8.95),
-                                    new Pose(84, 38),
-                                    new Pose(135.0, 36.0)
+                                    new Pose(144-87.3, 8.95),
+                                    new Pose(144-84, 38),
+                                    new Pose(144-135.0, 36.0)
                             ))
                     .setHeadingInterpolation(HeadingInterpolator.piecewise(
                             new HeadingInterpolator.PiecewiseNode(0, 0.07, HeadingInterpolator.constant(Math.toRadians(90))),
                             new HeadingInterpolator.PiecewiseNode(0.07, 0.5, HeadingInterpolator.tangent),
-                            new HeadingInterpolator.PiecewiseNode(0.5, 1.0, HeadingInterpolator.constant(Math.toRadians(0)))
+                            new HeadingInterpolator.PiecewiseNode(0.5, 1.0, HeadingInterpolator.constant(Math.toRadians(180)))
                     ))
                     .setBrakingStrength(0.7)
                     .build();
 
             StackToShoot = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(134,36.0),
-                                    new Pose(94.0, wall_y)
+                                    new Pose(144-134,36.0),
+                                    new Pose(144-94.0, wall_y)
                             )
-                    ).setConstantHeadingInterpolation(Math.toRadians(0))
+                    ).setConstantHeadingInterpolation(Math.toRadians(180))
                     .setBrakingStrength(4)
                     .build();
 
@@ -290,30 +292,30 @@ public class RED_FAR_STACK_3_Straight extends CommandOpMode {
 
             ShootToHP = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(94.0, wall_y),
+                                    new Pose(144-94.0, wall_y),
                                     new Pose(intake_x, wall_y)
                             )
-                    ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(350))
+                    ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(190))
                     .build();
 
             HPToShoot = follower.pathBuilder().addPath(
                             new BezierLine(
                                     new Pose(intake_x, wall_y),
-                                    new Pose(94.0, wall_y)
+                                    new Pose(144-94.0, wall_y)
                             )
                     )
                     .setHeadingInterpolation(HeadingInterpolator.piecewise(
-                            new HeadingInterpolator.PiecewiseNode(0, 0.8, HeadingInterpolator.linear(Math.toRadians(350), Math.toRadians(0))),
-                            new HeadingInterpolator.PiecewiseNode(0.8, 1.0, HeadingInterpolator.constant(Math.toRadians(0)))
+                            new HeadingInterpolator.PiecewiseNode(0, 0.2, HeadingInterpolator.linear(Math.toRadians(190), Math.toRadians(180))),
+                            new HeadingInterpolator.PiecewiseNode(0.2, 1.0, HeadingInterpolator.constant(Math.toRadians(180)))
                     ))
                     .build();
 
             ShootToPark = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(94.0, wall_y),
-                                    new Pose(104.0, 13)
+                                    new Pose(144-94.0, wall_y),
+                                    new Pose(144-104.0, 13)
                             )
-                    ).setConstantHeadingInterpolation(0)
+                    ).setConstantHeadingInterpolation(Math.toRadians(180))
                     .build();
         }
     }

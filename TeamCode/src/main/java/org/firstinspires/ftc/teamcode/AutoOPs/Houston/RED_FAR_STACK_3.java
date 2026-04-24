@@ -3,10 +3,10 @@ package org.firstinspires.ftc.teamcode.AutoOPs.Houston;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.arcrobotics.ftclib.command.CommandOpMode;
 import com.arcrobotics.ftclib.command.CommandScheduler;
+import com.arcrobotics.ftclib.command.ConditionalCommand;
 import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.ParallelCommandGroup;
 import com.arcrobotics.ftclib.command.ParallelRaceGroup;
-import com.arcrobotics.ftclib.command.PerpetualCommand;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
 import com.arcrobotics.ftclib.command.WaitCommand;
 import com.bylazar.configurables.annotations.Configurable;
@@ -35,7 +35,7 @@ import org.firstinspires.ftc.teamcode.Util.Timer;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.pedroPathing.FollowerCommand;
 
-@Autonomous(name = "RED_FAR_STACK_3", group = "Autonomous")
+@Autonomous(name = "RED_FAR_STACK_3_Straight", group = "Autonomous")
 @Configurable
 public class RED_FAR_STACK_3 extends CommandOpMode {
     private TelemetryManager panelsTelemetry;
@@ -50,16 +50,18 @@ public class RED_FAR_STACK_3 extends CommandOpMode {
 
     private CommandSeriesVault commandVault;
 
-    private Timer loopTime;
+    private Timer loopTime, elapsedTime;
 
     private Paths paths;
-    private long safeTime = 2500;
+    private long safeTime = 2700, wait_HP = 320;
 
     @Override
     public void initialize() {
         CommandScheduler.getInstance().reset(); // Ultra SOS
         panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
         robotMap = new RobotMap(hardwareMap, telemetry,null,null);
+
+        elapsedTime = new Timer();
 
         follower = Constants.createFollower(hardwareMap);
         follower.setStartingPose(new Pose(87.3, 8.95, Math.toRadians(90)));
@@ -88,6 +90,7 @@ public class RED_FAR_STACK_3 extends CommandOpMode {
         loopTime = new Timer();
 
         new SequentialCommandGroup(
+                new InstantCommand(() -> elapsedTime.resetTimer()),
                 commandVault.autonomousWaitForTurret(),
                 commandVault.feedAllHingesFingersAUTO(),
                 commandVault.startIntakeProc(),
@@ -105,13 +108,14 @@ public class RED_FAR_STACK_3 extends CommandOpMode {
                 commandVault.feedAllHingesFingersAUTO(),
 
                 // Repeated Part
-
+                //
                 commandVault.startIntakeProc(),
                 new ParallelRaceGroup(
                     new FollowerCommand(follower, paths.ShootToHP, 1),
                     new WaitCommand(safeTime)
                 ),
                 new InstantCommand(follower::resumePathFollowing),
+                new WaitCommand(wait_HP),
                 new ParallelCommandGroup(
                         new FollowerCommand(follower, paths.HPToShoot,1),
                         new SequentialCommandGroup(
@@ -124,12 +128,14 @@ public class RED_FAR_STACK_3 extends CommandOpMode {
                 new WaitCommand(100),
                 commandVault.feedAllHingesFingersAUTO(),
 
+                //
                 commandVault.startIntakeProc(),
                 new ParallelRaceGroup(
                     new FollowerCommand(follower, paths.ShootToHP, 1),
                     new WaitCommand(safeTime)
                 ),
                 new InstantCommand(follower::resumePathFollowing),
+                new WaitCommand(wait_HP),
                 new ParallelCommandGroup(
                         new FollowerCommand(follower, paths.HPToShoot,1),
                         new SequentialCommandGroup(
@@ -142,12 +148,14 @@ public class RED_FAR_STACK_3 extends CommandOpMode {
                 new WaitCommand(100),
                 commandVault.feedAllHingesFingersAUTO(),
 
+                //
                 commandVault.startIntakeProc(),
                 new ParallelRaceGroup(
-                        new FollowerCommand(follower, paths.ShootToHP, 1),
-                        new WaitCommand(safeTime)
+                    new FollowerCommand(follower, paths.ShootToHP, 1),
+                    new WaitCommand(safeTime)
                 ),
                 new InstantCommand(follower::resumePathFollowing),
+                new WaitCommand(wait_HP),
                 new ParallelCommandGroup(
                         new FollowerCommand(follower, paths.HPToShoot,1),
                         new SequentialCommandGroup(
@@ -160,12 +168,14 @@ public class RED_FAR_STACK_3 extends CommandOpMode {
                 new WaitCommand(100),
                 commandVault.feedAllHingesFingersAUTO(),
 
+                //
                 commandVault.startIntakeProc(),
                 new ParallelRaceGroup(
                     new FollowerCommand(follower, paths.ShootToHP, 1),
                     new WaitCommand(safeTime)
                 ),
                 new InstantCommand(follower::resumePathFollowing),
+                new WaitCommand(wait_HP),
                 new ParallelCommandGroup(
                         new FollowerCommand(follower, paths.HPToShoot, 1),
                         new SequentialCommandGroup(
@@ -178,9 +188,35 @@ public class RED_FAR_STACK_3 extends CommandOpMode {
                 new WaitCommand(100),
                 commandVault.feedAllHingesFingersAUTO(),
 
-                //
-                new FollowerCommand(follower, paths.ShootToPark),
-                commandVault.parkShooter()
+                /////////////////////////////////
+                new ConditionalCommand(
+                        new SequentialCommandGroup(
+                                commandVault.startIntakeProc(),
+                                new ParallelRaceGroup(
+                                        new FollowerCommand(follower, paths.ShootToHP, 1),
+                                        new WaitCommand(safeTime)
+                                ),
+                                new InstantCommand(follower::resumePathFollowing),
+                                new WaitCommand(wait_HP),
+                                new ParallelCommandGroup(
+                                        new FollowerCommand(follower, paths.HPToShoot, 1),
+                                        new SequentialCommandGroup(
+                                                commandVault.reverseIntake(),
+                                                new WaitCommand(500),
+                                                commandVault.stopIntakeProc()
+                                        )
+                                ),
+                                commandVault.autonomousWaitForTurret(),
+                                new WaitCommand(100),
+                                commandVault.feedAllHingesFingersAUTO()
+                        ),
+                        new InstantCommand(),
+                        () -> elapsedTime.getElapsedTimeSeconds() < 25.5
+                ),
+                new ParallelCommandGroup(
+                        new FollowerCommand(follower, paths.ShootToPark),
+                        commandVault.parkShooter()
+                )
         ).schedule();
     }
 
@@ -206,8 +242,8 @@ public class RED_FAR_STACK_3 extends CommandOpMode {
         public PathChain StartToStack, StackToShoot, ShootToHP, HPToShoot, ShootToPark;
 
         public Paths(Follower follower) {
-            double wall_x = 122.5, wall_x_final = 132;
-            double wall_y = 24, wall_y_final = 11;
+            double intake_x = 132.2;
+            double wall_y = 10;
             StartToStack = follower.pathBuilder().addPath(
                             new BezierCurve(
                                     new Pose(87.3, 8.95),
@@ -215,8 +251,9 @@ public class RED_FAR_STACK_3 extends CommandOpMode {
                                     new Pose(135.0, 36.0)
                             ))
                     .setHeadingInterpolation(HeadingInterpolator.piecewise(
-                            new HeadingInterpolator.PiecewiseNode(0, 0.55, HeadingInterpolator.tangent),
-                            new HeadingInterpolator.PiecewiseNode(0.55, 1.0, HeadingInterpolator.constant(Math.toRadians(0)))
+                            new HeadingInterpolator.PiecewiseNode(0, 0.07, HeadingInterpolator.constant(Math.toRadians(90))),
+                            new HeadingInterpolator.PiecewiseNode(0.07, 0.5, HeadingInterpolator.tangent),
+                            new HeadingInterpolator.PiecewiseNode(0.5, 1.0, HeadingInterpolator.constant(Math.toRadians(0)))
                     ))
                     .setBrakingStrength(0.7)
                     .build();
@@ -224,43 +261,59 @@ public class RED_FAR_STACK_3 extends CommandOpMode {
             StackToShoot = follower.pathBuilder().addPath(
                             new BezierLine(
                                     new Pose(134,36.0),
-                                    new Pose(94.0, 14.05)
+                                    new Pose(94.0, wall_y)
                             )
                     ).setConstantHeadingInterpolation(Math.toRadians(0))
                     .setBrakingStrength(4)
                     .build();
 
+//            ShootToHP = follower.pathBuilder().addPath(
+//                        new BezierLine(
+//                                new Pose(94.0, wall_y),
+//                                new Pose(intake_x, wall_y)
+//                        )
+//                ).setBrakingStrength(4)
+//                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(350))
+//                .addPath(
+//                        new BezierLine(
+//                                new Pose(intake_x, wall_y),
+//                                new Pose(intake_x-2, wall_y)
+//                        )
+//                ).setBrakingStrength(4)
+//                .setConstantHeadingInterpolation(Math.toRadians(350))
+//                .addPath(
+//                        new BezierLine(
+//                                new Pose(intake_x, wall_y),
+//                                new Pose(intake_x, wall_y)
+//                        )
+//                ).setBrakingStrength(4)
+//                .setConstantHeadingInterpolation(Math.toRadians(350))
+//                .build();
+
             ShootToHP = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(94.0, 14.05),
-                                    new Pose(wall_x, wall_y)
-                            ))
-                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(330))
-                .addPath(
-                        new BezierLine(
-                            new Pose(wall_x, wall_y),
-                            new Pose(wall_x_final, wall_y_final)
-                        )
-                    ).setLinearHeadingInterpolation(Math.toRadians(330), Math.toRadians(320))
+                                    new Pose(94.0, wall_y),
+                                    new Pose(intake_x, wall_y)
+                            )
+                    ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(350))
                     .build();
 
             HPToShoot = follower.pathBuilder().addPath(
-                            new BezierCurve(
-                                    new Pose(wall_x_final, wall_y_final),
-                                    new Pose(124, 26.5),
-                                    new Pose(94.0, 14.05)
+                            new BezierLine(
+                                    new Pose(intake_x, wall_y),
+                                    new Pose(94.0, wall_y)
                             )
                     )
                     .setHeadingInterpolation(HeadingInterpolator.piecewise(
-                            new HeadingInterpolator.PiecewiseNode(0, 0.8, HeadingInterpolator.linear(Math.toRadians(340), Math.toRadians(0))),
-                            new HeadingInterpolator.PiecewiseNode(0.8, 1.0, HeadingInterpolator.constant(Math.toRadians(0)))
+                            new HeadingInterpolator.PiecewiseNode(0, 0.2, HeadingInterpolator.linear(Math.toRadians(350), Math.toRadians(0))),
+                            new HeadingInterpolator.PiecewiseNode(0.2, 1.0, HeadingInterpolator.constant(Math.toRadians(0)))
                     ))
                     .build();
 
             ShootToPark = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(94.0, 14.05),
-                                    new Pose(104.0, 14.05)
+                                    new Pose(94.0, wall_y),
+                                    new Pose(104.0, 13)
                             )
                     ).setConstantHeadingInterpolation(0)
                     .build();
