@@ -35,7 +35,7 @@ import org.firstinspires.ftc.teamcode.Util.Timer;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.pedroPathing.FollowerCommand;
 
-@Autonomous(name = "RED_FAR_STACK_3_Straight", group = "Autonomous")
+@Autonomous(name = "RED_FAR_STACK_3", group = "Autonomous")
 @Configurable
 public class RED_FAR_STACK_3 extends CommandOpMode {
     private TelemetryManager panelsTelemetry;
