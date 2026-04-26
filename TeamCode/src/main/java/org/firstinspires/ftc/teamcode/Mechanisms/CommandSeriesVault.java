@@ -22,7 +22,7 @@ public class CommandSeriesVault {
 
     // --------------------------------------- Constants ---------------------------------------- //
     public static int FINGER_BETWEEN_MS = 40, FINGER_HOLD_MS = 200, FINGER_BETWEEN_MOTIF_MS = 500;
-    public static long hinge_hold = 240, hinge_between = 170, hinge_hold_AUTO = 240, hinge_between_AUTO = 260;
+    public static long hinge_hold = 240, hinge_between = 170, hinge_hold_AUTO = 240, hinge_between_AUTO = 260, hinge_between_FAR = 350;
 //    public static int FINGER_BETWEEN_MS = 80, FINGER_HOLD_MS = 340, FINGER_BETWEEN_MOTIF_MS = 500;
     private int artifact_count = 15;
 
@@ -111,6 +111,7 @@ public class CommandSeriesVault {
                 new WaitUntilCommand(() -> shooter.wheelsAtSpeed() && shooter.turretInRange()),
                 new ParallelCommandGroup(
                         new SequentialCommandGroup(
+                                new InstantCommand(shooter::enableSmallTriangleAccel),
                                 new InstantCommand(() -> passthough.setState(0, Passthough.FingerState.FEED)),
                                 new InstantCommand(this::increaseArtifacts),
                                 new WaitCommand(hinge_hold),
@@ -127,6 +128,37 @@ public class CommandSeriesVault {
                                 new WaitCommand(2*hinge_between),
                                 new InstantCommand(() -> passthough.setState(1, Passthough.FingerState.FEED)),
                                 new InstantCommand(this::increaseArtifacts),
+                                new WaitCommand(hinge_hold),
+                                new InstantCommand(shooter::disableSmallTriangleAccel),
+                                new InstantCommand(() -> passthough.setState(1, Passthough.FingerState.HOLD))
+                        )
+                )
+        );
+    }
+
+    public SequentialCommandGroup feedAllHingesFingers_FAR() {
+        return new SequentialCommandGroup(
+                new WaitUntilCommand(() -> shooter.wheelsAtSpeed() && shooter.turretInRange()),
+                new ParallelCommandGroup(
+                        new SequentialCommandGroup(
+//                                new InstantCommand(shooter::enableSmallTriangleAccel),
+                                new InstantCommand(() -> passthough.setState(0, Passthough.FingerState.FEED)),
+                                new InstantCommand(this::increaseArtifacts),
+                                new WaitCommand(hinge_hold),
+                                new InstantCommand(() -> passthough.setState(0, Passthough.FingerState.HOLD))
+                        ),
+                        new SequentialCommandGroup(
+                                new WaitCommand(hinge_between_FAR),
+                                new InstantCommand(() -> passthough.setState(2, Passthough.FingerState.FEED)),
+                                new InstantCommand(this::increaseArtifacts),
+                                new WaitCommand(hinge_hold),
+                                new InstantCommand(() -> passthough.setState(2, Passthough.FingerState.HOLD))
+                        ),
+                        new SequentialCommandGroup(
+                                new WaitCommand(2*hinge_between_FAR),
+                                new InstantCommand(() -> passthough.setState(1, Passthough.FingerState.FEED)),
+                                new InstantCommand(this::increaseArtifacts),
+//                                new InstantCommand(shooter::disableSmallTriangleAccel),
                                 new WaitCommand(hinge_hold),
                                 new InstantCommand(() -> passthough.setState(1, Passthough.FingerState.HOLD))
                         )

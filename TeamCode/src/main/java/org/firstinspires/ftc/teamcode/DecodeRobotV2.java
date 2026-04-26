@@ -64,7 +64,7 @@ public class DecodeRobotV2 {
 
         initCommon(robotMap, driveConstants);
         initTele(robotMap, pose);
-        this.initMechanismsTeleOp(robotMap);
+//        this.initMechanismsTeleOp(robotMap);
 
 //         Init Mechanisms when driver starts moving the robot
         new Trigger(() -> (Math.abs(drivetrainForward()) > 0.1 ||
@@ -98,7 +98,7 @@ public class DecodeRobotV2 {
 
     public void enableGateHeadingControl() {
         headingControlEnabled = true;
-        headingController.setSetPoint(alliance == Alliance.RED ? Math.toRadians(30) : Math.toRadians(150));
+        headingController.setSetPoint(alliance == Alliance.RED ? Math.toRadians(30) : Math.toRadians(-30));
     }
 
     public void disableGateHeadingControl() {
@@ -108,11 +108,13 @@ public class DecodeRobotV2 {
     public void drive_update() {
         teleOpLocalizer.update();
 
-        telemetry.addData("Pose", "X: %.2f, Y: %.2f, Theta: %.2f",
-            getPose().getX(), getPose().getY(), getPose().getTheta());
-        telemetry.addData("Alliance: ", getAlliance());
-        telemetry.addData("MOTIF: ", getMotif());
-        telemetry.addData("ARTIFACTS: ", commandSeriesVault.getArtifact_count());
+        if(hasInit) {
+            telemetry.addData("Pose", "X: %.2f, Y: %.2f, Theta: %.2f",
+                    getPose().getX(), getPose().getY(), getPose().getTheta());
+            telemetry.addData("Alliance: ", getAlliance());
+            telemetry.addData("MOTIF: ", getMotif());
+            telemetry.addData("ARTIFACTS: ", commandSeriesVault.getArtifact_count());
+        }
 
         drive.drive(
             drivetrainStrafe(),
@@ -218,8 +220,8 @@ public class DecodeRobotV2 {
 
         intake = new Intake(robotMap);
         passthough = new Passthough(robotMap, getMotif());
-        detection = new Detection(robotMap);
-        detection.setState(Detection.DetectionState.GOAL);
+//        detection = new Detection(robotMap);
+//        detection.setState(Detection.DetectionState.GOAL);
         headingController = new PIDFEx(2.1, 0, 0.24, 0.008, 0.2, 0.0, Math.toRadians(40), 0.5);
 
         shooter = new Shooter(robotMap, this::getPose, this::getPoseVelocity,
@@ -275,7 +277,11 @@ public class DecodeRobotV2 {
         );
 
         toolOp.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER).whenPressed(new ConditionalCommand(
-                commandSeriesVault.feedAllHingesFingers(), // commandSeriesVault.feedAllFingers(),
+                new ConditionalCommand(
+                        commandSeriesVault.feedAllHingesFingers(),
+                        commandSeriesVault.feedAllHingesFingers_FAR(),
+                        () -> !shooter.atSmallTriangle()
+                ),
                 new InstantCommand(),
                 () -> (shooter.turretInRange() && shooter.inLUTRange() && shooter.areWheelsEnabled())
         ));

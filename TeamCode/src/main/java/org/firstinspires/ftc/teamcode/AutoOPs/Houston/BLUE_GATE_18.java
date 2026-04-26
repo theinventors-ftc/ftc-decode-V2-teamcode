@@ -189,7 +189,7 @@ public class BLUE_GATE_18 extends CommandOpMode {
 
             //////////////////////////////////////////
 
-            new FollowerCommand(follower, paths.ShootToStack1,1, false),
+            new FollowerCommand(follower, paths.ShootToStack1,0.8, false),
             new InstantCommand(follower::resumePathFollowing),
             new WaitCommand(200),
 
@@ -271,14 +271,14 @@ public class BLUE_GATE_18 extends CommandOpMode {
             ShootToGate = follower.pathBuilder().addPath(
                             new BezierLine(
                                     new Pose(144-88, 77),
-                                    new Pose(144-131, 63)
+                                    new Pose(144-131, 62)
                             )
                     ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(150))
                     .build();
 
             GateToShoot = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(144-131, 63),
+                                    new Pose(144-131, 62),
                                     new Pose(144-88, 77)
                             )
                     ).setLinearHeadingInterpolation(Math.toRadians(150), Math.toRadians(180))

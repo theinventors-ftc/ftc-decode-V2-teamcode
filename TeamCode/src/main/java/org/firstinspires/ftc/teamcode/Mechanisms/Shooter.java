@@ -54,6 +54,8 @@ public class Shooter extends SubsystemBase {
     // ----------------------------------------- States ----------------------------------------- //
     private boolean wheelsEnabled = false;
     private boolean hoodLockEnabled = true;
+    private boolean small_triangle_accel = false;
+    public static double accel_value = 0.95;
 
     public enum ShooterGoal {
         ALLIANCE_GOAL,
@@ -144,7 +146,7 @@ public class Shooter extends SubsystemBase {
 
         goalPose = (alliance == DecodeRobotV2.Alliance.RED) ? REDGoalPose : BLUEGoalPose;
 
-        coeffsTurret = new PIDFExCoeffs( //Salonika: kP=0.072, kI=0.16, kD=0.0018,
+        coeffsTurret = new PIDFExCoeffs( //
                 0.055,
                 0.13,
                 0.00225,
@@ -238,9 +240,10 @@ public class Shooter extends SubsystemBase {
                 wheel1.set(getControlledWheelPower(0.58));
                 wheel2.set(getControlledWheelPower(0.58));
             }
-
             return;
         }
+
+        if(!inLUTRange()) return;
 
         // ---------------------------------------- Hood ---------------------------------------- //
         hoodServo.setPosition(Range.scale(
@@ -251,21 +254,21 @@ public class Shooter extends SubsystemBase {
                 MAX_HOOD_POS
         ));
 
-//        hoodServo.setPosition(Range.scale(
-//                (hoodLockEnabled ? custom_hood : 0),
-//                0,
-//                1,
-//                MIN_HOOD_POS,
-//                MAX_HOOD_POS
-//        ));
-
         // --------------------------------------- Wheels --------------------------------------- //
         if(wheelsEnabled) {
+            if(small_triangle_accel && atSmallTriangle()) {
+                wheel1.set(getControlledWheelPower(accel_value));
+                wheel2.set(getControlledWheelPower(accel_value));
+                return;
+            }
+
             double futurePoseDist = getDistanceToGoal(futurePose.get());
             wheel1.set(getControlledWheelPower(lu_values.getWheel(futurePoseDist)));
             wheel2.set(getControlledWheelPower(lu_values.getWheel(futurePoseDist)));
-//            wheel1.set(getControlledWheelPower(custom_vel));
-//            wheel2.set(getControlledWheelPower(custom_vel));
+
+//            FtcDashboard.getInstance().getTelemetry().addData("Dist : ", futurePoseDist);
+//            FtcDashboard.getInstance().getTelemetry().addData("Out : ", getControlledWheelPower(custom_vel));
+//            FtcDashboard.getInstance().getTelemetry().update();
         }
     }
 
@@ -302,7 +305,7 @@ public class Shooter extends SubsystemBase {
     }
 
     public boolean wheelsAtSpeed() {
-        return Math.abs(veloController.getPositionError()) < 50;
+        return Math.abs(veloController.getPositionError()) < 90;
     }
 
     // ----------------------------------------- Turret ----------------------------------------- //
@@ -319,6 +322,7 @@ public class Shooter extends SubsystemBase {
     }
 
     public boolean turretInRange() {
+//        if(shooterLock == ShooterGoal.AUTO_CUSTOM) {
         double angleToGoal = getAngleToGoal();
         return angleToGoal > MIN_TURRET_ANGLE && angleToGoal < MAX_TURRET_ANGLE;
     }
@@ -407,7 +411,7 @@ public class Shooter extends SubsystemBase {
         }
 
         double stationary_angle = Math.toRadians(getAngleToGoal());
-        double artifact_velocity = lu_values.getWheel(getDistanceToGoal(futurePose.get())); // piapaaa
+        double artifact_velocity = lu_values.getWheel(getDistanceToGoal(futurePose.get()));
 
         Vector stationaryVec = new Vector(artifact_velocity, stationary_angle, true);
         Vector robotVelocityVec = new Vector(curPoseVel.get().getX(), curPoseVel.get().getY(), false);
@@ -435,6 +439,10 @@ public class Shooter extends SubsystemBase {
     }
 
     public boolean inLUTRange() {
+        if (inAuto) {
+            return getDistanceToGoal(futurePose.get()) > 24;
+        }
+
         return lu_values.inRange(getDistanceToGoal(futurePose.get()));
     }
 
@@ -472,5 +480,13 @@ public class Shooter extends SubsystemBase {
     public void enableAutoCustom(double customAngle) {
         shooterLock = ShooterGoal.AUTO_CUSTOM;
         auto_custom_angle = customAngle;
+    }
+
+    public void enableSmallTriangleAccel() {
+        small_triangle_accel = true;
+    }
+
+    public void disableSmallTriangleAccel() {
+        small_triangle_accel = false;
     }
 }

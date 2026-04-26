@@ -98,7 +98,8 @@ public class BLUE_FAR_STACK_3 extends CommandOpMode {
                 new WaitCommand(300),
                 new ParallelCommandGroup(
                         new SequentialCommandGroup(
-                                new WaitCommand(500),
+                                commandVault.reverseIntake(),
+                                new WaitCommand(400),
                                 commandVault.stopIntakeProc()
                         ),
                         new FollowerCommand(follower, paths.StackToShoot,1)

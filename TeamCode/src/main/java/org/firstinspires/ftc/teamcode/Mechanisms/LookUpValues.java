@@ -59,8 +59,10 @@ public class LookUpValues {
         wheelSpeed.add(133.2, 0.832);
         wheelSpeed.add(142.94, 0.83);
         wheelSpeed.add(151.37, 0.856);
-        wheelSpeed.add(165, 0.87);
+        wheelSpeed.add(164.46, 0.891);
 
+
+        hoodAngle.add(23.92697, 0.0);
         hoodAngle.add(49.58, 0.0);
         hoodAngle.add(62.66, 0.17);
         hoodAngle.add(77.99, 0.23);
@@ -70,7 +72,7 @@ public class LookUpValues {
         hoodAngle.add(133.2, 0.7);
         hoodAngle.add(142.94, 0.63);
         hoodAngle.add(151.37, 0.7);
-        hoodAngle.add(165, 0.72);
+        hoodAngle.add(164.46, 0.75);
 
         wheelSpeed.createLUT();
         hoodAngle.createLUT();
@@ -89,6 +91,6 @@ public class LookUpValues {
             return (dist > 48.4 && dist < 162.19);
         }
 
-        return (dist > 49.59 && dist < 164.9);
+        return (dist > 49.59 && dist < 164.3);
     }
 }

@@ -98,7 +98,8 @@ public class RED_FAR_STACK_3 extends CommandOpMode {
                 new WaitCommand(300),
                 new ParallelCommandGroup(
                         new SequentialCommandGroup(
-                                new WaitCommand(500),
+                                commandVault.reverseIntake(),
+                                new WaitCommand(400),
                                 commandVault.stopIntakeProc()
                         ),
                         new FollowerCommand(follower, paths.StackToShoot,1)
@@ -211,7 +212,7 @@ public class RED_FAR_STACK_3 extends CommandOpMode {
                                 commandVault.feedAllHingesFingersAUTO()
                         ),
                         new InstantCommand(),
-                        () -> elapsedTime.getElapsedTimeSeconds() < 25.5
+                        () -> elapsedTime.getElapsedTimeSeconds() < 26.5
                 ),
                 new ParallelCommandGroup(
                         new FollowerCommand(follower, paths.ShootToPark),

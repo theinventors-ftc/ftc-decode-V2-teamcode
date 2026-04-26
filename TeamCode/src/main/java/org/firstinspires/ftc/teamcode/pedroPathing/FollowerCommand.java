@@ -37,12 +37,12 @@ public class FollowerCommand extends CommandBase {
         follower.followPath(path, velocity, holdEnd);
     }
 
-    @Override
-    public void end(boolean interrupted) {
-        if(!interrupted) return;
-
-        follower.breakFollowing();
-    }
+//    @Override
+//    public void end(boolean interrupted) {
+//        if(!interrupted) return;
+//
+//        follower.breakFollowing();
+//    }
 
     public boolean isFinished() {
         if (roll) {
