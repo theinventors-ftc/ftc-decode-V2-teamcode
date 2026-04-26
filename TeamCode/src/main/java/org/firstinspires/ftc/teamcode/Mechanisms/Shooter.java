@@ -146,7 +146,7 @@ public class Shooter extends SubsystemBase {
 
         goalPose = (alliance == DecodeRobotV2.Alliance.RED) ? REDGoalPose : BLUEGoalPose;
 
-        coeffsTurret = new PIDFExCoeffs( //
+        coeffsTurret = new PIDFExCoeffs(
                 0.055,
                 0.13,
                 0.00225,
@@ -177,6 +177,8 @@ public class Shooter extends SubsystemBase {
         voltage = () -> robotMap.getBattery().getVoltage();
 
         poseEstimation_dt = inAuto ? 0.34 : 0.21;
+
+        enableWheels();
     }
 
     @Override
@@ -229,12 +231,6 @@ public class Shooter extends SubsystemBase {
                 MAX_TURRET_POWER
         ));
 
-//        if(accelWheel && !accelVelTarget()) {
-//            wheel1.set(1.0);
-//            wheel2.set(1.0);
-//            accelWheel = false;
-//        }
-
         if(!inLUTRange()) {
             if(inAuto) {
                 wheel1.set(getControlledWheelPower(0.58));
@@ -265,10 +261,6 @@ public class Shooter extends SubsystemBase {
             double futurePoseDist = getDistanceToGoal(futurePose.get());
             wheel1.set(getControlledWheelPower(lu_values.getWheel(futurePoseDist)));
             wheel2.set(getControlledWheelPower(lu_values.getWheel(futurePoseDist)));
-
-//            FtcDashboard.getInstance().getTelemetry().addData("Dist : ", futurePoseDist);
-//            FtcDashboard.getInstance().getTelemetry().addData("Out : ", getControlledWheelPower(custom_vel));
-//            FtcDashboard.getInstance().getTelemetry().update();
         }
     }
 
@@ -322,7 +314,6 @@ public class Shooter extends SubsystemBase {
     }
 
     public boolean turretInRange() {
-//        if(shooterLock == ShooterGoal.AUTO_CUSTOM) {
         double angleToGoal = getAngleToGoal();
         return angleToGoal > MIN_TURRET_ANGLE && angleToGoal < MAX_TURRET_ANGLE;
     }

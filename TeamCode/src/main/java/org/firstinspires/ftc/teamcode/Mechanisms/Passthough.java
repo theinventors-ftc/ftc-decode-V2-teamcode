@@ -116,9 +116,6 @@ public class Passthough extends SubsystemBase {
 
     @Override
     public void periodic() {
-//        updateCurrentColors(); // TODO: REMOVE IF TOO MUCH I2C TRAFFIC
-//        shootingOrderMotif(); // TODO: REMOVE IF TOO MUCH CALCULATION
-
         telemetry.addData("[Passthough] MOTIF: ", motif);
         telemetry.addData("[Passthough] FingerF State: ", getState(0));
         telemetry.addData("[Passthough] FingerC State: ", getState(1));

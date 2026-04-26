@@ -267,23 +267,9 @@ public class ShooterLimelight extends SubsystemBase {
                 MAX_TURRET_POWER
         ));
 
-//        turretMotor.set(Range.clip(
-//                turretController.calculate(getTurretAngle()),
-//                -MAX_TURRET_POWER,
-//                MAX_TURRET_POWER
-//        ));
-
         if(!inLUTRange()) return;
 
         // ---------------------------------------- Hood ---------------------------------------- //
-//        hoodServo.setPosition(Range.scale(
-//                customHOOD,
-//                0,
-//                1,
-//                MIN_HOOD_POS,
-//                MAX_HOOD_POS
-//        ));
-
         hoodServo.setPosition(Range.scale(
                 (hoodLockEnabled ? Range.clip(hoodAngle.get(getDistanceToGoal())-0.48, 0.0, 1.0) : 0),
                 0,
@@ -292,15 +278,10 @@ public class ShooterLimelight extends SubsystemBase {
                 MAX_HOOD_POS
         ));
 
-//        FtcDashboard.getInstance().getTelemetry().addData("LUT Vel: ", wheelSpeed.get(getDistanceToGoal())*0.964);
-//        FtcDashboard.getInstance().getTelemetry().addData("LUT Hood: ", hoodAngle.get(getDistanceToGoal()));
-
         // --------------------------------------- Wheels --------------------------------------- //
         if(wheelsEnabled) {
             wheel1.set(getControlledWheelPower(wheelSpeed.get(getDistanceToGoal())*0.964));
             wheel2.set(getControlledWheelPower(wheelSpeed.get(getDistanceToGoal())*0.964));
-//            wheel1.set(getControlledWheelPower(customVEL));
-//            wheel2.set(getControlledWheelPower(customVEL));
         }
     }
 
@@ -342,7 +323,6 @@ public class ShooterLimelight extends SubsystemBase {
 
     // ----------------------------------------- Turret ----------------------------------------- //
     public double getTurretAngle() {
-//        return (((turretMotor.getCurrentPosition())%TICKS_PER_FULL_ROTATION)*360.0/TICKS_PER_FULL_ROTATION)*(180.0/181.4)*(178.0/180.0) - turretZeroOffset;
         return (((turretMotor.getCurrentPosition())%TICKS_PER_FULL_ROTATION)*360.0/TICKS_PER_FULL_ROTATION)*(180.0/180.3797) - turretZeroOffset;
     }
 
@@ -438,12 +418,4 @@ public class ShooterLimelight extends SubsystemBase {
     public void disableObelisk() {
         //pare mou mia pipa
     }
-
-//    public void enableObelisk() {
-//        goalOrObelisk = false;
-//    }
-//
-//    public void disableObelisk() {
-//        goalOrObelisk = true;
-//    }
 }

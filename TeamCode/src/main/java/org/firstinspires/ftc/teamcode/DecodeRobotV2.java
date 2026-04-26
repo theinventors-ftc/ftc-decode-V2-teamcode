@@ -5,6 +5,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.command.CommandScheduler;
 import com.arcrobotics.ftclib.command.ConditionalCommand;
 import com.arcrobotics.ftclib.command.InstantCommand;
+import com.arcrobotics.ftclib.command.SequentialCommandGroup;
 import com.arcrobotics.ftclib.command.button.Trigger;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 
@@ -15,7 +16,6 @@ import org.firstinspires.ftc.teamcode.Drive.MecanumDrive;
 import org.firstinspires.ftc.teamcode.Hardware.GamepadExEx;
 import org.firstinspires.ftc.teamcode.Hardware.PinpointYawWrapper;
 import org.firstinspires.ftc.teamcode.Mechanisms.CommandSeriesVault;
-import org.firstinspires.ftc.teamcode.Mechanisms.Detection;
 import org.firstinspires.ftc.teamcode.Mechanisms.Intake;
 import org.firstinspires.ftc.teamcode.Mechanisms.Passthough;
 import org.firstinspires.ftc.teamcode.Mechanisms.Shooter;
@@ -46,13 +46,9 @@ public class DecodeRobotV2 {
     protected Intake intake;
     protected Passthough passthough;
     protected Shooter shooter;
-    protected Detection detection;
     protected CommandSeriesVault commandSeriesVault;
 
     protected MotifStorage.Motif motif;
-
-    public static boolean zeroPose = false;
-
     private PIDFEx headingController;
     private boolean headingControlEnabled = false;
 
@@ -64,7 +60,6 @@ public class DecodeRobotV2 {
 
         initCommon(robotMap, driveConstants);
         initTele(robotMap, pose);
-//        this.initMechanismsTeleOp(robotMap);
 
 //         Init Mechanisms when driver starts moving the robot
         new Trigger(() -> (Math.abs(drivetrainForward()) > 0.1 ||
@@ -126,11 +121,6 @@ public class DecodeRobotV2 {
     }
 
     public void drive_update(Pose pose) {
-        if(zeroPose) {
-            teleOpLocalizer.setPose(new Pose(0, 0, 0));
-            zeroPose = false;
-        }
-
         drive.drive(
             pose.getX(),
             pose.getY(),
@@ -220,8 +210,7 @@ public class DecodeRobotV2 {
 
         intake = new Intake(robotMap);
         passthough = new Passthough(robotMap, getMotif());
-//        detection = new Detection(robotMap);
-//        detection.setState(Detection.DetectionState.GOAL);
+
         headingController = new PIDFEx(2.1, 0, 0.24, 0.008, 0.2, 0.0, Math.toRadians(40), 0.5);
 
         shooter = new Shooter(robotMap, this::getPose, this::getPoseVelocity,
@@ -286,11 +275,11 @@ public class DecodeRobotV2 {
                 () -> (shooter.turretInRange() && shooter.inLUTRange() && shooter.areWheelsEnabled())
         ));
 
-        new Trigger(() -> toolOp.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) > 0.75).whenActive(new ConditionalCommand(
-                commandSeriesVault.feedAllFingersMOTIF(),
-                new InstantCommand(),
-                () -> shooter.turretInRange() && shooter.inLUTRange() && shooter.areWheelsEnabled()// && passthough.getShooting_order(0) != -1
-        ));
+//        new Trigger(() -> toolOp.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) > 0.75).whenActive(new ConditionalCommand(
+//                commandSeriesVault.feedAllFingersMOTIF(),
+//                new InstantCommand(),
+//                () -> shooter.turretInRange() && shooter.inLUTRange() && shooter.areWheelsEnabled()
+//        ));
 
         toolOp.getGamepadButton(GamepadKeys.Button.START).whenPressed(
                 new InstantCommand(shooter::zeroTurret)
@@ -313,26 +302,6 @@ public class DecodeRobotV2 {
                 commandSeriesVault.unparkShooter(),
                 () -> !shooter.isParked()
         ));
-
-//        toolOp.getGamepadButton(GamepadKeys.Button.).whenPressed(
-//                new InstantCommand(detection::setGoalPip)
-//        );
-
-//        driverOp.getGamepadButton(GamepadKeys.Button.BACK).whenPressed( //11+1/8, 9+1/8
-//                new ConditionalCommand(
-//                        new InstantCommand(() -> teleOpLocalizer.setVector(
-//                                new Vector(72-(9+1.0/8.0), -24-(11+1.0/8.0)))
-//                        ),
-//                        new InstantCommand(() -> teleOpLocalizer.setVector(
-//                                new Vector(72-(9+1.0/8.0), 24+(11+1.0/8.0)))
-//                        ),
-//                        () -> getAlliance() != Alliance.BLUE
-//                )
-//        );
-
-//        toolOp.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER).whenPressed(
-//                new InstantCommand(() -> teleOpLocalizer.setPose(new Pose(0, 0, 0)))
-//        );
 
         toolOp.getGamepadButton(GamepadKeys.Button.BACK).whenPressed(this::switchMotif);
 

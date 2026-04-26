@@ -29,6 +29,8 @@ public class Intake extends SubsystemBase {
         intakeMotor.setZeroPowerBehavior(MotorExEx.ZeroPowerBehavior.FLOAT);
         intakeMotor.setInverted(true);
 
+        intake();
+
         this.telemetry = robotMap.getTelemetry();
     }
 
