@@ -440,7 +440,7 @@ public class Shooter extends SubsystemBase {
 
     public boolean inLUTRange() {
         if (inAuto) {
-            return getDistanceToGoal(futurePose.get()) > 24;
+            return getDistanceToGoal(futurePose.get()) > 24 && getDistanceToGoal(futurePose.get()) < 164.5;
         }
 
         return lu_values.inRange(getDistanceToGoal(futurePose.get()));

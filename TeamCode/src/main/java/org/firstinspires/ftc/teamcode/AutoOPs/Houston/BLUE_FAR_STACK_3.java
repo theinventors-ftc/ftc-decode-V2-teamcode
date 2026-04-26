@@ -314,7 +314,7 @@ public class BLUE_FAR_STACK_3 extends CommandOpMode {
             ShootToPark = follower.pathBuilder().addPath(
                             new BezierLine(
                                     new Pose(144-94.0, wall_y),
-                                    new Pose(144-104.0, 13)
+                                    new Pose(144-108, 13)
                             )
                     ).setConstantHeadingInterpolation(Math.toRadians(180))
                     .build();
