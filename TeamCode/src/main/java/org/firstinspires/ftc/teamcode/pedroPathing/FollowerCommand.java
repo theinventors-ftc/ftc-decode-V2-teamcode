@@ -35,22 +35,23 @@ public class FollowerCommand extends CommandBase {
 
     public void initialize() {
         follower.followPath(path, velocity, holdEnd);
-//        follower.followPath(path);
     }
 
-    @Override
-    public void execute() {
-//        follower.update();
-    }
+//    @Override
+//    public void end(boolean interrupted) {
+//        if(!interrupted) return;
+//
+//        follower.breakFollowing();
+//    }
 
     public boolean isFinished() {
-//        return follower.atParametricEnd();
         if (roll) {
             if (follower.getCurrentTValue() >= 0.95) {
                 follower.pausePathFollowing();
                 return true;
             }
         }
+
         return !follower.isBusy();
     }
 }

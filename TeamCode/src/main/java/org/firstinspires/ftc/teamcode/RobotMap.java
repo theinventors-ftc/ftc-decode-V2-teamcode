@@ -18,6 +18,8 @@ import org.firstinspires.ftc.teamcode.PurePursuit.HardwareRelated.Localization.G
 import java.util.List;
 
 public class RobotMap {
+
+    public static final double ROBOT_WIDTH = 17.1, ROBOT_LENGTH = 17.9;
     private HardwareMap hm;
 
     private GamepadExEx driverOp, toolOp;
@@ -58,7 +60,7 @@ public class RobotMap {
         this.telemetry.setMsTransmissionInterval(11);
 
         if(driverOp != null) this.driverOp = new GamepadExEx(driverOp);
-        if(toolOp != null) this.toolOp = new GamepadExEx(toolOp);
+        if(toolOp != null) this.toolOp = new GamepadExEx(driverOp);
 
         hubs = hm.getAll(LynxModule.class);
         battery = new Battery(hm);

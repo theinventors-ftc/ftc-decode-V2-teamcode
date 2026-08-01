@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.RobotMap;
 
 
 @Disabled
-@TeleOp(name = "Localization Test", group = "Test")
+@TeleOp(name = "Our Localization Test", group = "Test")
 public class LocalizationTest extends LinearOpMode {
 
     private RobotMap robotMap;

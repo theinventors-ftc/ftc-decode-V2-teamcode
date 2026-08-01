@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.Mechanisms;
 
+import androidx.core.widget.TintableCheckedTextView;
+
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.command.SubsystemBase;
 
@@ -26,6 +28,8 @@ public class Intake extends SubsystemBase {
         this.intakeMotor = robotMap.getIntakeMotor();
         intakeMotor.setZeroPowerBehavior(MotorExEx.ZeroPowerBehavior.FLOAT);
         intakeMotor.setInverted(true);
+
+        intake();
 
         this.telemetry = robotMap.getTelemetry();
     }

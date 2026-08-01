@@ -17,7 +17,6 @@ public class Passthough extends SubsystemBase {
     // ---------------------------------------- Hardware ---------------------------------------- //
     private final ServoImplEx fingerF, fingerC, fingerR; // F: Front, C: Center, R: Rear
     private ColorSensor colorSensorF, colorSensorC, colorSensorR; // F: Front, C: Center, R: Rear
-
     private final ServoImplEx[] fingers;
     private final ColorSensor[] colorSensors;
 
@@ -31,9 +30,9 @@ public class Passthough extends SubsystemBase {
         FLICK;
 
         double[][] positions = {
-                {0.92, 0.975, 0.44, 0.86, 0.76}, // FRONT
-                {0.9, 0.955, 0.42, 0.86, 0.75}, // CENTER
-                {0.08, 0.045, 0.58, 0.13, 0.22}  // REAR
+                {0.925, 0.975, 0.39, 0.95, 0.78}, // FRONT
+                {0.9, 0.955, 0.375, 0.93, 0.775}, // CENTER
+                {0.08, 0.045, 0.625, 0.056, 0.21}  // REAR
         };
 
         public double getPosition(int idx) {
@@ -117,9 +116,6 @@ public class Passthough extends SubsystemBase {
 
     @Override
     public void periodic() {
-//        updateCurrentColors(); // TODO: REMOVE IF TOO MUCH I2C TRAFFIC
-//        shootingOrderMotif(); // TODO: REMOVE IF TOO MUCH CALCULATION
-
         telemetry.addData("[Passthough] MOTIF: ", motif);
         telemetry.addData("[Passthough] FingerF State: ", getState(0));
         telemetry.addData("[Passthough] FingerC State: ", getState(1));

@@ -2,12 +2,13 @@ package org.firstinspires.ftc.teamcode.Tests;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.command.CommandOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Mechanisms.Detection;
 import org.firstinspires.ftc.teamcode.RobotMap;
 
-//@Disabled
+@Disabled
 @Config
 @TeleOp(name="MotifTest", group="Tests")
 public class MotifTest extends CommandOpMode {
