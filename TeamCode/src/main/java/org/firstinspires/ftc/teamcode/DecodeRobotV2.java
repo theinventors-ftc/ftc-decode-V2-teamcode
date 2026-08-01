@@ -297,23 +297,23 @@ public class DecodeRobotV2 {
                 new InstantCommand(shooter::resetOffset)
         );
 
-        new Trigger(() -> toolOp.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) > 0.75).whenActive(new ConditionalCommand(
-                commandSeriesVault.parkShooter(),
-                commandSeriesVault.unparkShooter(),
-                () -> !shooter.isParked()
-        ));
+//        new Trigger(() -> toolOp.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) > 0.75).whenActive(new ConditionalCommand(
+//                commandSeriesVault.parkShooter(),
+//                commandSeriesVault.unparkShooter(),
+//                () -> !shooter.isParked()
+//        ));
 
-        toolOp.getGamepadButton(GamepadKeys.Button.BACK).whenPressed(this::switchMotif);
+//        toolOp.getGamepadButton(GamepadKeys.Button.BACK).whenPressed(this::switchMotif);
 
-        driverOp.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER).whenPressed(new ConditionalCommand(
-                new InstantCommand(this::disableGateHeadingControl),
-                new InstantCommand(this::enableGateHeadingControl),
-                () -> headingControlEnabled
-        ));
-
-        new Trigger(() -> Math.abs(driverOp.getRightX()) > 0.3).whenActive(
-                new InstantCommand(this::disableGateHeadingControl)
-        );
+//        driverOp.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER).whenPressed(new ConditionalCommand(
+//                new InstantCommand(this::disableGateHeadingControl),
+//                new InstantCommand(this::enableGateHeadingControl),
+//                () -> headingControlEnabled
+//        ));
+//
+//        new Trigger(() -> Math.abs(driverOp.getRightX()) > 0.3).whenActive(
+//                new InstantCommand(this::disableGateHeadingControl)
+//        );
     }
 
     public void switchMotif() {

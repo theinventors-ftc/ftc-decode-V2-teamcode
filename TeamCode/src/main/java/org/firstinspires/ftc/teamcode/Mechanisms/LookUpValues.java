@@ -46,6 +46,10 @@ public class LookUpValues {
             hoodAngle.add(142.89, 0.64);
             hoodAngle.add(153.9, 0.64);
             hoodAngle.add(162.2, 0.64);
+
+            wheelSpeed.createLUT();
+            hoodAngle.createLUT();
+
             return;
         }
 

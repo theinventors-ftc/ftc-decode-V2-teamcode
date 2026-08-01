@@ -171,7 +171,7 @@ public class Shooter extends SubsystemBase {
         );
         veloController = new PIDFEx(coeffsVelo);
 
-        lu_values = new LookUpValues(LookUpValues.CurrentWheel.BRONZE_HEAVY);
+        lu_values = new LookUpValues(LookUpValues.CurrentWheel.BLUE_LIGHT);
         lu_values.fiilWithValues();
 
         voltage = () -> robotMap.getBattery().getVoltage();
@@ -431,7 +431,7 @@ public class Shooter extends SubsystemBase {
 
     public boolean inLUTRange() {
         if (inAuto) {
-            return getDistanceToGoal(futurePose.get()) > 24 && getDistanceToGoal(futurePose.get()) < 164.5;
+            return getDistanceToGoal(futurePose.get()) > 24 && getDistanceToGoal(futurePose.get()) < 162.19;
         }
 
         return lu_values.inRange(getDistanceToGoal(futurePose.get()));

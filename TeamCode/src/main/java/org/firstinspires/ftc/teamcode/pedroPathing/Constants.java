@@ -38,6 +38,7 @@ public class Constants {
 //        .centripetalScaling(0.0003);
         .headingPIDFCoefficients(new PIDFCoefficients(1.8, 0, 0.002, 0.008))
         .secondaryHeadingPIDFCoefficients(new PIDFCoefficients(2,0.01,0.2,0))
+
         .predictiveBrakingCoefficients(new PredictiveBrakingCoefficients(0.21, 0.06870882327783609, 0.001685008056645471)) // (kP, kLinear, kQuadratic)
         .centripetalScaling(0);
 
